@@ -1,0 +1,2942 @@
+{
+    "active_campaign_id": "6d5a672f-ee8f-490b-a5fd-7e0135c5524f",
+    "users": [
+        {
+            "id": "admin_user",
+            "name": "Admin User",
+            "password": "admin123",
+            "role": "Admin",
+            "email": "admin@admin.com"
+        },
+        {
+            "id": "user_43b05f69",
+            "name": "Sales Rep 1",
+            "email": "sales1@example.com",
+            "password": "password123",
+            "role": "Sales Rep"
+        }
+    ],
+    "settings": {
+        "gemini_api_key": "",
+        "smtp_server": "smtp.gmail.com",
+        "smtp_port": 587,
+        "smtp_user": "primary@example.com",
+        "smtp_password": "",
+        "imap_server": "",
+        "imap_port": 993,
+        "sender_name": "Primary Sales Team",
+        "sender_email": "primary@example.com",
+        "daily_limit": 50,
+        "min_delay": 1,
+        "max_delay": 15,
+        "auto_followup_delay_days": 24,
+        "automation_mode": true,
+        "rotation_index": 0,
+        "sender_accounts": []
+    },
+    "campaigns": {
+        "default": {
+            "id": "default",
+            "name": "Default Session",
+            "created_at": "2026-06-09T14:03:21.168088",
+            "leads": [],
+            "logs": [
+                {
+                    "timestamp": "2026-06-09T14:03:21.168128",
+                    "level": "INFO",
+                    "message": "Campaign session 'Default Session' created.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T14:03:21.168134",
+                    "level": "INFO",
+                    "message": "Campaign session 'Default Session' deleted.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T14:03:31.897655",
+                    "level": "SYSTEM",
+                    "message": "Campaign background worker thread started.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T14:04:18.484055",
+                    "level": "SYSTEM",
+                    "message": "Campaign background worker thread started.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T14:04:25.994408",
+                    "level": "SYSTEM",
+                    "message": "Campaign background worker thread started.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T17:52:44.229266",
+                    "level": "INFO",
+                    "message": "Campaign session 'RotationTest-1781007753' deleted.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T17:52:44.233081",
+                    "level": "INFO",
+                    "message": "Campaign settings updated.",
+                    "lead_id": null
+                }
+            ],
+            "campaign_status": {
+                "is_running": false,
+                "total_sent": 0,
+                "total_replies": 0,
+                "total_interested": 0,
+                "total_not_interested": 0,
+                "total_leads": 0,
+                "total_junk": 0
+            }
+        },
+        "6d5a672f-ee8f-490b-a5fd-7e0135c5524f": {
+            "id": "6d5a672f-ee8f-490b-a5fd-7e0135c5524f",
+            "name": "Pasted Leads - 2026-06-09 14:05",
+            "created_at": "2026-06-09T14:05:14.931804",
+            "leads": [
+                {
+                    "id": "61caa905-7a54-4c1b-833f-a0fd32da709f",
+                    "company": "TechSolutions",
+                    "name": "Alice Smith",
+                    "title": "CTO",
+                    "email": "alice@techsolutions.com",
+                    "company_size": "51-200",
+                    "industry": "SaaS",
+                    "location": "",
+                    "branch": "",
+                    "notes": "Looking to scale outreach to marketing teams.",
+                    "icp_tags": "",
+                    "status": "Junk",
+                    "score": 89,
+                    "matched_segment": {
+                        "icp_fit": "B2B Software & IT Services Provider",
+                        "branch_target": "Sales & Tech Partnerships",
+                        "pain_point": "Low outbound conversion rates",
+                        "go4db_offer": "B2B Tech Buyers Contact List",
+                        "data_usecase": "To target IT leaders, software buyers, and technology decision makers directly without wasting ad spend."
+                    },
+                    "email_drafts": {
+                        "initial_pitch": {
+                            "subject": "Growing outbound leads for TechSolutions?",
+                            "body": "Hi Alice,\n\nI was looking at TechSolutions and noticed your focus on B2B client acquisition. Typically, companies like yours run into the bottleneck of low outbound conversion rates.\n\nAt Go4Database, we recently compiled our \"B2B Tech Buyers Contact List\" which includes over 350 million business contacts globally. For TechSolutions, this could be used to target it leaders, software buyers, and technology decision makers directly without wasting ad spend..\n\nWe've verified all emails and LinkedIn profiles to keep bounce rates under 5%.\n\nWould you be open to a quick look at a sample sheet of 20 leads matching your ICP next week?\n\nBest regards,\n[Sender Name]\nGo4Database Sales"
+                        },
+                        "follow_up_1": {
+                            "subject": "Re: Sample leads for TechSolutions?",
+                            "body": "Hi Alice,\n\nI know you are likely busy, so I put together a quick sample segment of 5 verified contacts directly matching your ideal buyer profile. Here is what they look like:\n\n1. Director of Growth, tech startup (verified business email + direct dial)\n2. VP of Marketing, retail brand (verified business email + LinkedIn URL)\n3. Head of Sales, mid-market IT services company\n\nWe have thousands more contacts in this exact segment. If you'd like to get the full list to test with your outreach tool, let me know when is a good time to connect.\n\nBest,\n[Sender Name]"
+                        },
+                        "follow_up_2": {
+                            "subject": "Closing the loop / TechSolutions",
+                            "body": "Hi Alice,\n\nI haven't heard back, so I'll assume that growing your database of prospects isn't a priority for TechSolutions right now.\n\nIf things change, or if you'd like to browse our list directory at Go4Database down the road, feel free to reach out anytime.\n\nIf you aren't the right contact for B2B lists, I'd appreciate it if you could point me to who is. Otherwise, this is the last email you'll receive from me.\n\nThanks,\n[Sender Name]"
+                        }
+                    },
+                    "sequence_step": 1,
+                    "last_sent_time": "2026-06-09T14:05:34.118135",
+                    "is_approved": true,
+                    "history": [
+                        {
+                            "timestamp": "2026-06-09T14:05:14.934732",
+                            "action": "Ingested",
+                            "details": "Lead added to outreach queue"
+                        },
+                        {
+                            "timestamp": "2026-06-09T14:05:21.445552",
+                            "action": "AI Analysis Started",
+                            "details": "Running Go4Database matching rules & copy creation..."
+                        },
+                        {
+                            "timestamp": "2026-06-09T14:05:23.436621",
+                            "action": "AI Analysis Completed",
+                            "details": "Matched Offer: B2B Tech Buyers Contact List. Email drafts generated (Score: 89)."
+                        },
+                        {
+                            "timestamp": "2026-06-09T14:05:34.118404",
+                            "action": "Sending Email 1",
+                            "details": "Preparing to send initial pitch: 'Growing outbound leads for TechSolutions?'"
+                        },
+                        {
+                            "timestamp": "2026-06-09T14:05:34.118135",
+                            "action": "Email Sent (Initial)",
+                            "details": "Email sent successfully via SMTP to alice@techsolutions.com\nSubject: Growing outbound leads for TechSolutions?"
+                        },
+                        {
+                            "timestamp": "2026-06-09T14:06:16.266708",
+                            "action": "Email Bounced",
+                            "details": "Delivery bounce notice: Delivery Status Notification (Failure)\n\n** Address not found **\r\n\r\nYour message wasn't delivered to alice@techsolutions.com because the address couldn't be found or is unable to receive email.\r\n\r\n\r\n\r\nThe response from the remote server was:\r\n551 recipient unrecognized..."
+                        }
+                    ],
+                    "replies": [],
+                    "last_action_date": "2026-06-09T14:05:34.118411"
+                },
+                {
+                    "id": "b3150f42-25ba-4eb6-b36c-1c7fc0c3efb1",
+                    "company": "Global Health",
+                    "name": "Carol White",
+                    "title": "Director",
+                    "email": "kartikpuri.bx@gmail.com",
+                    "company_size": "201-500",
+                    "industry": "Healthcare",
+                    "location": "",
+                    "branch": "",
+                    "notes": "Wants direct dials for medical clinics.",
+                    "icp_tags": "",
+                    "status": "Interested",
+                    "score": 100,
+                    "matched_segment": {
+                        "icp_fit": "Healthcare Providers & Medical Clinics",
+                        "branch_target": "Practice Operations",
+                        "pain_point": "Healthcare gatekeepers",
+                        "go4db_offer": "Local Healthcare & Medical Clinics Directory",
+                        "data_usecase": "To pitch medical supply vendors, specialized clinic software, billing systems, or local search marketing services."
+                    },
+                    "email_drafts": {
+                        "initial_pitch": {
+                            "subject": "Growing outbound leads for Global Health?",
+                            "body": "Hi Carol,\n\nI was looking at Global Health and noticed your focus on B2B client acquisition. Typically, companies like yours run into the bottleneck of healthcare gatekeepers.\n\nAt Go4Database, we recently compiled our \"Local Healthcare & Medical Clinics Directory\" which includes over 350 million business contacts globally. For Global Health, this could be used to pitch medical supply vendors, specialized clinic software, billing systems, or local search marketing services..\n\nWe've verified all emails and LinkedIn profiles to keep bounce rates under 5%.\n\nWould you be open to a quick look at a sample sheet of 20 leads matching your ICP next week?\n\nBest regards,\n[Sender Name]\nGo4Database Sales"
+                        },
+                        "follow_up_1": {
+                            "subject": "Re: Sample leads for Global Health?",
+                            "body": "Hi Carol,\n\nI know you are likely busy, so I put together a quick sample segment of 5 verified contacts directly matching your ideal buyer profile. Here is what they look like:\n\n1. Director of Growth, tech startup (verified business email + direct dial)\n2. VP of Marketing, retail brand (verified business email + LinkedIn URL)\n3. Head of Sales, mid-market IT services company\n\nWe have thousands more contacts in this exact segment. If you'd like to get the full list to test with your outreach tool, let me know when is a good time to connect.\n\nBest,\n[Sender Name]"
+                        },
+                        "follow_up_2": {
+                            "subject": "Closing the loop / Global Health",
+                            "body": "Hi Carol,\n\nI haven't heard back, so I'll assume that growing your database of prospects isn't a priority for Global Health right now.\n\nIf things change, or if you'd like to browse our list directory at Go4Database down the road, feel free to reach out anytime.\n\nIf you aren't the right contact for B2B lists, I'd appreciate it if you could point me to who is. Otherwise, this is the last email you'll receive from me.\n\nThanks,\n[Sender Name]"
+                        },
+                        "reply_nurture": {
+                            "subject": "Re: Growing outbound leads for Global Health?",
+                            "body": "Hi Carol,\n\nThanks for the quick response! I'm thrilled you'd like to take a look at the Local Healthcare & Medical Clinics Directory.\n\nI've attached a customized sample of 15 contacts in Excel format matching your criteria. You can also schedule a brief 5-minute call using my calendar link: [Calendar Link].\n\nLet me know what you think of the sample records!\n\nBest,\n[Sender Name]"
+                        }
+                    },
+                    "sequence_step": 1,
+                    "last_sent_time": "2026-06-09T14:06:16.271547",
+                    "is_approved": true,
+                    "history": [
+                        {
+                            "timestamp": "2026-06-09T14:05:14.934817",
+                            "action": "Ingested",
+                            "details": "Lead added to outreach queue"
+                        },
+                        {
+                            "timestamp": "2026-06-09T14:05:24.043237",
+                            "action": "AI Analysis Started",
+                            "details": "Running Go4Database matching rules & copy creation..."
+                        },
+                        {
+                            "timestamp": "2026-06-09T14:05:24.624956",
+                            "action": "AI Analysis Completed",
+                            "details": "Matched Offer: Local Healthcare & Medical Clinics Directory. Email drafts generated (Score: 100)."
+                        },
+                        {
+                            "timestamp": "2026-06-09T14:06:16.271635",
+                            "action": "Sending Email 1",
+                            "details": "Preparing to send initial pitch: 'Growing outbound leads for Global Health?'"
+                        },
+                        {
+                            "timestamp": "2026-06-09T14:06:16.271547",
+                            "action": "Email Sent (Initial)",
+                            "details": "Email sent successfully via SMTP to kartikpuri.bx@gmail.com\nSubject: Growing outbound leads for Global Health?"
+                        },
+                        {
+                            "timestamp": "2026-06-09T14:08:36.180051",
+                            "action": "Reply Received",
+                            "details": "[REAL] message: \"Yes, I would be interested.\r\n\r\nOn Tue, 9 Jun 2026 at 2:06\u202fPM, Anna <anna@heygo4database.com> wrote:\r...\""
+                        },
+                        {
+                            "timestamp": "2026-06-09T14:08:37.775268",
+                            "action": "Nurturing Triggered",
+                            "details": "Generated nurturing follow-up response:\n\nHi Carol,\n\nThanks for the quick response! I'm thrilled you'd like to take a look at the Local Healthcare & Medical Clinics Directory.\n\nI've attached a customized sample of 15 contacts in Excel format matching your criteria. You can also schedule a brief 5-minute call using my calendar link: [Calendar Link].\n\nLet me know what you think of the sample records!\n\nBest,\n[Sender Name]"
+                        },
+                        {
+                            "timestamp": "2026-06-09T14:08:59.561076",
+                            "action": "Marked Interested",
+                            "details": "Marked manually as interested."
+                        },
+                        {
+                            "timestamp": "2026-06-09T14:09:00.002590",
+                            "action": "Marked Interested",
+                            "details": "Marked manually as interested."
+                        },
+                        {
+                            "timestamp": "2026-06-10T13:55:02.645555",
+                            "action": "Lead Assigned",
+                            "details": "Lead assigned to Sales Rep 1 by Admin User."
+                        },
+                        {
+                            "timestamp": "2026-06-10T13:59:41.217787",
+                            "action": "Lead Assigned",
+                            "details": "Lead assigned to Admin User by Sales Rep 1."
+                        },
+                        {
+                            "timestamp": "2026-06-10T13:59:44.024752",
+                            "action": "Lead Assigned",
+                            "details": "Lead assigned to Sales Rep 1 by Sales Rep 1."
+                        },
+                        {
+                            "timestamp": "2026-06-10T14:21:52.410743",
+                            "action": "Lead Assigned",
+                            "details": "Lead assigned to Sales Rep 1 by Admin User."
+                        },
+                        {
+                            "timestamp": "2026-06-10T14:41:53.794718",
+                            "action": "Lead Assigned",
+                            "details": "Lead assigned to Sales Rep 1 by Admin User."
+                        },
+                        {
+                            "timestamp": "2026-06-10T14:42:03.211829",
+                            "action": "Lead Assigned",
+                            "details": "Lead assigned to Sales Rep 1 by Admin User."
+                        }
+                    ],
+                    "replies": [
+                        {
+                            "timestamp": "2026-06-09T14:08:36.180031",
+                            "sender": "kartikpuri.bx@gmail.com",
+                            "body": "Yes, I would be interested.\r\n\r\nOn Tue, 9 Jun 2026 at 2:06\u202fPM, Anna <anna@heygo4database.com> wrote:\r\n\r\n> Hi Carol,\r\n>\r\n> I was looking at Global Health and noticed your focus on B2B client\r\n> acquisition. Typically, companies like yours run into the bottleneck of\r\n> healthcare gatekeepers.\r\n>\r\n> At Go4Database, we recently compiled our \"Local Healthcare & Medical\r\n> Clinics Directory\" which includes over 350 million business contacts\r\n> globally. For Global Health, this could be used to pitch medical supply\r\n> vendors, specialized clinic software, billing systems, or local search\r\n> marketing services..\r\n>\r\n> We've verified all emails and LinkedIn profiles to keep bounce rates under\r\n> 5%.\r\n>\r\n> Would you be open to a quick look at a sample sheet of 20 leads matching\r\n> your ICP next week?\r\n>\r\n> Best regards,\r\n> Anna\r\n> Go4Database Sales"
+                        }
+                    ],
+                    "last_action_date": "2026-06-09T14:09:00.002616",
+                    "assigned_to": "user_43b05f69"
+                }
+            ],
+            "logs": [
+                {
+                    "timestamp": "2026-06-09T14:05:14.931842",
+                    "level": "INFO",
+                    "message": "Campaign session 'Pasted Leads - 2026-06-09 14:05' created.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T14:05:14.933475",
+                    "level": "INFO",
+                    "message": "Switched active campaign to 'Pasted Leads - 2026-06-09 14:05'.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T14:05:14.934826",
+                    "level": "INFO",
+                    "message": "Ingested 3 new leads.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T14:05:21.443559",
+                    "level": "SYSTEM",
+                    "message": "Triggered AI Agent analysis pipeline for 3 leads.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T14:05:21.445567",
+                    "level": "INFO",
+                    "message": "Lead Alice Smith (TechSolutions) status changed to Analyzing: Running Go4Database matching rules & copy creation...",
+                    "lead_id": "61caa905-7a54-4c1b-833f-a0fd32da709f"
+                },
+                {
+                    "timestamp": "2026-06-09T14:05:23.438730",
+                    "level": "INFO",
+                    "message": "Lead Bob Johnson (Premier Realty) status changed to Analyzing: Running Go4Database matching rules & copy creation...",
+                    "lead_id": "d70f1431-84ca-4a7f-a71c-eaaad8263511"
+                },
+                {
+                    "timestamp": "2026-06-09T14:05:24.043256",
+                    "level": "INFO",
+                    "message": "Lead Carol White (Global Health) status changed to Analyzing: Running Go4Database matching rules & copy creation...",
+                    "lead_id": "b3150f42-25ba-4eb6-b36c-1c7fc0c3efb1"
+                },
+                {
+                    "timestamp": "2026-06-09T14:05:34.010073",
+                    "level": "INFO",
+                    "message": "Campaign started.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T14:05:34.118416",
+                    "level": "INFO",
+                    "message": "Lead Alice Smith (TechSolutions) status changed to Sending: Preparing to send initial pitch: 'Growing outbound leads for TechSolutions?'",
+                    "lead_id": "61caa905-7a54-4c1b-833f-a0fd32da709f"
+                },
+                {
+                    "timestamp": "2026-06-09T14:05:38.376389",
+                    "level": "INFO",
+                    "message": "Sent initial pitch to Alice Smith (TechSolutions).",
+                    "lead_id": "61caa905-7a54-4c1b-833f-a0fd32da709f"
+                },
+                {
+                    "timestamp": "2026-06-09T14:05:45.398183",
+                    "level": "INFO",
+                    "message": "Lead Bob Johnson (Premier Realty) status changed to Sending: Preparing to send initial pitch: 'Growing outbound leads for Premier Realty?'",
+                    "lead_id": "d70f1431-84ca-4a7f-a71c-eaaad8263511"
+                },
+                {
+                    "timestamp": "2026-06-09T14:05:50.725616",
+                    "level": "INFO",
+                    "message": "Sent initial pitch to Bob Johnson (Premier Realty).",
+                    "lead_id": "d70f1431-84ca-4a7f-a71c-eaaad8263511"
+                },
+                {
+                    "timestamp": "2026-06-09T14:06:16.266800",
+                    "level": "ERROR",
+                    "message": "Outbound email to Alice Smith (alice@techsolutions.com) bounced. Marked as Junk.",
+                    "lead_id": "61caa905-7a54-4c1b-833f-a0fd32da709f"
+                },
+                {
+                    "timestamp": "2026-06-09T14:06:16.271646",
+                    "level": "INFO",
+                    "message": "Lead Carol White (Global Health) status changed to Sending: Preparing to send initial pitch: 'Growing outbound leads for Global Health?'",
+                    "lead_id": "b3150f42-25ba-4eb6-b36c-1c7fc0c3efb1"
+                },
+                {
+                    "timestamp": "2026-06-09T14:06:20.237885",
+                    "level": "INFO",
+                    "message": "Sent initial pitch to Carol White (Global Health).",
+                    "lead_id": "b3150f42-25ba-4eb6-b36c-1c7fc0c3efb1"
+                },
+                {
+                    "timestamp": "2026-06-09T14:07:44.521612",
+                    "level": "INFO",
+                    "message": "Switched active campaign to 'Pasted Leads - 2026-06-09 14:05'.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T14:07:55.037968",
+                    "level": "INFO",
+                    "message": "Switched active campaign to 'Pasted Leads - 2026-06-09 14:05'.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T14:08:08.811060",
+                    "level": "INFO",
+                    "message": "Switched active campaign to 'Pasted Leads - 2026-06-09 14:05'.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T14:08:30.611412",
+                    "level": "INFO",
+                    "message": "Campaign paused.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T14:08:33.230939",
+                    "level": "INFO",
+                    "message": "Switched active campaign to 'Pasted Leads - 2026-06-09 14:05'.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T14:08:36.180077",
+                    "level": "INFO",
+                    "message": "Reply received from Carol White (Global Health) [REAL]",
+                    "lead_id": "b3150f42-25ba-4eb6-b36c-1c7fc0c3efb1"
+                },
+                {
+                    "timestamp": "2026-06-09T14:08:36.965956",
+                    "level": "AGENT",
+                    "message": "Classified reply from Carol White: INTERESTED. Reason: The responder asked for pricing, details, a sample, or a call.",
+                    "lead_id": "b3150f42-25ba-4eb6-b36c-1c7fc0c3efb1"
+                },
+                {
+                    "timestamp": "2026-06-09T14:08:37.775309",
+                    "level": "INFO",
+                    "message": "Nurturing sequence triggered for Carol White. Automated response drafted.",
+                    "lead_id": "b3150f42-25ba-4eb6-b36c-1c7fc0c3efb1"
+                },
+                {
+                    "timestamp": "2026-06-09T14:08:38.524415",
+                    "level": "INFO",
+                    "message": "Switched active campaign to 'Pasted Leads - 2026-06-09 14:05'.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T14:08:49.189821",
+                    "level": "INFO",
+                    "message": "Switched active campaign to 'Pasted Leads - 2026-06-09 14:05'.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T14:08:59.561111",
+                    "level": "INFO",
+                    "message": "Lead Carol White (Global Health) status changed to Interested: Marked manually as interested.",
+                    "lead_id": "b3150f42-25ba-4eb6-b36c-1c7fc0c3efb1"
+                },
+                {
+                    "timestamp": "2026-06-09T14:09:00.002630",
+                    "level": "INFO",
+                    "message": "Lead Carol White (Global Health) status changed to Interested: Marked manually as interested.",
+                    "lead_id": "b3150f42-25ba-4eb6-b36c-1c7fc0c3efb1"
+                },
+                {
+                    "timestamp": "2026-06-09T14:09:07.854073",
+                    "level": "INFO",
+                    "message": "Lead Bob Johnson (Premier Realty) status changed to Not_Interested: Marked manually as not interested.",
+                    "lead_id": "d70f1431-84ca-4a7f-a71c-eaaad8263511"
+                },
+                {
+                    "timestamp": "2026-06-09T14:09:09.453714",
+                    "level": "INFO",
+                    "message": "Lead Bob Johnson (Premier Realty) status changed to Not_Interested: Marked manually as not interested.",
+                    "lead_id": "d70f1431-84ca-4a7f-a71c-eaaad8263511"
+                },
+                {
+                    "timestamp": "2026-06-09T14:09:10.014665",
+                    "level": "INFO",
+                    "message": "Lead Bob Johnson (Premier Realty) status changed to Not_Interested: Marked manually as not interested.",
+                    "lead_id": "d70f1431-84ca-4a7f-a71c-eaaad8263511"
+                },
+                {
+                    "timestamp": "2026-06-09T14:09:11.773575",
+                    "level": "INFO",
+                    "message": "Lead Bob Johnson (Premier Realty) status changed to Interested: Marked manually as interested.",
+                    "lead_id": "d70f1431-84ca-4a7f-a71c-eaaad8263511"
+                },
+                {
+                    "timestamp": "2026-06-09T14:09:12.522772",
+                    "level": "INFO",
+                    "message": "Lead Bob Johnson (Premier Realty) status changed to Not_Interested: Marked manually as not interested.",
+                    "lead_id": "d70f1431-84ca-4a7f-a71c-eaaad8263511"
+                },
+                {
+                    "timestamp": "2026-06-09T14:09:13.271012",
+                    "level": "INFO",
+                    "message": "Lead Bob Johnson (Premier Realty) status changed to Interested: Marked manually as interested.",
+                    "lead_id": "d70f1431-84ca-4a7f-a71c-eaaad8263511"
+                },
+                {
+                    "timestamp": "2026-06-09T14:09:13.768057",
+                    "level": "INFO",
+                    "message": "Lead Bob Johnson (Premier Realty) status changed to Not_Interested: Marked manually as not interested.",
+                    "lead_id": "d70f1431-84ca-4a7f-a71c-eaaad8263511"
+                },
+                {
+                    "timestamp": "2026-06-09T15:12:05.950204",
+                    "level": "SYSTEM",
+                    "message": "Campaign background worker thread started.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T15:12:34.363595",
+                    "level": "SYSTEM",
+                    "message": "Campaign background worker thread started.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:02.684546",
+                    "level": "INFO",
+                    "message": "Campaign settings updated.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T18:04:59.073295",
+                    "level": "INFO",
+                    "message": "Switched active campaign to 'Pasted Leads - 2026-06-09 14:05'.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T19:28:09.348496",
+                    "level": "INFO",
+                    "message": "Campaign settings updated.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T19:28:11.035160",
+                    "level": "INFO",
+                    "message": "Campaign settings updated.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T19:42:19.588807",
+                    "level": "INFO",
+                    "message": "Switched active campaign to 'Pasted Leads - 2026-06-09 14:05'.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-10T13:50:20.123890",
+                    "level": "SYSTEM",
+                    "message": "Campaign background worker thread started.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-10T13:50:47.392322",
+                    "level": "SYSTEM",
+                    "message": "Campaign background worker thread started.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-10T13:51:28.526808",
+                    "level": "SYSTEM",
+                    "message": "Campaign background worker thread started.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-10T13:53:39.311248",
+                    "level": "SYSTEM",
+                    "message": "Campaign background worker thread started.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-10T13:53:57.220590",
+                    "level": "SYSTEM",
+                    "message": "Campaign background worker thread started.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-10T14:19:09.883464",
+                    "level": "SYSTEM",
+                    "message": "Campaign background worker thread started.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-10T14:19:29.419139",
+                    "level": "SYSTEM",
+                    "message": "Campaign background worker thread started.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-10T14:21:08.493886",
+                    "level": "SYSTEM",
+                    "message": "Campaign background worker thread started.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-10T14:41:35.787907",
+                    "level": "SYSTEM",
+                    "message": "Campaign background worker thread started.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-10T14:41:58.643755",
+                    "level": "SYSTEM",
+                    "message": "Campaign background worker thread started.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-10T14:43:38.197563",
+                    "level": "INFO",
+                    "message": "Switched active campaign to 'Pasted Leads - 2026-06-09 14:05'.",
+                    "lead_id": null
+                }
+            ],
+            "campaign_status": {
+                "is_running": false,
+                "total_sent": 2,
+                "total_replies": 1,
+                "total_interested": 1,
+                "total_not_interested": 0,
+                "total_leads": 2,
+                "total_junk": 1
+            },
+            "processed_message_ids": [
+                "<6a27d05c.3af34463.39efda.b951.GMR@mx.google.com>",
+                "<CALMjmOYs5ZSJMWqTe=QTTyNddEzpDZNSe1yajtyW_5tuL+-iDw@mail.gmail.com>"
+            ]
+        },
+        "d9bd25af-770b-4b5b-89ac-e6cae5a3e1d2": {
+            "id": "d9bd25af-770b-4b5b-89ac-e6cae5a3e1d2",
+            "name": "Pasted Leads - 2026-06-09 15:15",
+            "created_at": "2026-06-09T15:15:02.756692",
+            "leads": [
+                {
+                    "id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa",
+                    "company": "One Inc",
+                    "name": "Lead One",
+                    "title": "Owner",
+                    "email": "one@example.com",
+                    "company_size": "",
+                    "industry": "",
+                    "location": "",
+                    "branch": "",
+                    "notes": "",
+                    "icp_tags": "",
+                    "status": "Sent",
+                    "score": 76,
+                    "matched_segment": {
+                        "icp_fit": "B2B Professional Services & Consulting",
+                        "branch_target": "Outbound Sales Development",
+                        "pain_point": "High bounce rates in email campaigns",
+                        "go4db_offer": "Custom B2B List Enrichment Service",
+                        "data_usecase": "To clean and reactivate cold databases, reduce CRM bounce rates, and enrich missing lead details."
+                    },
+                    "email_drafts": {
+                        "initial_pitch": {
+                            "subject": "Growing outbound leads for One Inc?",
+                            "body": "Hi Lead,\n\nI was looking at One Inc and noticed your focus on B2B client acquisition. Typically, companies like yours run into the bottleneck of high bounce rates in email campaigns.\n\nAt Go4Database, we recently compiled our \"Custom B2B List Enrichment Service\" which includes over 350 million business contacts globally. For One Inc, this could be used to clean and reactivate cold databases, reduce crm bounce rates, and enrich missing lead details..\n\nWe've verified all emails and LinkedIn profiles to keep bounce rates under 5%.\n\nWould you be open to a quick look at a sample sheet of 20 leads matching your ICP next week?\n\nBest regards,\n[Sender Name]\nGo4Database Sales"
+                        },
+                        "follow_up_1": {
+                            "subject": "Re: Sample leads for One Inc?",
+                            "body": "Hi Lead,\n\nI know you are likely busy, so I put together a quick sample segment of 5 verified contacts directly matching your ideal buyer profile. Here is what they look like:\n\n1. Director of Growth, tech startup (verified business email + direct dial)\n2. VP of Marketing, retail brand (verified business email + LinkedIn URL)\n3. Head of Sales, mid-market IT services company\n\nWe have thousands more contacts in this exact segment. If you'd like to get the full list to test with your outreach tool, let me know when is a good time to connect.\n\nBest,\n[Sender Name]"
+                        },
+                        "follow_up_2": {
+                            "subject": "Closing the loop / One Inc",
+                            "body": "Hi Lead,\n\nI haven't heard back, so I'll assume that growing your database of prospects isn't a priority for One Inc right now.\n\nIf things change, or if you'd like to browse our list directory at Go4Database down the road, feel free to reach out anytime.\n\nIf you aren't the right contact for B2B lists, I'd appreciate it if you could point me to who is. Otherwise, this is the last email you'll receive from me.\n\nThanks,\n[Sender Name]"
+                        }
+                    },
+                    "sequence_step": 1,
+                    "last_sent_time": "2026-06-09T15:16:12.142362",
+                    "is_approved": false,
+                    "history": [
+                        {
+                            "timestamp": "2026-06-09T15:15:02.815374",
+                            "action": "Ingested",
+                            "details": "Lead added to outreach queue"
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:15:11.857827",
+                            "action": "AI Analysis Started",
+                            "details": "Running Go4Database matching rules & copy creation..."
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:15:20.362188",
+                            "action": "AI Analysis Completed",
+                            "details": "Matched Offer: Custom B2B List Enrichment Service. Email drafts generated (Score: 76)."
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:15:20.723795",
+                            "action": "Sending Email 1",
+                            "details": "Preparing to send initial pitch from primary@example.com: 'Growing outbound leads for One Inc?'"
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:15:23.175897",
+                            "action": "Send Error",
+                            "details": "Failed to send email: (535, b'5.7.8 Username and Password not accepted. For more information, go to\\n5.7.8  https://support.google.com/mail/?p=BadCredentials 41be03b00d2f7-c85df03498csm20305561a12.1 - gsmtp')"
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:15:26.197392",
+                            "action": "Sending Email 1",
+                            "details": "Preparing to send initial pitch from rota@example.com: 'Growing outbound leads for One Inc?'"
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:15:26.236683",
+                            "action": "Send Error",
+                            "details": "Failed to send email: [Errno 8] nodename nor servname provided, or not known"
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:15:29.252311",
+                            "action": "Sending Email 1",
+                            "details": "Preparing to send initial pitch from rotb@example.com: 'Growing outbound leads for One Inc?'"
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:15:29.254798",
+                            "action": "Send Error",
+                            "details": "Failed to send email: [Errno 8] nodename nor servname provided, or not known"
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:15:32.269623",
+                            "action": "Sending Email 1",
+                            "details": "Preparing to send initial pitch from primary@example.com: 'Growing outbound leads for One Inc?'"
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:15:34.752685",
+                            "action": "Send Error",
+                            "details": "Failed to send email: (535, b'5.7.8 Username and Password not accepted. For more information, go to\\n5.7.8  https://support.google.com/mail/?p=BadCredentials d2e1a72fcca58-84282221086sm21098265b3a.10 - gsmtp')"
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:15:38.926830",
+                            "action": "Sending Email 1",
+                            "details": "Preparing to send initial pitch from rota@example.com: 'Growing outbound leads for One Inc?'"
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:15:38.930573",
+                            "action": "Send Error",
+                            "details": "Failed to send email: [Errno 8] nodename nor servname provided, or not known"
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:15:41.948101",
+                            "action": "Sending Email 1",
+                            "details": "Preparing to send initial pitch from rotb@example.com: 'Growing outbound leads for One Inc?'"
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:15:41.952997",
+                            "action": "Send Error",
+                            "details": "Failed to send email: [Errno 8] nodename nor servname provided, or not known"
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:15:44.968701",
+                            "action": "Sending Email 1",
+                            "details": "Preparing to send initial pitch from primary@example.com: 'Growing outbound leads for One Inc?'"
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:15:47.176103",
+                            "action": "Send Error",
+                            "details": "Failed to send email: (535, b'5.7.8 Username and Password not accepted. For more information, go to\\n5.7.8  https://support.google.com/mail/?p=BadCredentials d2e1a72fcca58-8428221a7e9sm26691521b3a.11 - gsmtp')"
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:15:50.194949",
+                            "action": "Sending Email 1",
+                            "details": "Preparing to send initial pitch from rota@example.com: 'Growing outbound leads for One Inc?'"
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:15:50.200531",
+                            "action": "Send Error",
+                            "details": "Failed to send email: [Errno 8] nodename nor servname provided, or not known"
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:15:52.426910",
+                            "action": "Sending Email 1",
+                            "details": "Preparing to send initial pitch from rotb@example.com: 'Growing outbound leads for One Inc?'"
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:15:52.429051",
+                            "action": "Send Error",
+                            "details": "Failed to send email: [Errno 8] nodename nor servname provided, or not known"
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:15:55.440103",
+                            "action": "Sending Email 1",
+                            "details": "Preparing to send initial pitch from primary@example.com: 'Growing outbound leads for One Inc?'"
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:15:57.719337",
+                            "action": "Send Error",
+                            "details": "Failed to send email: (535, b'5.7.8 Username and Password not accepted. For more information, go to\\n5.7.8  https://support.google.com/mail/?p=BadCredentials d9443c01a7336-2c16649ab01sm199505245ad.71 - gsmtp')"
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:16:00.736651",
+                            "action": "Sending Email 1",
+                            "details": "Preparing to send initial pitch from rota@example.com: 'Growing outbound leads for One Inc?'"
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:16:00.743684",
+                            "action": "Send Error",
+                            "details": "Failed to send email: [Errno 8] nodename nor servname provided, or not known"
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:16:03.761811",
+                            "action": "Sending Email 1",
+                            "details": "Preparing to send initial pitch from rotb@example.com: 'Growing outbound leads for One Inc?'"
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:16:03.765129",
+                            "action": "Send Error",
+                            "details": "Failed to send email: [Errno 8] nodename nor servname provided, or not known"
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:16:06.778787",
+                            "action": "Sending Email 1",
+                            "details": "Preparing to send initial pitch from primary@example.com: 'Growing outbound leads for One Inc?'"
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:16:09.127547",
+                            "action": "Send Error",
+                            "details": "Failed to send email: (535, b'5.7.8 Username and Password not accepted. For more information, go to\\n5.7.8  https://support.google.com/mail/?p=BadCredentials 98e67ed59e1d1-36f68b03ef6sm19175493a91.0 - gsmtp')"
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:16:12.146879",
+                            "action": "Sending Email 1",
+                            "details": "Preparing to send initial pitch from primary@example.com: 'Growing outbound leads for One Inc?'"
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:16:12.142362",
+                            "action": "Email Sent (Initial)",
+                            "details": "[SIMULATED] Email sent successfully to one@example.com (Sender: primary@example.com)\nSubject: Growing outbound leads for One Inc?"
+                        }
+                    ],
+                    "replies": [],
+                    "last_action_date": "2026-06-09T15:16:12.146891",
+                    "sender_account_id": "primary"
+                },
+                {
+                    "id": "ec44ee2d-a607-4bf9-b646-51a3b32e3638",
+                    "company": "Two Inc",
+                    "name": "Lead Two",
+                    "title": "Owner",
+                    "email": "two@example.com",
+                    "company_size": "",
+                    "industry": "",
+                    "location": "",
+                    "branch": "",
+                    "notes": "",
+                    "icp_tags": "",
+                    "status": "Sent",
+                    "score": 70,
+                    "matched_segment": {
+                        "icp_fit": "B2B Professional Services & Consulting",
+                        "branch_target": "Outbound Sales Development",
+                        "pain_point": "High bounce rates in email campaigns",
+                        "go4db_offer": "Custom B2B List Enrichment Service",
+                        "data_usecase": "To clean and reactivate cold databases, reduce CRM bounce rates, and enrich missing lead details."
+                    },
+                    "email_drafts": {
+                        "initial_pitch": {
+                            "subject": "Growing outbound leads for Two Inc?",
+                            "body": "Hi Lead,\n\nI was looking at Two Inc and noticed your focus on B2B client acquisition. Typically, companies like yours run into the bottleneck of high bounce rates in email campaigns.\n\nAt Go4Database, we recently compiled our \"Custom B2B List Enrichment Service\" which includes over 350 million business contacts globally. For Two Inc, this could be used to clean and reactivate cold databases, reduce crm bounce rates, and enrich missing lead details..\n\nWe've verified all emails and LinkedIn profiles to keep bounce rates under 5%.\n\nWould you be open to a quick look at a sample sheet of 20 leads matching your ICP next week?\n\nBest regards,\n[Sender Name]\nGo4Database Sales"
+                        },
+                        "follow_up_1": {
+                            "subject": "Re: Sample leads for Two Inc?",
+                            "body": "Hi Lead,\n\nI know you are likely busy, so I put together a quick sample segment of 5 verified contacts directly matching your ideal buyer profile. Here is what they look like:\n\n1. Director of Growth, tech startup (verified business email + direct dial)\n2. VP of Marketing, retail brand (verified business email + LinkedIn URL)\n3. Head of Sales, mid-market IT services company\n\nWe have thousands more contacts in this exact segment. If you'd like to get the full list to test with your outreach tool, let me know when is a good time to connect.\n\nBest,\n[Sender Name]"
+                        },
+                        "follow_up_2": {
+                            "subject": "Closing the loop / Two Inc",
+                            "body": "Hi Lead,\n\nI haven't heard back, so I'll assume that growing your database of prospects isn't a priority for Two Inc right now.\n\nIf things change, or if you'd like to browse our list directory at Go4Database down the road, feel free to reach out anytime.\n\nIf you aren't the right contact for B2B lists, I'd appreciate it if you could point me to who is. Otherwise, this is the last email you'll receive from me.\n\nThanks,\n[Sender Name]"
+                        }
+                    },
+                    "sequence_step": 1,
+                    "last_sent_time": "2026-06-09T15:16:15.167359",
+                    "is_approved": false,
+                    "history": [
+                        {
+                            "timestamp": "2026-06-09T15:15:02.815391",
+                            "action": "Ingested",
+                            "details": "Lead added to outreach queue"
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:15:20.365955",
+                            "action": "AI Analysis Started",
+                            "details": "Running Go4Database matching rules & copy creation..."
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:15:21.017159",
+                            "action": "AI Analysis Completed",
+                            "details": "Matched Offer: Custom B2B List Enrichment Service. Email drafts generated (Score: 70)."
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:16:15.171335",
+                            "action": "Sending Email 1",
+                            "details": "Preparing to send initial pitch from rota@example.com: 'Growing outbound leads for Two Inc?'"
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:16:15.167359",
+                            "action": "Email Sent (Initial)",
+                            "details": "[SIMULATED] Email sent successfully to two@example.com (Sender: rota@example.com)\nSubject: Growing outbound leads for Two Inc?"
+                        }
+                    ],
+                    "replies": [],
+                    "last_action_date": "2026-06-09T15:16:15.171343",
+                    "sender_account_id": "rot_a"
+                },
+                {
+                    "id": "0e373015-b897-42ae-8bde-0d958b37cd93",
+                    "company": "Three Inc",
+                    "name": "Lead Three",
+                    "title": "Owner",
+                    "email": "three@example.com",
+                    "company_size": "",
+                    "industry": "",
+                    "location": "",
+                    "branch": "",
+                    "notes": "",
+                    "icp_tags": "",
+                    "status": "Sent",
+                    "score": 70,
+                    "matched_segment": {
+                        "icp_fit": "B2B Professional Services & Consulting",
+                        "branch_target": "Outbound Sales Development",
+                        "pain_point": "High bounce rates in email campaigns",
+                        "go4db_offer": "Custom B2B List Enrichment Service",
+                        "data_usecase": "To clean and reactivate cold databases, reduce CRM bounce rates, and enrich missing lead details."
+                    },
+                    "email_drafts": {
+                        "initial_pitch": {
+                            "subject": "Growing outbound leads for Three Inc?",
+                            "body": "Hi Lead,\n\nI was looking at Three Inc and noticed your focus on B2B client acquisition. Typically, companies like yours run into the bottleneck of high bounce rates in email campaigns.\n\nAt Go4Database, we recently compiled our \"Custom B2B List Enrichment Service\" which includes over 350 million business contacts globally. For Three Inc, this could be used to clean and reactivate cold databases, reduce crm bounce rates, and enrich missing lead details..\n\nWe've verified all emails and LinkedIn profiles to keep bounce rates under 5%.\n\nWould you be open to a quick look at a sample sheet of 20 leads matching your ICP next week?\n\nBest regards,\n[Sender Name]\nGo4Database Sales"
+                        },
+                        "follow_up_1": {
+                            "subject": "Re: Sample leads for Three Inc?",
+                            "body": "Hi Lead,\n\nI know you are likely busy, so I put together a quick sample segment of 5 verified contacts directly matching your ideal buyer profile. Here is what they look like:\n\n1. Director of Growth, tech startup (verified business email + direct dial)\n2. VP of Marketing, retail brand (verified business email + LinkedIn URL)\n3. Head of Sales, mid-market IT services company\n\nWe have thousands more contacts in this exact segment. If you'd like to get the full list to test with your outreach tool, let me know when is a good time to connect.\n\nBest,\n[Sender Name]"
+                        },
+                        "follow_up_2": {
+                            "subject": "Closing the loop / Three Inc",
+                            "body": "Hi Lead,\n\nI haven't heard back, so I'll assume that growing your database of prospects isn't a priority for Three Inc right now.\n\nIf things change, or if you'd like to browse our list directory at Go4Database down the road, feel free to reach out anytime.\n\nIf you aren't the right contact for B2B lists, I'd appreciate it if you could point me to who is. Otherwise, this is the last email you'll receive from me.\n\nThanks,\n[Sender Name]"
+                        }
+                    },
+                    "sequence_step": 1,
+                    "last_sent_time": "2026-06-09T15:16:18.192634",
+                    "is_approved": false,
+                    "history": [
+                        {
+                            "timestamp": "2026-06-09T15:15:02.815398",
+                            "action": "Ingested",
+                            "details": "Lead added to outreach queue"
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:15:21.021307",
+                            "action": "AI Analysis Started",
+                            "details": "Running Go4Database matching rules & copy creation..."
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:15:21.607991",
+                            "action": "AI Analysis Completed",
+                            "details": "Matched Offer: Custom B2B List Enrichment Service. Email drafts generated (Score: 70)."
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:16:18.198853",
+                            "action": "Sending Email 1",
+                            "details": "Preparing to send initial pitch from rotb@example.com: 'Growing outbound leads for Three Inc?'"
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:16:18.192634",
+                            "action": "Email Sent (Initial)",
+                            "details": "[SIMULATED] Email sent successfully to three@example.com (Sender: rotb@example.com)\nSubject: Growing outbound leads for Three Inc?"
+                        }
+                    ],
+                    "replies": [],
+                    "last_action_date": "2026-06-09T15:16:18.198872",
+                    "sender_account_id": "rot_b"
+                }
+            ],
+            "logs": [
+                {
+                    "timestamp": "2026-06-09T15:15:02.756699",
+                    "level": "INFO",
+                    "message": "Campaign session 'Pasted Leads - 2026-06-09 15:15' created.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:02.814817",
+                    "level": "INFO",
+                    "message": "Switched active campaign to 'Pasted Leads - 2026-06-09 15:15'.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:02.815400",
+                    "level": "INFO",
+                    "message": "Ingested 3 new leads.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:11.854170",
+                    "level": "INFO",
+                    "message": "Campaign started.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:11.856181",
+                    "level": "SYSTEM",
+                    "message": "Campaign started. Auto-triggering AI analysis for 3 pending leads.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:11.857837",
+                    "level": "INFO",
+                    "message": "Lead Lead One (One Inc) status changed to Analyzing: Running Go4Database matching rules & copy creation...",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:20.365987",
+                    "level": "INFO",
+                    "message": "Lead Lead Two (Two Inc) status changed to Analyzing: Running Go4Database matching rules & copy creation...",
+                    "lead_id": "ec44ee2d-a607-4bf9-b646-51a3b32e3638"
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:20.723820",
+                    "level": "INFO",
+                    "message": "Lead Lead One (One Inc) status changed to Sending: Preparing to send initial pitch from primary@example.com: 'Growing outbound leads for One Inc?'",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:21.021324",
+                    "level": "INFO",
+                    "message": "Lead Lead Three (Three Inc) status changed to Analyzing: Running Go4Database matching rules & copy creation...",
+                    "lead_id": "0e373015-b897-42ae-8bde-0d958b37cd93"
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:23.176023",
+                    "level": "INFO",
+                    "message": "Lead Lead One (One Inc) status changed to Ready: Failed to send email: (535, b'5.7.8 Username and Password not accepted. For more information, go to\\n5.7.8  https://support.google.com/mail/?p=BadCredentials 41be03b00d2f7-c85df03498csm20305561a12.1 - gsmtp')",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:23.180941",
+                    "level": "ERROR",
+                    "message": "Failed to send email to Lead One: (535, b'5.7.8 Username and Password not accepted. For more information, go to\\n5.7.8  https://support.google.com/mail/?p=BadCredentials 41be03b00d2f7-c85df03498csm20305561a12.1 - gsmtp')",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:26.197417",
+                    "level": "INFO",
+                    "message": "Lead Lead One (One Inc) status changed to Sending: Preparing to send initial pitch from rota@example.com: 'Growing outbound leads for One Inc?'",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:26.236718",
+                    "level": "INFO",
+                    "message": "Lead Lead One (One Inc) status changed to Ready: Failed to send email: [Errno 8] nodename nor servname provided, or not known",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:26.239473",
+                    "level": "ERROR",
+                    "message": "Failed to send email to Lead One: [Errno 8] nodename nor servname provided, or not known",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:29.252322",
+                    "level": "INFO",
+                    "message": "Lead Lead One (One Inc) status changed to Sending: Preparing to send initial pitch from rotb@example.com: 'Growing outbound leads for One Inc?'",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:29.254808",
+                    "level": "INFO",
+                    "message": "Lead Lead One (One Inc) status changed to Ready: Failed to send email: [Errno 8] nodename nor servname provided, or not known",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:29.255992",
+                    "level": "ERROR",
+                    "message": "Failed to send email to Lead One: [Errno 8] nodename nor servname provided, or not known",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:32.269641",
+                    "level": "INFO",
+                    "message": "Lead Lead One (One Inc) status changed to Sending: Preparing to send initial pitch from primary@example.com: 'Growing outbound leads for One Inc?'",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:34.752770",
+                    "level": "INFO",
+                    "message": "Lead Lead One (One Inc) status changed to Ready: Failed to send email: (535, b'5.7.8 Username and Password not accepted. For more information, go to\\n5.7.8  https://support.google.com/mail/?p=BadCredentials d2e1a72fcca58-84282221086sm21098265b3a.10 - gsmtp')",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:34.758467",
+                    "level": "ERROR",
+                    "message": "Failed to send email to Lead One: (535, b'5.7.8 Username and Password not accepted. For more information, go to\\n5.7.8  https://support.google.com/mail/?p=BadCredentials d2e1a72fcca58-84282221086sm21098265b3a.10 - gsmtp')",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:38.892865",
+                    "level": "ERROR",
+                    "message": "IMAP connection or credentials failed: b'[AUTHENTICATIONFAILED] Invalid credentials (Failure)'",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:38.917472",
+                    "level": "ERROR",
+                    "message": "IMAP connection or credentials failed: [Errno 8] nodename nor servname provided, or not known",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:38.922990",
+                    "level": "ERROR",
+                    "message": "IMAP connection or credentials failed: [Errno 8] nodename nor servname provided, or not known",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:38.926838",
+                    "level": "INFO",
+                    "message": "Lead Lead One (One Inc) status changed to Sending: Preparing to send initial pitch from rota@example.com: 'Growing outbound leads for One Inc?'",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:38.930579",
+                    "level": "INFO",
+                    "message": "Lead Lead One (One Inc) status changed to Ready: Failed to send email: [Errno 8] nodename nor servname provided, or not known",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:38.932231",
+                    "level": "ERROR",
+                    "message": "Failed to send email to Lead One: [Errno 8] nodename nor servname provided, or not known",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:41.948114",
+                    "level": "INFO",
+                    "message": "Lead Lead One (One Inc) status changed to Sending: Preparing to send initial pitch from rotb@example.com: 'Growing outbound leads for One Inc?'",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:41.953010",
+                    "level": "INFO",
+                    "message": "Lead Lead One (One Inc) status changed to Ready: Failed to send email: [Errno 8] nodename nor servname provided, or not known",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:41.956005",
+                    "level": "ERROR",
+                    "message": "Failed to send email to Lead One: [Errno 8] nodename nor servname provided, or not known",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:44.968710",
+                    "level": "INFO",
+                    "message": "Lead Lead One (One Inc) status changed to Sending: Preparing to send initial pitch from primary@example.com: 'Growing outbound leads for One Inc?'",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:47.176142",
+                    "level": "INFO",
+                    "message": "Lead Lead One (One Inc) status changed to Ready: Failed to send email: (535, b'5.7.8 Username and Password not accepted. For more information, go to\\n5.7.8  https://support.google.com/mail/?p=BadCredentials d2e1a72fcca58-8428221a7e9sm26691521b3a.11 - gsmtp')",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:47.181843",
+                    "level": "ERROR",
+                    "message": "Failed to send email to Lead One: (535, b'5.7.8 Username and Password not accepted. For more information, go to\\n5.7.8  https://support.google.com/mail/?p=BadCredentials d2e1a72fcca58-8428221a7e9sm26691521b3a.11 - gsmtp')",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:50.194957",
+                    "level": "INFO",
+                    "message": "Lead Lead One (One Inc) status changed to Sending: Preparing to send initial pitch from rota@example.com: 'Growing outbound leads for One Inc?'",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:50.200542",
+                    "level": "INFO",
+                    "message": "Lead Lead One (One Inc) status changed to Ready: Failed to send email: [Errno 8] nodename nor servname provided, or not known",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:50.202116",
+                    "level": "ERROR",
+                    "message": "Failed to send email to Lead One: [Errno 8] nodename nor servname provided, or not known",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:51.428519",
+                    "level": "SYSTEM",
+                    "message": "Campaign background worker thread started.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:52.419031",
+                    "level": "ERROR",
+                    "message": "IMAP connection or credentials failed: b'[AUTHENTICATIONFAILED] Invalid credentials (Failure)'",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:52.422263",
+                    "level": "ERROR",
+                    "message": "IMAP connection or credentials failed: [Errno 8] nodename nor servname provided, or not known",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:52.424532",
+                    "level": "ERROR",
+                    "message": "IMAP connection or credentials failed: [Errno 8] nodename nor servname provided, or not known",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:52.426914",
+                    "level": "INFO",
+                    "message": "Lead Lead One (One Inc) status changed to Sending: Preparing to send initial pitch from rotb@example.com: 'Growing outbound leads for One Inc?'",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:52.429055",
+                    "level": "INFO",
+                    "message": "Lead Lead One (One Inc) status changed to Ready: Failed to send email: [Errno 8] nodename nor servname provided, or not known",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:52.430224",
+                    "level": "ERROR",
+                    "message": "Failed to send email to Lead One: [Errno 8] nodename nor servname provided, or not known",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:55.440108",
+                    "level": "INFO",
+                    "message": "Lead Lead One (One Inc) status changed to Sending: Preparing to send initial pitch from primary@example.com: 'Growing outbound leads for One Inc?'",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:57.719391",
+                    "level": "INFO",
+                    "message": "Lead Lead One (One Inc) status changed to Ready: Failed to send email: (535, b'5.7.8 Username and Password not accepted. For more information, go to\\n5.7.8  https://support.google.com/mail/?p=BadCredentials d9443c01a7336-2c16649ab01sm199505245ad.71 - gsmtp')",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:15:57.723652",
+                    "level": "ERROR",
+                    "message": "Failed to send email to Lead One: (535, b'5.7.8 Username and Password not accepted. For more information, go to\\n5.7.8  https://support.google.com/mail/?p=BadCredentials d9443c01a7336-2c16649ab01sm199505245ad.71 - gsmtp')",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:16:00.736668",
+                    "level": "INFO",
+                    "message": "Lead Lead One (One Inc) status changed to Sending: Preparing to send initial pitch from rota@example.com: 'Growing outbound leads for One Inc?'",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:16:00.743702",
+                    "level": "INFO",
+                    "message": "Lead Lead One (One Inc) status changed to Ready: Failed to send email: [Errno 8] nodename nor servname provided, or not known",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:16:00.746646",
+                    "level": "ERROR",
+                    "message": "Failed to send email to Lead One: [Errno 8] nodename nor servname provided, or not known",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:16:03.761827",
+                    "level": "INFO",
+                    "message": "Lead Lead One (One Inc) status changed to Sending: Preparing to send initial pitch from rotb@example.com: 'Growing outbound leads for One Inc?'",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:16:03.765136",
+                    "level": "INFO",
+                    "message": "Lead Lead One (One Inc) status changed to Ready: Failed to send email: [Errno 8] nodename nor servname provided, or not known",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:16:03.766274",
+                    "level": "ERROR",
+                    "message": "Failed to send email to Lead One: [Errno 8] nodename nor servname provided, or not known",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:16:06.778806",
+                    "level": "INFO",
+                    "message": "Lead Lead One (One Inc) status changed to Sending: Preparing to send initial pitch from primary@example.com: 'Growing outbound leads for One Inc?'",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:16:09.127605",
+                    "level": "INFO",
+                    "message": "Lead Lead One (One Inc) status changed to Ready: Failed to send email: (535, b'5.7.8 Username and Password not accepted. For more information, go to\\n5.7.8  https://support.google.com/mail/?p=BadCredentials 98e67ed59e1d1-36f68b03ef6sm19175493a91.0 - gsmtp')",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:16:09.132982",
+                    "level": "ERROR",
+                    "message": "Failed to send email to Lead One: (535, b'5.7.8 Username and Password not accepted. For more information, go to\\n5.7.8  https://support.google.com/mail/?p=BadCredentials 98e67ed59e1d1-36f68b03ef6sm19175493a91.0 - gsmtp')",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:16:11.642581",
+                    "level": "INFO",
+                    "message": "Campaign settings updated.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T15:16:12.146899",
+                    "level": "INFO",
+                    "message": "Lead Lead One (One Inc) status changed to Sending: Preparing to send initial pitch from primary@example.com: 'Growing outbound leads for One Inc?'",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:16:12.151497",
+                    "level": "INFO",
+                    "message": "Sent initial pitch to Lead One (One Inc) from primary@example.com.",
+                    "lead_id": "1ac6ab86-247d-47dd-897e-e785e0eb88fa"
+                },
+                {
+                    "timestamp": "2026-06-09T15:16:15.171349",
+                    "level": "INFO",
+                    "message": "Lead Lead Two (Two Inc) status changed to Sending: Preparing to send initial pitch from rota@example.com: 'Growing outbound leads for Two Inc?'",
+                    "lead_id": "ec44ee2d-a607-4bf9-b646-51a3b32e3638"
+                },
+                {
+                    "timestamp": "2026-06-09T15:16:15.175504",
+                    "level": "INFO",
+                    "message": "Sent initial pitch to Lead Two (Two Inc) from rota@example.com.",
+                    "lead_id": "ec44ee2d-a607-4bf9-b646-51a3b32e3638"
+                },
+                {
+                    "timestamp": "2026-06-09T15:16:18.198903",
+                    "level": "INFO",
+                    "message": "Lead Lead Three (Three Inc) status changed to Sending: Preparing to send initial pitch from rotb@example.com: 'Growing outbound leads for Three Inc?'",
+                    "lead_id": "0e373015-b897-42ae-8bde-0d958b37cd93"
+                },
+                {
+                    "timestamp": "2026-06-09T15:16:18.203794",
+                    "level": "INFO",
+                    "message": "Sent initial pitch to Lead Three (Three Inc) from rotb@example.com.",
+                    "lead_id": "0e373015-b897-42ae-8bde-0d958b37cd93"
+                },
+                {
+                    "timestamp": "2026-06-10T13:18:50.351431",
+                    "level": "INFO",
+                    "message": "Campaign paused.",
+                    "lead_id": null
+                }
+            ],
+            "campaign_status": {
+                "is_running": false,
+                "total_sent": 3,
+                "total_replies": 0,
+                "total_interested": 0,
+                "total_not_interested": 0,
+                "total_leads": 3,
+                "total_junk": 0
+            }
+        },
+        "975d4429-a335-4914-baab-4c04f9e4a6a4": {
+            "id": "975d4429-a335-4914-baab-4c04f9e4a6a4",
+            "name": "RotationTest-1780998371",
+            "created_at": "2026-06-09T15:16:11.652461",
+            "leads": [
+                {
+                    "id": "3bbd31ef-e86d-433a-b3ea-86dca995e80e",
+                    "company": "One Inc",
+                    "name": "Lead One",
+                    "title": "Owner",
+                    "email": "one@example.com",
+                    "company_size": "",
+                    "industry": "",
+                    "location": "",
+                    "branch": "",
+                    "notes": "",
+                    "icp_tags": "",
+                    "status": "Sent",
+                    "score": 76,
+                    "matched_segment": {
+                        "icp_fit": "B2B Professional Services & Consulting",
+                        "branch_target": "Outbound Sales Development",
+                        "pain_point": "High bounce rates in email campaigns",
+                        "go4db_offer": "Custom B2B List Enrichment Service",
+                        "data_usecase": "To clean and reactivate cold databases, reduce CRM bounce rates, and enrich missing lead details."
+                    },
+                    "email_drafts": {
+                        "initial_pitch": {
+                            "subject": "Growing outbound leads for One Inc?",
+                            "body": "Hi Lead,\n\nI was looking at One Inc and noticed your focus on B2B client acquisition. Typically, companies like yours run into the bottleneck of high bounce rates in email campaigns.\n\nAt Go4Database, we recently compiled our \"Custom B2B List Enrichment Service\" which includes over 350 million business contacts globally. For One Inc, this could be used to clean and reactivate cold databases, reduce crm bounce rates, and enrich missing lead details..\n\nWe've verified all emails and LinkedIn profiles to keep bounce rates under 5%.\n\nWould you be open to a quick look at a sample sheet of 20 leads matching your ICP next week?\n\nBest regards,\n[Sender Name]\nGo4Database Sales"
+                        },
+                        "follow_up_1": {
+                            "subject": "Re: Sample leads for One Inc?",
+                            "body": "Hi Lead,\n\nI know you are likely busy, so I put together a quick sample segment of 5 verified contacts directly matching your ideal buyer profile. Here is what they look like:\n\n1. Director of Growth, tech startup (verified business email + direct dial)\n2. VP of Marketing, retail brand (verified business email + LinkedIn URL)\n3. Head of Sales, mid-market IT services company\n\nWe have thousands more contacts in this exact segment. If you'd like to get the full list to test with your outreach tool, let me know when is a good time to connect.\n\nBest,\n[Sender Name]"
+                        },
+                        "follow_up_2": {
+                            "subject": "Closing the loop / One Inc",
+                            "body": "Hi Lead,\n\nI haven't heard back, so I'll assume that growing your database of prospects isn't a priority for One Inc right now.\n\nIf things change, or if you'd like to browse our list directory at Go4Database down the road, feel free to reach out anytime.\n\nIf you aren't the right contact for B2B lists, I'd appreciate it if you could point me to who is. Otherwise, this is the last email you'll receive from me.\n\nThanks,\n[Sender Name]"
+                        }
+                    },
+                    "sequence_step": 1,
+                    "last_sent_time": "2026-06-09T15:16:23.224647",
+                    "is_approved": false,
+                    "history": [
+                        {
+                            "timestamp": "2026-06-09T15:16:11.660059",
+                            "action": "Ingested",
+                            "details": "Lead added to outreach queue"
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:16:20.710823",
+                            "action": "AI Analysis Started",
+                            "details": "Running Go4Database matching rules & copy creation..."
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:16:21.443497",
+                            "action": "AI Analysis Completed",
+                            "details": "Matched Offer: Custom B2B List Enrichment Service. Email drafts generated (Score: 76)."
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:16:23.231962",
+                            "action": "Sending Email 1",
+                            "details": "Preparing to send initial pitch from primary@example.com: 'Growing outbound leads for One Inc?'"
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:16:23.224647",
+                            "action": "Email Sent (Initial)",
+                            "details": "[SIMULATED] Email sent successfully to one@example.com (Sender: primary@example.com)\nSubject: Growing outbound leads for One Inc?"
+                        }
+                    ],
+                    "replies": [],
+                    "last_action_date": "2026-06-09T15:16:23.231986",
+                    "sender_account_id": "primary"
+                },
+                {
+                    "id": "7b95776b-5579-4e39-8f1e-a20ac8547dbc",
+                    "company": "Two Inc",
+                    "name": "Lead Two",
+                    "title": "Owner",
+                    "email": "two@example.com",
+                    "company_size": "",
+                    "industry": "",
+                    "location": "",
+                    "branch": "",
+                    "notes": "",
+                    "icp_tags": "",
+                    "status": "Sent",
+                    "score": 70,
+                    "matched_segment": {
+                        "icp_fit": "B2B Professional Services & Consulting",
+                        "branch_target": "Outbound Sales Development",
+                        "pain_point": "High bounce rates in email campaigns",
+                        "go4db_offer": "Custom B2B List Enrichment Service",
+                        "data_usecase": "To clean and reactivate cold databases, reduce CRM bounce rates, and enrich missing lead details."
+                    },
+                    "email_drafts": {
+                        "initial_pitch": {
+                            "subject": "Growing outbound leads for Two Inc?",
+                            "body": "Hi Lead,\n\nI was looking at Two Inc and noticed your focus on B2B client acquisition. Typically, companies like yours run into the bottleneck of high bounce rates in email campaigns.\n\nAt Go4Database, we recently compiled our \"Custom B2B List Enrichment Service\" which includes over 350 million business contacts globally. For Two Inc, this could be used to clean and reactivate cold databases, reduce crm bounce rates, and enrich missing lead details..\n\nWe've verified all emails and LinkedIn profiles to keep bounce rates under 5%.\n\nWould you be open to a quick look at a sample sheet of 20 leads matching your ICP next week?\n\nBest regards,\n[Sender Name]\nGo4Database Sales"
+                        },
+                        "follow_up_1": {
+                            "subject": "Re: Sample leads for Two Inc?",
+                            "body": "Hi Lead,\n\nI know you are likely busy, so I put together a quick sample segment of 5 verified contacts directly matching your ideal buyer profile. Here is what they look like:\n\n1. Director of Growth, tech startup (verified business email + direct dial)\n2. VP of Marketing, retail brand (verified business email + LinkedIn URL)\n3. Head of Sales, mid-market IT services company\n\nWe have thousands more contacts in this exact segment. If you'd like to get the full list to test with your outreach tool, let me know when is a good time to connect.\n\nBest,\n[Sender Name]"
+                        },
+                        "follow_up_2": {
+                            "subject": "Closing the loop / Two Inc",
+                            "body": "Hi Lead,\n\nI haven't heard back, so I'll assume that growing your database of prospects isn't a priority for Two Inc right now.\n\nIf things change, or if you'd like to browse our list directory at Go4Database down the road, feel free to reach out anytime.\n\nIf you aren't the right contact for B2B lists, I'd appreciate it if you could point me to who is. Otherwise, this is the last email you'll receive from me.\n\nThanks,\n[Sender Name]"
+                        }
+                    },
+                    "sequence_step": 1,
+                    "last_sent_time": "2026-06-09T15:16:26.247961",
+                    "is_approved": false,
+                    "history": [
+                        {
+                            "timestamp": "2026-06-09T15:16:11.660077",
+                            "action": "Ingested",
+                            "details": "Lead added to outreach queue"
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:16:21.450047",
+                            "action": "AI Analysis Started",
+                            "details": "Running Go4Database matching rules & copy creation..."
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:16:22.070652",
+                            "action": "AI Analysis Completed",
+                            "details": "Matched Offer: Custom B2B List Enrichment Service. Email drafts generated (Score: 70)."
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:16:26.254860",
+                            "action": "Sending Email 1",
+                            "details": "Preparing to send initial pitch from rota@example.com: 'Growing outbound leads for Two Inc?'"
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:16:26.247961",
+                            "action": "Email Sent (Initial)",
+                            "details": "[SIMULATED] Email sent successfully to two@example.com (Sender: rota@example.com)\nSubject: Growing outbound leads for Two Inc?"
+                        }
+                    ],
+                    "replies": [],
+                    "last_action_date": "2026-06-09T15:16:26.254879",
+                    "sender_account_id": "rot_a"
+                },
+                {
+                    "id": "b506eeaa-320d-477a-92b6-4a0e0302d3b2",
+                    "company": "Three Inc",
+                    "name": "Lead Three",
+                    "title": "Owner",
+                    "email": "three@example.com",
+                    "company_size": "",
+                    "industry": "",
+                    "location": "",
+                    "branch": "",
+                    "notes": "",
+                    "icp_tags": "",
+                    "status": "Sent",
+                    "score": 70,
+                    "matched_segment": {
+                        "icp_fit": "B2B Professional Services & Consulting",
+                        "branch_target": "Outbound Sales Development",
+                        "pain_point": "High bounce rates in email campaigns",
+                        "go4db_offer": "Custom B2B List Enrichment Service",
+                        "data_usecase": "To clean and reactivate cold databases, reduce CRM bounce rates, and enrich missing lead details."
+                    },
+                    "email_drafts": {
+                        "initial_pitch": {
+                            "subject": "Growing outbound leads for Three Inc?",
+                            "body": "Hi Lead,\n\nI was looking at Three Inc and noticed your focus on B2B client acquisition. Typically, companies like yours run into the bottleneck of high bounce rates in email campaigns.\n\nAt Go4Database, we recently compiled our \"Custom B2B List Enrichment Service\" which includes over 350 million business contacts globally. For Three Inc, this could be used to clean and reactivate cold databases, reduce crm bounce rates, and enrich missing lead details..\n\nWe've verified all emails and LinkedIn profiles to keep bounce rates under 5%.\n\nWould you be open to a quick look at a sample sheet of 20 leads matching your ICP next week?\n\nBest regards,\n[Sender Name]\nGo4Database Sales"
+                        },
+                        "follow_up_1": {
+                            "subject": "Re: Sample leads for Three Inc?",
+                            "body": "Hi Lead,\n\nI know you are likely busy, so I put together a quick sample segment of 5 verified contacts directly matching your ideal buyer profile. Here is what they look like:\n\n1. Director of Growth, tech startup (verified business email + direct dial)\n2. VP of Marketing, retail brand (verified business email + LinkedIn URL)\n3. Head of Sales, mid-market IT services company\n\nWe have thousands more contacts in this exact segment. If you'd like to get the full list to test with your outreach tool, let me know when is a good time to connect.\n\nBest,\n[Sender Name]"
+                        },
+                        "follow_up_2": {
+                            "subject": "Closing the loop / Three Inc",
+                            "body": "Hi Lead,\n\nI haven't heard back, so I'll assume that growing your database of prospects isn't a priority for Three Inc right now.\n\nIf things change, or if you'd like to browse our list directory at Go4Database down the road, feel free to reach out anytime.\n\nIf you aren't the right contact for B2B lists, I'd appreciate it if you could point me to who is. Otherwise, this is the last email you'll receive from me.\n\nThanks,\n[Sender Name]"
+                        }
+                    },
+                    "sequence_step": 1,
+                    "last_sent_time": "2026-06-09T15:16:29.275739",
+                    "is_approved": false,
+                    "history": [
+                        {
+                            "timestamp": "2026-06-09T15:16:11.660084",
+                            "action": "Ingested",
+                            "details": "Lead added to outreach queue"
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:16:22.075475",
+                            "action": "AI Analysis Started",
+                            "details": "Running Go4Database matching rules & copy creation..."
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:16:22.823273",
+                            "action": "AI Analysis Completed",
+                            "details": "Matched Offer: Custom B2B List Enrichment Service. Email drafts generated (Score: 70)."
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:16:29.285715",
+                            "action": "Sending Email 1",
+                            "details": "Preparing to send initial pitch from rotb@example.com: 'Growing outbound leads for Three Inc?'"
+                        },
+                        {
+                            "timestamp": "2026-06-09T15:16:29.275739",
+                            "action": "Email Sent (Initial)",
+                            "details": "[SIMULATED] Email sent successfully to three@example.com (Sender: rotb@example.com)\nSubject: Growing outbound leads for Three Inc?"
+                        }
+                    ],
+                    "replies": [],
+                    "last_action_date": "2026-06-09T15:16:29.285732",
+                    "sender_account_id": "rot_b"
+                }
+            ],
+            "logs": [
+                {
+                    "timestamp": "2026-06-09T15:16:11.652511",
+                    "level": "INFO",
+                    "message": "Campaign session 'RotationTest-1780998371' created.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T15:16:11.658392",
+                    "level": "INFO",
+                    "message": "Switched active campaign to 'RotationTest-1780998371'.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T15:16:11.660086",
+                    "level": "INFO",
+                    "message": "Ingested 3 new leads.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T15:16:20.705295",
+                    "level": "INFO",
+                    "message": "Campaign started.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T15:16:20.708083",
+                    "level": "SYSTEM",
+                    "message": "Campaign started. Auto-triggering AI analysis for 3 pending leads.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T15:16:20.710831",
+                    "level": "INFO",
+                    "message": "Lead Lead One (One Inc) status changed to Analyzing: Running Go4Database matching rules & copy creation...",
+                    "lead_id": "3bbd31ef-e86d-433a-b3ea-86dca995e80e"
+                },
+                {
+                    "timestamp": "2026-06-09T15:16:21.450072",
+                    "level": "INFO",
+                    "message": "Lead Lead Two (Two Inc) status changed to Analyzing: Running Go4Database matching rules & copy creation...",
+                    "lead_id": "7b95776b-5579-4e39-8f1e-a20ac8547dbc"
+                },
+                {
+                    "timestamp": "2026-06-09T15:16:22.075503",
+                    "level": "INFO",
+                    "message": "Lead Lead Three (Three Inc) status changed to Analyzing: Running Go4Database matching rules & copy creation...",
+                    "lead_id": "b506eeaa-320d-477a-92b6-4a0e0302d3b2"
+                },
+                {
+                    "timestamp": "2026-06-09T15:16:23.232032",
+                    "level": "INFO",
+                    "message": "Lead Lead One (One Inc) status changed to Sending: Preparing to send initial pitch from primary@example.com: 'Growing outbound leads for One Inc?'",
+                    "lead_id": "3bbd31ef-e86d-433a-b3ea-86dca995e80e"
+                },
+                {
+                    "timestamp": "2026-06-09T15:16:23.238814",
+                    "level": "INFO",
+                    "message": "Sent initial pitch to Lead One (One Inc) from primary@example.com.",
+                    "lead_id": "3bbd31ef-e86d-433a-b3ea-86dca995e80e"
+                },
+                {
+                    "timestamp": "2026-06-09T15:16:26.254892",
+                    "level": "INFO",
+                    "message": "Lead Lead Two (Two Inc) status changed to Sending: Preparing to send initial pitch from rota@example.com: 'Growing outbound leads for Two Inc?'",
+                    "lead_id": "7b95776b-5579-4e39-8f1e-a20ac8547dbc"
+                },
+                {
+                    "timestamp": "2026-06-09T15:16:26.259188",
+                    "level": "INFO",
+                    "message": "Sent initial pitch to Lead Two (Two Inc) from rota@example.com.",
+                    "lead_id": "7b95776b-5579-4e39-8f1e-a20ac8547dbc"
+                },
+                {
+                    "timestamp": "2026-06-09T15:16:29.285738",
+                    "level": "INFO",
+                    "message": "Lead Lead Three (Three Inc) status changed to Sending: Preparing to send initial pitch from rotb@example.com: 'Growing outbound leads for Three Inc?'",
+                    "lead_id": "b506eeaa-320d-477a-92b6-4a0e0302d3b2"
+                },
+                {
+                    "timestamp": "2026-06-09T15:16:29.288894",
+                    "level": "INFO",
+                    "message": "Sent initial pitch to Lead Three (Three Inc) from rotb@example.com.",
+                    "lead_id": "b506eeaa-320d-477a-92b6-4a0e0302d3b2"
+                },
+                {
+                    "timestamp": "2026-06-09T15:18:03.082536",
+                    "level": "INFO",
+                    "message": "Campaign settings updated.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T15:18:06.090880",
+                    "level": "INFO",
+                    "message": "Campaign settings updated.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T17:46:48.798641",
+                    "level": "INFO",
+                    "message": "Campaign settings updated.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-10T13:18:48.232329",
+                    "level": "INFO",
+                    "message": "Campaign paused.",
+                    "lead_id": null
+                }
+            ],
+            "campaign_status": {
+                "is_running": false,
+                "total_sent": 3,
+                "total_replies": 0,
+                "total_interested": 0,
+                "total_not_interested": 0,
+                "total_leads": 3,
+                "total_junk": 0
+            }
+        },
+        "89900041-1582-479d-8ecf-80308aeea3ff": {
+            "id": "89900041-1582-479d-8ecf-80308aeea3ff",
+            "name": "RotationTest-1781007408",
+            "created_at": "2026-06-09T17:46:48.828245",
+            "leads": [
+                {
+                    "id": "66fb8f83-79c3-4bd9-89f9-d55b861913f7",
+                    "company": "One Inc",
+                    "name": "Lead One",
+                    "title": "Owner",
+                    "email": "one@example.com",
+                    "company_size": "",
+                    "industry": "",
+                    "location": "",
+                    "branch": "",
+                    "notes": "",
+                    "icp_tags": "",
+                    "status": "Sent",
+                    "score": 88,
+                    "matched_segment": {
+                        "icp_fit": "A B2B company performing outbound sales, marketing, or business development.",
+                        "branch_target": "Founder's Office / Sales Operations / Marketing Operations",
+                        "pain_point": "High bounce rates in email campaigns due to outdated contacts, missing direct dials for sales, or overall poor CRM data quality.",
+                        "go4db_offer": "Custom B2B List Enrichment Service",
+                        "data_usecase": "To clean and reactivate their existing customer or prospect databases, reduce email bounce rates, and enrich missing lead details (like verified emails, direct dials, and LinkedIn URLs) for their sales and marketing teams, thereby improving outreach effectiveness and ROI."
+                    },
+                    "email_drafts": {
+                        "initial_pitch": {
+                            "subject": "Quick question about data quality at One Inc",
+                            "body": "Hi Lead One,\n\nAs an Owner at One Inc, you're likely focused on optimizing every aspect of your growth and ensuring your outreach efforts are as effective as possible.\n\nMany B2B companies find their sales and marketing outreach hampered by outdated contact data \u2013 leading to high bounce rates, wasted effort, and missed opportunities.\n\nAt Go4Database, we specialize in custom B2B list enrichment. We clean and update your existing databases with verified emails, direct dials, and missing details, ensuring your outreach hits the mark, every time.\n\nWould you be open to a brief 15-minute chat to see how we can help One Inc, or perhaps we could enrich 20 of your existing contacts as a free sample?\n\nBest,\n[Sender Name]"
+                        },
+                        "follow_up_1": {
+                            "subject": "Following up: One Inc's outreach efficiency",
+                            "body": "Hi Lead One,\n\nJust wanted to gently follow up on my previous email regarding improving your outbound efficiency at One Inc.\n\nI know how crucial accurate data is for any Owner looking to maximize ROI from sales and marketing efforts. Poor data often means missed opportunities and higher operational costs.\n\nOur custom enrichment service is designed to eliminate these roadblocks, ensuring your teams are always reaching the right people with the right information.\n\nStill open to a quick chat, or would you like to see a sample of how we could enrich 20 of your existing leads, no strings attached?\n\nRegards,\n[Sender Name]"
+                        },
+                        "follow_up_2": {
+                            "subject": "Closing the loop - Data insights for One Inc",
+                            "body": "Hi Lead One,\n\nHope this email finds you well.\n\nI understand you're incredibly busy, so I'll keep this brief and close the loop on my end if now isn't the right time.\n\nMy aim was simply to offer a solution for optimizing One Inc's sales and marketing data quality. If outdated contacts or low outreach conversion rates ever become a priority for you, please don't hesitate to reach out.\n\nWishing you and One Inc continued success.\n\nBest,\n[Sender Name]"
+                        }
+                    },
+                    "sequence_step": 1,
+                    "last_sent_time": "2026-06-09T17:47:13.449417",
+                    "is_approved": true,
+                    "history": [
+                        {
+                            "timestamp": "2026-06-09T17:46:48.836546",
+                            "action": "Ingested",
+                            "details": "Lead added to outreach queue"
+                        },
+                        {
+                            "timestamp": "2026-06-09T17:46:57.883716",
+                            "action": "AI Analysis Started",
+                            "details": "Running Go4Database matching rules & copy creation..."
+                        },
+                        {
+                            "timestamp": "2026-06-09T17:47:12.106789",
+                            "action": "AI Analysis Completed",
+                            "details": "Matched Offer: Custom B2B List Enrichment Service. Email drafts generated (Score: 88)."
+                        },
+                        {
+                            "timestamp": "2026-06-09T17:47:13.456286",
+                            "action": "Sending Email 1",
+                            "details": "Preparing to send initial pitch from primary@example.com: 'Quick question about data quality at One Inc'"
+                        },
+                        {
+                            "timestamp": "2026-06-09T17:47:13.449417",
+                            "action": "Email Sent (Initial)",
+                            "details": "[SIMULATED] Email sent successfully to one@example.com (Sender: primary@example.com)\nSubject: Quick question about data quality at One Inc"
+                        }
+                    ],
+                    "replies": [],
+                    "last_action_date": "2026-06-09T17:47:13.456296",
+                    "sender_account_id": "primary"
+                },
+                {
+                    "id": "168937e6-2e25-4301-bb9b-acdca91149cb",
+                    "company": "Two Inc",
+                    "name": "Lead Two",
+                    "title": "Owner",
+                    "email": "two@example.com",
+                    "company_size": "",
+                    "industry": "",
+                    "location": "",
+                    "branch": "",
+                    "notes": "",
+                    "icp_tags": "",
+                    "status": "Sent",
+                    "score": 70,
+                    "matched_segment": {
+                        "icp_fit": "B2B Professional Services & Consulting",
+                        "branch_target": "Outbound Sales Development",
+                        "pain_point": "High bounce rates in email campaigns",
+                        "go4db_offer": "Custom B2B List Enrichment Service",
+                        "data_usecase": "To clean and reactivate cold databases, reduce CRM bounce rates, and enrich missing lead details."
+                    },
+                    "email_drafts": {
+                        "initial_pitch": {
+                            "subject": "Growing outbound leads for Two Inc?",
+                            "body": "Hi Lead,\n\nI was looking at Two Inc and noticed your focus on B2B client acquisition. Typically, companies like yours run into the bottleneck of high bounce rates in email campaigns.\n\nAt Go4Database, we recently compiled our \"Custom B2B List Enrichment Service\" which includes over 350 million business contacts globally. For Two Inc, this could be used to clean and reactivate cold databases, reduce crm bounce rates, and enrich missing lead details..\n\nWe've verified all emails and LinkedIn profiles to keep bounce rates under 5%.\n\nWould you be open to a quick look at a sample sheet of 20 leads matching your ICP next week?\n\nBest regards,\n[Sender Name]\nGo4Database Sales"
+                        },
+                        "follow_up_1": {
+                            "subject": "Re: Sample leads for Two Inc?",
+                            "body": "Hi Lead,\n\nI know you are likely busy, so I put together a quick sample segment of 5 verified contacts directly matching your ideal buyer profile. Here is what they look like:\n\n1. Director of Growth, tech startup (verified business email + direct dial)\n2. VP of Marketing, retail brand (verified business email + LinkedIn URL)\n3. Head of Sales, mid-market IT services company\n\nWe have thousands more contacts in this exact segment. If you'd like to get the full list to test with your outreach tool, let me know when is a good time to connect.\n\nBest,\n[Sender Name]"
+                        },
+                        "follow_up_2": {
+                            "subject": "Closing the loop / Two Inc",
+                            "body": "Hi Lead,\n\nI haven't heard back, so I'll assume that growing your database of prospects isn't a priority for Two Inc right now.\n\nIf things change, or if you'd like to browse our list directory at Go4Database down the road, feel free to reach out anytime.\n\nIf you aren't the right contact for B2B lists, I'd appreciate it if you could point me to who is. Otherwise, this is the last email you'll receive from me.\n\nThanks,\n[Sender Name]"
+                        }
+                    },
+                    "sequence_step": 1,
+                    "last_sent_time": "2026-06-09T17:47:16.478548",
+                    "is_approved": false,
+                    "history": [
+                        {
+                            "timestamp": "2026-06-09T17:46:48.836560",
+                            "action": "Ingested",
+                            "details": "Lead added to outreach queue"
+                        },
+                        {
+                            "timestamp": "2026-06-09T17:47:12.111152",
+                            "action": "AI Analysis Started",
+                            "details": "Running Go4Database matching rules & copy creation..."
+                        },
+                        {
+                            "timestamp": "2026-06-09T17:47:14.463175",
+                            "action": "AI Analysis Completed",
+                            "details": "Matched Offer: Custom B2B List Enrichment Service. Email drafts generated (Score: 70)."
+                        },
+                        {
+                            "timestamp": "2026-06-09T17:47:16.484446",
+                            "action": "Sending Email 1",
+                            "details": "Preparing to send initial pitch from rota@example.com: 'Growing outbound leads for Two Inc?'"
+                        },
+                        {
+                            "timestamp": "2026-06-09T17:47:16.478548",
+                            "action": "Email Sent (Initial)",
+                            "details": "[SIMULATED] Email sent successfully to two@example.com (Sender: rota@example.com)\nSubject: Growing outbound leads for Two Inc?"
+                        }
+                    ],
+                    "replies": [],
+                    "last_action_date": "2026-06-09T17:47:16.484462",
+                    "sender_account_id": "rot_a"
+                },
+                {
+                    "id": "bc22a254-fa04-428b-847e-3c15524b5589",
+                    "company": "Three Inc",
+                    "name": "Lead Three",
+                    "title": "Owner",
+                    "email": "three@example.com",
+                    "company_size": "",
+                    "industry": "",
+                    "location": "",
+                    "branch": "",
+                    "notes": "",
+                    "icp_tags": "",
+                    "status": "Sent",
+                    "score": 70,
+                    "matched_segment": {
+                        "icp_fit": "B2B Professional Services & Consulting",
+                        "branch_target": "Outbound Sales Development",
+                        "pain_point": "High bounce rates in email campaigns",
+                        "go4db_offer": "Custom B2B List Enrichment Service",
+                        "data_usecase": "To clean and reactivate cold databases, reduce CRM bounce rates, and enrich missing lead details."
+                    },
+                    "email_drafts": {
+                        "initial_pitch": {
+                            "subject": "Growing outbound leads for Three Inc?",
+                            "body": "Hi Lead,\n\nI was looking at Three Inc and noticed your focus on B2B client acquisition. Typically, companies like yours run into the bottleneck of high bounce rates in email campaigns.\n\nAt Go4Database, we recently compiled our \"Custom B2B List Enrichment Service\" which includes over 350 million business contacts globally. For Three Inc, this could be used to clean and reactivate cold databases, reduce crm bounce rates, and enrich missing lead details..\n\nWe've verified all emails and LinkedIn profiles to keep bounce rates under 5%.\n\nWould you be open to a quick look at a sample sheet of 20 leads matching your ICP next week?\n\nBest regards,\n[Sender Name]\nGo4Database Sales"
+                        },
+                        "follow_up_1": {
+                            "subject": "Re: Sample leads for Three Inc?",
+                            "body": "Hi Lead,\n\nI know you are likely busy, so I put together a quick sample segment of 5 verified contacts directly matching your ideal buyer profile. Here is what they look like:\n\n1. Director of Growth, tech startup (verified business email + direct dial)\n2. VP of Marketing, retail brand (verified business email + LinkedIn URL)\n3. Head of Sales, mid-market IT services company\n\nWe have thousands more contacts in this exact segment. If you'd like to get the full list to test with your outreach tool, let me know when is a good time to connect.\n\nBest,\n[Sender Name]"
+                        },
+                        "follow_up_2": {
+                            "subject": "Closing the loop / Three Inc",
+                            "body": "Hi Lead,\n\nI haven't heard back, so I'll assume that growing your database of prospects isn't a priority for Three Inc right now.\n\nIf things change, or if you'd like to browse our list directory at Go4Database down the road, feel free to reach out anytime.\n\nIf you aren't the right contact for B2B lists, I'd appreciate it if you could point me to who is. Otherwise, this is the last email you'll receive from me.\n\nThanks,\n[Sender Name]"
+                        }
+                    },
+                    "sequence_step": 1,
+                    "last_sent_time": "2026-06-09T17:47:19.499910",
+                    "is_approved": false,
+                    "history": [
+                        {
+                            "timestamp": "2026-06-09T17:46:48.836566",
+                            "action": "Ingested",
+                            "details": "Lead added to outreach queue"
+                        },
+                        {
+                            "timestamp": "2026-06-09T17:47:14.468106",
+                            "action": "AI Analysis Started",
+                            "details": "Running Go4Database matching rules & copy creation..."
+                        },
+                        {
+                            "timestamp": "2026-06-09T17:47:15.043123",
+                            "action": "AI Analysis Completed",
+                            "details": "Matched Offer: Custom B2B List Enrichment Service. Email drafts generated (Score: 70)."
+                        },
+                        {
+                            "timestamp": "2026-06-09T17:47:19.502109",
+                            "action": "Sending Email 1",
+                            "details": "Preparing to send initial pitch from rotb@example.com: 'Growing outbound leads for Three Inc?'"
+                        },
+                        {
+                            "timestamp": "2026-06-09T17:47:19.499910",
+                            "action": "Email Sent (Initial)",
+                            "details": "[SIMULATED] Email sent successfully to three@example.com (Sender: rotb@example.com)\nSubject: Growing outbound leads for Three Inc?"
+                        }
+                    ],
+                    "replies": [],
+                    "last_action_date": "2026-06-09T17:47:19.502113",
+                    "sender_account_id": "rot_b"
+                }
+            ],
+            "logs": [
+                {
+                    "timestamp": "2026-06-09T17:46:48.828255",
+                    "level": "INFO",
+                    "message": "Campaign session 'RotationTest-1781007408' created.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T17:46:48.832764",
+                    "level": "INFO",
+                    "message": "Switched active campaign to 'RotationTest-1781007408'.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T17:46:48.836570",
+                    "level": "INFO",
+                    "message": "Ingested 3 new leads.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T17:46:57.876178",
+                    "level": "INFO",
+                    "message": "Campaign started.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T17:46:57.880643",
+                    "level": "SYSTEM",
+                    "message": "Campaign started. Auto-triggering AI analysis for 3 pending leads.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T17:46:57.883722",
+                    "level": "INFO",
+                    "message": "Lead Lead One (One Inc) status changed to Analyzing: Running Go4Database matching rules & copy creation...",
+                    "lead_id": "66fb8f83-79c3-4bd9-89f9-d55b861913f7"
+                },
+                {
+                    "timestamp": "2026-06-09T17:47:12.111175",
+                    "level": "INFO",
+                    "message": "Lead Lead Two (Two Inc) status changed to Analyzing: Running Go4Database matching rules & copy creation...",
+                    "lead_id": "168937e6-2e25-4301-bb9b-acdca91149cb"
+                },
+                {
+                    "timestamp": "2026-06-09T17:47:13.456300",
+                    "level": "INFO",
+                    "message": "Lead Lead One (One Inc) status changed to Sending: Preparing to send initial pitch from primary@example.com: 'Quick question about data quality at One Inc'",
+                    "lead_id": "66fb8f83-79c3-4bd9-89f9-d55b861913f7"
+                },
+                {
+                    "timestamp": "2026-06-09T17:47:13.460591",
+                    "level": "INFO",
+                    "message": "Sent initial pitch to Lead One (One Inc) from primary@example.com.",
+                    "lead_id": "66fb8f83-79c3-4bd9-89f9-d55b861913f7"
+                },
+                {
+                    "timestamp": "2026-06-09T17:47:14.468126",
+                    "level": "INFO",
+                    "message": "Lead Lead Three (Three Inc) status changed to Analyzing: Running Go4Database matching rules & copy creation...",
+                    "lead_id": "bc22a254-fa04-428b-847e-3c15524b5589"
+                },
+                {
+                    "timestamp": "2026-06-09T17:47:16.484466",
+                    "level": "INFO",
+                    "message": "Lead Lead Two (Two Inc) status changed to Sending: Preparing to send initial pitch from rota@example.com: 'Growing outbound leads for Two Inc?'",
+                    "lead_id": "168937e6-2e25-4301-bb9b-acdca91149cb"
+                },
+                {
+                    "timestamp": "2026-06-09T17:47:16.487777",
+                    "level": "INFO",
+                    "message": "Sent initial pitch to Lead Two (Two Inc) from rota@example.com.",
+                    "lead_id": "168937e6-2e25-4301-bb9b-acdca91149cb"
+                },
+                {
+                    "timestamp": "2026-06-09T17:47:19.502123",
+                    "level": "INFO",
+                    "message": "Lead Lead Three (Three Inc) status changed to Sending: Preparing to send initial pitch from rotb@example.com: 'Growing outbound leads for Three Inc?'",
+                    "lead_id": "bc22a254-fa04-428b-847e-3c15524b5589"
+                },
+                {
+                    "timestamp": "2026-06-09T17:47:19.503908",
+                    "level": "INFO",
+                    "message": "Sent initial pitch to Lead Three (Three Inc) from rotb@example.com.",
+                    "lead_id": "bc22a254-fa04-428b-847e-3c15524b5589"
+                },
+                {
+                    "timestamp": "2026-06-09T17:47:37.152098",
+                    "level": "INFO",
+                    "message": "Campaign settings updated.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-10T13:18:47.655359",
+                    "level": "INFO",
+                    "message": "Campaign paused.",
+                    "lead_id": null
+                }
+            ],
+            "campaign_status": {
+                "is_running": false,
+                "total_sent": 3,
+                "total_replies": 0,
+                "total_interested": 0,
+                "total_not_interested": 0,
+                "total_leads": 3,
+                "total_junk": 0
+            }
+        },
+        "7eb8abc0-34e6-4651-8391-8c23daa09bac": {
+            "id": "7eb8abc0-34e6-4651-8391-8c23daa09bac",
+            "name": "RotationTest-1781007457",
+            "created_at": "2026-06-09T17:47:37.156386",
+            "leads": [
+                {
+                    "id": "1870d501-c4ad-4eb0-a8f1-9bc03e44ad19",
+                    "company": "One Inc",
+                    "name": "Lead One",
+                    "title": "Owner",
+                    "email": "one@example.com",
+                    "company_size": "",
+                    "industry": "",
+                    "location": "",
+                    "branch": "",
+                    "notes": "",
+                    "icp_tags": "",
+                    "status": "Pending",
+                    "score": 0,
+                    "matched_segment": null,
+                    "email_drafts": null,
+                    "sequence_step": 0,
+                    "last_sent_time": null,
+                    "is_approved": false,
+                    "history": [
+                        {
+                            "timestamp": "2026-06-09T17:47:37.160173",
+                            "action": "Ingested",
+                            "details": "Lead added to outreach queue"
+                        }
+                    ],
+                    "replies": []
+                },
+                {
+                    "id": "c65b1cc5-16b9-4caa-b23f-551bb54dd9a1",
+                    "company": "Two Inc",
+                    "name": "Lead Two",
+                    "title": "Owner",
+                    "email": "two@example.com",
+                    "company_size": "",
+                    "industry": "",
+                    "location": "",
+                    "branch": "",
+                    "notes": "",
+                    "icp_tags": "",
+                    "status": "Pending",
+                    "score": 0,
+                    "matched_segment": null,
+                    "email_drafts": null,
+                    "sequence_step": 0,
+                    "last_sent_time": null,
+                    "is_approved": false,
+                    "history": [
+                        {
+                            "timestamp": "2026-06-09T17:47:37.160224",
+                            "action": "Ingested",
+                            "details": "Lead added to outreach queue"
+                        }
+                    ],
+                    "replies": []
+                },
+                {
+                    "id": "84656a32-8e73-4acc-910b-46b316775a29",
+                    "company": "Three Inc",
+                    "name": "Lead Three",
+                    "title": "Owner",
+                    "email": "three@example.com",
+                    "company_size": "",
+                    "industry": "",
+                    "location": "",
+                    "branch": "",
+                    "notes": "",
+                    "icp_tags": "",
+                    "status": "Pending",
+                    "score": 0,
+                    "matched_segment": null,
+                    "email_drafts": null,
+                    "sequence_step": 0,
+                    "last_sent_time": null,
+                    "is_approved": false,
+                    "history": [
+                        {
+                            "timestamp": "2026-06-09T17:47:37.160245",
+                            "action": "Ingested",
+                            "details": "Lead added to outreach queue"
+                        }
+                    ],
+                    "replies": []
+                }
+            ],
+            "logs": [
+                {
+                    "timestamp": "2026-06-09T17:47:37.156394",
+                    "level": "INFO",
+                    "message": "Campaign session 'RotationTest-1781007457' created.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T17:47:37.158013",
+                    "level": "INFO",
+                    "message": "Switched active campaign to 'RotationTest-1781007457'.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T17:47:37.160252",
+                    "level": "INFO",
+                    "message": "Ingested 3 new leads.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T17:50:43.429564",
+                    "level": "INFO",
+                    "message": "Campaign settings updated.",
+                    "lead_id": null
+                }
+            ],
+            "campaign_status": {
+                "is_running": false,
+                "total_sent": 0,
+                "total_replies": 0,
+                "total_interested": 0,
+                "total_not_interested": 0,
+                "total_leads": 3,
+                "total_junk": 0
+            }
+        },
+        "60c33b39-074b-4306-b2ce-40b00821fa8b": {
+            "id": "60c33b39-074b-4306-b2ce-40b00821fa8b",
+            "name": "RotationTest-1781007643",
+            "created_at": "2026-06-09T17:50:43.434807",
+            "leads": [
+                {
+                    "id": "be1ef147-4e74-4765-92d3-93daf381b2fd",
+                    "company": "One Inc",
+                    "name": "Lead One",
+                    "title": "Owner",
+                    "email": "one@example.com",
+                    "company_size": "",
+                    "industry": "",
+                    "location": "",
+                    "branch": "",
+                    "notes": "",
+                    "icp_tags": "",
+                    "status": "Sent",
+                    "score": 76,
+                    "matched_segment": {
+                        "icp_fit": "B2B Professional Services & Consulting",
+                        "branch_target": "Outbound Sales Development",
+                        "pain_point": "High bounce rates in email campaigns",
+                        "go4db_offer": "Custom B2B List Enrichment Service",
+                        "data_usecase": "To clean and reactivate cold databases, reduce CRM bounce rates, and enrich missing lead details."
+                    },
+                    "email_drafts": {
+                        "initial_pitch": {
+                            "subject": "Growing outbound leads for One Inc?",
+                            "body": "Hi Lead,\n\nI was looking at One Inc and noticed your focus on B2B client acquisition. Typically, companies like yours run into the bottleneck of high bounce rates in email campaigns.\n\nAt Go4Database, we recently compiled our \"Custom B2B List Enrichment Service\" which includes over 350 million business contacts globally. For One Inc, this could be used to clean and reactivate cold databases, reduce crm bounce rates, and enrich missing lead details..\n\nWe've verified all emails and LinkedIn profiles to keep bounce rates under 5%.\n\nWould you be open to a quick look at a sample sheet of 20 leads matching your ICP next week?\n\nBest regards,\n[Sender Name]\nGo4Database Sales"
+                        },
+                        "follow_up_1": {
+                            "subject": "Re: Sample leads for One Inc?",
+                            "body": "Hi Lead,\n\nI know you are likely busy, so I put together a quick sample segment of 5 verified contacts directly matching your ideal buyer profile. Here is what they look like:\n\n1. Director of Growth, tech startup (verified business email + direct dial)\n2. VP of Marketing, retail brand (verified business email + LinkedIn URL)\n3. Head of Sales, mid-market IT services company\n\nWe have thousands more contacts in this exact segment. If you'd like to get the full list to test with your outreach tool, let me know when is a good time to connect.\n\nBest,\n[Sender Name]"
+                        },
+                        "follow_up_2": {
+                            "subject": "Closing the loop / One Inc",
+                            "body": "Hi Lead,\n\nI haven't heard back, so I'll assume that growing your database of prospects isn't a priority for One Inc right now.\n\nIf things change, or if you'd like to browse our list directory at Go4Database down the road, feel free to reach out anytime.\n\nIf you aren't the right contact for B2B lists, I'd appreciate it if you could point me to who is. Otherwise, this is the last email you'll receive from me.\n\nThanks,\n[Sender Name]"
+                        }
+                    },
+                    "sequence_step": 1,
+                    "last_sent_time": "2026-06-09T17:50:44.947973",
+                    "is_approved": false,
+                    "history": [
+                        {
+                            "timestamp": "2026-06-09T17:50:43.437901",
+                            "action": "Ingested",
+                            "details": "Lead added to outreach queue"
+                        },
+                        {
+                            "timestamp": "2026-06-09T17:50:43.451862",
+                            "action": "AI Analysis Started",
+                            "details": "Running Go4Database matching rules & copy creation..."
+                        },
+                        {
+                            "timestamp": "2026-06-09T17:50:44.242041",
+                            "action": "AI Analysis Completed",
+                            "details": "Matched Offer: Custom B2B List Enrichment Service. Email drafts generated (Score: 76)."
+                        },
+                        {
+                            "timestamp": "2026-06-09T17:50:44.972004",
+                            "action": "Sending Email 1",
+                            "details": "Preparing to send initial pitch from primary@example.com: 'Growing outbound leads for One Inc?'"
+                        },
+                        {
+                            "timestamp": "2026-06-09T17:50:44.947973",
+                            "action": "Email Sent (Initial)",
+                            "details": "[SIMULATED] Email sent successfully to one@example.com (Sender: primary@example.com)\nSubject: Growing outbound leads for One Inc?"
+                        }
+                    ],
+                    "replies": [],
+                    "last_action_date": "2026-06-09T17:50:44.972196",
+                    "sender_account_id": "primary"
+                },
+                {
+                    "id": "ddab7322-7412-4d0a-a267-e885ee22acab",
+                    "company": "Two Inc",
+                    "name": "Lead Two",
+                    "title": "Owner",
+                    "email": "two@example.com",
+                    "company_size": "",
+                    "industry": "",
+                    "location": "",
+                    "branch": "",
+                    "notes": "",
+                    "icp_tags": "",
+                    "status": "Sent",
+                    "score": 70,
+                    "matched_segment": {
+                        "icp_fit": "B2B Professional Services & Consulting",
+                        "branch_target": "Outbound Sales Development",
+                        "pain_point": "High bounce rates in email campaigns",
+                        "go4db_offer": "Custom B2B List Enrichment Service",
+                        "data_usecase": "To clean and reactivate cold databases, reduce CRM bounce rates, and enrich missing lead details."
+                    },
+                    "email_drafts": {
+                        "initial_pitch": {
+                            "subject": "Growing outbound leads for Two Inc?",
+                            "body": "Hi Lead,\n\nI was looking at Two Inc and noticed your focus on B2B client acquisition. Typically, companies like yours run into the bottleneck of high bounce rates in email campaigns.\n\nAt Go4Database, we recently compiled our \"Custom B2B List Enrichment Service\" which includes over 350 million business contacts globally. For Two Inc, this could be used to clean and reactivate cold databases, reduce crm bounce rates, and enrich missing lead details..\n\nWe've verified all emails and LinkedIn profiles to keep bounce rates under 5%.\n\nWould you be open to a quick look at a sample sheet of 20 leads matching your ICP next week?\n\nBest regards,\n[Sender Name]\nGo4Database Sales"
+                        },
+                        "follow_up_1": {
+                            "subject": "Re: Sample leads for Two Inc?",
+                            "body": "Hi Lead,\n\nI know you are likely busy, so I put together a quick sample segment of 5 verified contacts directly matching your ideal buyer profile. Here is what they look like:\n\n1. Director of Growth, tech startup (verified business email + direct dial)\n2. VP of Marketing, retail brand (verified business email + LinkedIn URL)\n3. Head of Sales, mid-market IT services company\n\nWe have thousands more contacts in this exact segment. If you'd like to get the full list to test with your outreach tool, let me know when is a good time to connect.\n\nBest,\n[Sender Name]"
+                        },
+                        "follow_up_2": {
+                            "subject": "Closing the loop / Two Inc",
+                            "body": "Hi Lead,\n\nI haven't heard back, so I'll assume that growing your database of prospects isn't a priority for Two Inc right now.\n\nIf things change, or if you'd like to browse our list directory at Go4Database down the road, feel free to reach out anytime.\n\nIf you aren't the right contact for B2B lists, I'd appreciate it if you could point me to who is. Otherwise, this is the last email you'll receive from me.\n\nThanks,\n[Sender Name]"
+                        }
+                    },
+                    "sequence_step": 1,
+                    "last_sent_time": "2026-06-09T17:50:48.088336",
+                    "is_approved": false,
+                    "history": [
+                        {
+                            "timestamp": "2026-06-09T17:50:43.437909",
+                            "action": "Ingested",
+                            "details": "Lead added to outreach queue"
+                        },
+                        {
+                            "timestamp": "2026-06-09T17:50:44.246422",
+                            "action": "AI Analysis Started",
+                            "details": "Running Go4Database matching rules & copy creation..."
+                        },
+                        {
+                            "timestamp": "2026-06-09T17:50:44.814636",
+                            "action": "AI Analysis Completed",
+                            "details": "Matched Offer: Custom B2B List Enrichment Service. Email drafts generated (Score: 70)."
+                        },
+                        {
+                            "timestamp": "2026-06-09T17:50:48.097080",
+                            "action": "Sending Email 1",
+                            "details": "Preparing to send initial pitch from rota@example.com: 'Growing outbound leads for Two Inc?'"
+                        },
+                        {
+                            "timestamp": "2026-06-09T17:50:48.088336",
+                            "action": "Email Sent (Initial)",
+                            "details": "[SIMULATED] Email sent successfully to two@example.com (Sender: rota@example.com)\nSubject: Growing outbound leads for Two Inc?"
+                        }
+                    ],
+                    "replies": [],
+                    "last_action_date": "2026-06-09T17:50:48.097099",
+                    "sender_account_id": "rot_a"
+                },
+                {
+                    "id": "ad531f18-6107-481a-a6d0-290730f07cb3",
+                    "company": "Three Inc",
+                    "name": "Lead Three",
+                    "title": "Owner",
+                    "email": "three@example.com",
+                    "company_size": "",
+                    "industry": "",
+                    "location": "",
+                    "branch": "",
+                    "notes": "",
+                    "icp_tags": "",
+                    "status": "Sent",
+                    "score": 70,
+                    "matched_segment": {
+                        "icp_fit": "B2B Professional Services & Consulting",
+                        "branch_target": "Outbound Sales Development",
+                        "pain_point": "High bounce rates in email campaigns",
+                        "go4db_offer": "Custom B2B List Enrichment Service",
+                        "data_usecase": "To clean and reactivate cold databases, reduce CRM bounce rates, and enrich missing lead details."
+                    },
+                    "email_drafts": {
+                        "initial_pitch": {
+                            "subject": "Growing outbound leads for Three Inc?",
+                            "body": "Hi Lead,\n\nI was looking at Three Inc and noticed your focus on B2B client acquisition. Typically, companies like yours run into the bottleneck of high bounce rates in email campaigns.\n\nAt Go4Database, we recently compiled our \"Custom B2B List Enrichment Service\" which includes over 350 million business contacts globally. For Three Inc, this could be used to clean and reactivate cold databases, reduce crm bounce rates, and enrich missing lead details..\n\nWe've verified all emails and LinkedIn profiles to keep bounce rates under 5%.\n\nWould you be open to a quick look at a sample sheet of 20 leads matching your ICP next week?\n\nBest regards,\n[Sender Name]\nGo4Database Sales"
+                        },
+                        "follow_up_1": {
+                            "subject": "Re: Sample leads for Three Inc?",
+                            "body": "Hi Lead,\n\nI know you are likely busy, so I put together a quick sample segment of 5 verified contacts directly matching your ideal buyer profile. Here is what they look like:\n\n1. Director of Growth, tech startup (verified business email + direct dial)\n2. VP of Marketing, retail brand (verified business email + LinkedIn URL)\n3. Head of Sales, mid-market IT services company\n\nWe have thousands more contacts in this exact segment. If you'd like to get the full list to test with your outreach tool, let me know when is a good time to connect.\n\nBest,\n[Sender Name]"
+                        },
+                        "follow_up_2": {
+                            "subject": "Closing the loop / Three Inc",
+                            "body": "Hi Lead,\n\nI haven't heard back, so I'll assume that growing your database of prospects isn't a priority for Three Inc right now.\n\nIf things change, or if you'd like to browse our list directory at Go4Database down the road, feel free to reach out anytime.\n\nIf you aren't the right contact for B2B lists, I'd appreciate it if you could point me to who is. Otherwise, this is the last email you'll receive from me.\n\nThanks,\n[Sender Name]"
+                        }
+                    },
+                    "sequence_step": 1,
+                    "last_sent_time": "2026-06-09T17:50:51.123962",
+                    "is_approved": false,
+                    "history": [
+                        {
+                            "timestamp": "2026-06-09T17:50:43.437915",
+                            "action": "Ingested",
+                            "details": "Lead added to outreach queue"
+                        },
+                        {
+                            "timestamp": "2026-06-09T17:50:44.819977",
+                            "action": "AI Analysis Started",
+                            "details": "Running Go4Database matching rules & copy creation..."
+                        },
+                        {
+                            "timestamp": "2026-06-09T17:50:45.617179",
+                            "action": "AI Analysis Completed",
+                            "details": "Matched Offer: Custom B2B List Enrichment Service. Email drafts generated (Score: 70)."
+                        },
+                        {
+                            "timestamp": "2026-06-09T17:50:51.130145",
+                            "action": "Sending Email 1",
+                            "details": "Preparing to send initial pitch from rotb@example.com: 'Growing outbound leads for Three Inc?'"
+                        },
+                        {
+                            "timestamp": "2026-06-09T17:50:51.123962",
+                            "action": "Email Sent (Initial)",
+                            "details": "[SIMULATED] Email sent successfully to three@example.com (Sender: rotb@example.com)\nSubject: Growing outbound leads for Three Inc?"
+                        }
+                    ],
+                    "replies": [],
+                    "last_action_date": "2026-06-09T17:50:51.130160",
+                    "sender_account_id": "rot_b"
+                }
+            ],
+            "logs": [
+                {
+                    "timestamp": "2026-06-09T17:50:43.434814",
+                    "level": "INFO",
+                    "message": "Campaign session 'RotationTest-1781007643' created.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T17:50:43.436343",
+                    "level": "INFO",
+                    "message": "Switched active campaign to 'RotationTest-1781007643'.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T17:50:43.437917",
+                    "level": "INFO",
+                    "message": "Ingested 3 new leads.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T17:50:43.447957",
+                    "level": "INFO",
+                    "message": "Campaign started.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T17:50:43.450021",
+                    "level": "SYSTEM",
+                    "message": "Campaign started. Auto-triggering AI analysis for 3 pending leads.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T17:50:43.451867",
+                    "level": "INFO",
+                    "message": "Lead Lead One (One Inc) status changed to Analyzing: Running Go4Database matching rules & copy creation...",
+                    "lead_id": "be1ef147-4e74-4765-92d3-93daf381b2fd"
+                },
+                {
+                    "timestamp": "2026-06-09T17:50:44.246435",
+                    "level": "INFO",
+                    "message": "Lead Lead Two (Two Inc) status changed to Analyzing: Running Go4Database matching rules & copy creation...",
+                    "lead_id": "ddab7322-7412-4d0a-a267-e885ee22acab"
+                },
+                {
+                    "timestamp": "2026-06-09T17:50:44.819998",
+                    "level": "INFO",
+                    "message": "Lead Lead Three (Three Inc) status changed to Analyzing: Running Go4Database matching rules & copy creation...",
+                    "lead_id": "ad531f18-6107-481a-a6d0-290730f07cb3"
+                },
+                {
+                    "timestamp": "2026-06-09T17:50:44.972204",
+                    "level": "INFO",
+                    "message": "Lead Lead One (One Inc) status changed to Sending: Preparing to send initial pitch from primary@example.com: 'Growing outbound leads for One Inc?'",
+                    "lead_id": "be1ef147-4e74-4765-92d3-93daf381b2fd"
+                },
+                {
+                    "timestamp": "2026-06-09T17:50:44.988738",
+                    "level": "INFO",
+                    "message": "Sent initial pitch to Lead One (One Inc) from primary@example.com.",
+                    "lead_id": "be1ef147-4e74-4765-92d3-93daf381b2fd"
+                },
+                {
+                    "timestamp": "2026-06-09T17:50:48.097352",
+                    "level": "INFO",
+                    "message": "Lead Lead Two (Two Inc) status changed to Sending: Preparing to send initial pitch from rota@example.com: 'Growing outbound leads for Two Inc?'",
+                    "lead_id": "ddab7322-7412-4d0a-a267-e885ee22acab"
+                },
+                {
+                    "timestamp": "2026-06-09T17:50:48.104558",
+                    "level": "INFO",
+                    "message": "Sent initial pitch to Lead Two (Two Inc) from rota@example.com.",
+                    "lead_id": "ddab7322-7412-4d0a-a267-e885ee22acab"
+                },
+                {
+                    "timestamp": "2026-06-09T17:50:51.130167",
+                    "level": "INFO",
+                    "message": "Lead Lead Three (Three Inc) status changed to Sending: Preparing to send initial pitch from rotb@example.com: 'Growing outbound leads for Three Inc?'",
+                    "lead_id": "ad531f18-6107-481a-a6d0-290730f07cb3"
+                },
+                {
+                    "timestamp": "2026-06-09T17:50:51.134443",
+                    "level": "INFO",
+                    "message": "Sent initial pitch to Lead Three (Three Inc) from rotb@example.com.",
+                    "lead_id": "ad531f18-6107-481a-a6d0-290730f07cb3"
+                },
+                {
+                    "timestamp": "2026-06-09T17:50:51.572108",
+                    "level": "INFO",
+                    "message": "Campaign started.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T17:51:36.653947",
+                    "level": "SYSTEM",
+                    "message": "Campaign background worker thread started.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T17:52:33.068358",
+                    "level": "INFO",
+                    "message": "Campaign settings updated.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-10T13:18:49.092413",
+                    "level": "INFO",
+                    "message": "Campaign paused.",
+                    "lead_id": null
+                }
+            ],
+            "campaign_status": {
+                "is_running": false,
+                "total_sent": 3,
+                "total_replies": 0,
+                "total_interested": 0,
+                "total_not_interested": 0,
+                "total_leads": 3,
+                "total_junk": 0
+            }
+        },
+        "797cf991-c590-4c36-a81b-1ea79792793f": {
+            "id": "797cf991-c590-4c36-a81b-1ea79792793f",
+            "name": "test123",
+            "created_at": "2026-06-09T19:41:00.631986",
+            "leads": [
+                {
+                    "id": "b29f0dde-ce30-491b-89de-81f902203fa9",
+                    "company": "TechSolutions",
+                    "name": "Alice Smith",
+                    "title": "CTO",
+                    "email": "alice@techsolutions.com",
+                    "company_size": "51-200",
+                    "industry": "SaaS",
+                    "location": "",
+                    "branch": "",
+                    "notes": "Looking to scale outreach to marketing teams.",
+                    "icp_tags": "",
+                    "status": "Ready",
+                    "score": 89,
+                    "matched_segment": {
+                        "icp_fit": "B2B Software & IT Services Provider",
+                        "branch_target": "Sales & Tech Partnerships",
+                        "pain_point": "Low outbound conversion rates",
+                        "go4db_offer": "B2B Tech Buyers Contact List",
+                        "data_usecase": "To target IT leaders, software buyers, and technology decision makers directly without wasting ad spend."
+                    },
+                    "email_drafts": {
+                        "initial_pitch": {
+                            "subject": "Growing outbound leads for TechSolutions?",
+                            "body": "Hi Alice,\n\nI was looking at TechSolutions and noticed your focus on B2B client acquisition. Typically, companies like yours run into the bottleneck of low outbound conversion rates.\n\nAt Go4Database, we recently compiled our \"B2B Tech Buyers Contact List\" which includes over 350 million business contacts globally. For TechSolutions, this could be used to target it leaders, software buyers, and technology decision makers directly without wasting ad spend..\n\nWe've verified all emails and LinkedIn profiles to keep bounce rates under 5%.\n\nWould you be open to a quick look at a sample sheet of 20 leads matching your ICP next week?\n\nBest regards,\n[Sender Name]\nGo4Database Sales"
+                        },
+                        "follow_up_1": {
+                            "subject": "Re: Sample leads for TechSolutions?",
+                            "body": "Hi Alice,\n\nI know you are likely busy, so I put together a quick sample segment of 5 verified contacts directly matching your ideal buyer profile. Here is what they look like:\n\n1. Director of Growth, tech startup (verified business email + direct dial)\n2. VP of Marketing, retail brand (verified business email + LinkedIn URL)\n3. Head of Sales, mid-market IT services company\n\nWe have thousands more contacts in this exact segment. If you'd like to get the full list to test with your outreach tool, let me know when is a good time to connect.\n\nBest,\n[Sender Name]"
+                        },
+                        "follow_up_2": {
+                            "subject": "Closing the loop / TechSolutions",
+                            "body": "Hi Alice,\n\nI haven't heard back, so I'll assume that growing your database of prospects isn't a priority for TechSolutions right now.\n\nIf things change, or if you'd like to browse our list directory at Go4Database down the road, feel free to reach out anytime.\n\nIf you aren't the right contact for B2B lists, I'd appreciate it if you could point me to who is. Otherwise, this is the last email you'll receive from me.\n\nThanks,\n[Sender Name]"
+                        }
+                    },
+                    "sequence_step": 0,
+                    "last_sent_time": null,
+                    "is_approved": true,
+                    "history": [
+                        {
+                            "timestamp": "2026-06-09T19:41:00.645918",
+                            "action": "Ingested",
+                            "details": "Lead added to outreach queue"
+                        },
+                        {
+                            "timestamp": "2026-06-09T19:41:07.490485",
+                            "action": "AI Analysis Started",
+                            "details": "Running Go4Database matching rules & copy creation..."
+                        },
+                        {
+                            "timestamp": "2026-06-09T19:41:18.327840",
+                            "action": "AI Analysis Completed",
+                            "details": "Matched Offer: B2B Tech Buyers Contact List. Email drafts generated (Score: 89)."
+                        }
+                    ],
+                    "replies": [],
+                    "last_action_date": "2026-06-09T19:41:07.490501"
+                },
+                {
+                    "id": "374f3dd0-71fc-4dfb-a03e-b08d2bd54161",
+                    "company": "Premier Realty",
+                    "name": "Bob Johnson",
+                    "title": "Broker",
+                    "email": "bob@premier.com",
+                    "company_size": "1-10",
+                    "industry": "Real Estate",
+                    "location": "",
+                    "branch": "",
+                    "notes": "Struggling to find active homebuyers.",
+                    "icp_tags": "",
+                    "status": "Ready",
+                    "score": 74,
+                    "matched_segment": {
+                        "icp_fit": "Real Estate Services & Broker Marketing",
+                        "branch_target": "Marketing & Partnerships",
+                        "pain_point": "Finding active local real estate leads",
+                        "go4db_offer": "US Real Estate Agent & Broker Database",
+                        "data_usecase": "To market mortgage services, home improvement, property staging, or local marketing agencies to high-velocity agents."
+                    },
+                    "email_drafts": {
+                        "initial_pitch": {
+                            "subject": "Growing outbound leads for Premier Realty?",
+                            "body": "Hi Bob,\n\nI was looking at Premier Realty and noticed your focus on B2B client acquisition. Typically, companies like yours run into the bottleneck of finding active local real estate leads.\n\nAt Go4Database, we recently compiled our \"US Real Estate Agent & Broker Database\" which includes over 350 million business contacts globally. For Premier Realty, this could be used to market mortgage services, home improvement, property staging, or local marketing agencies to high-velocity agents..\n\nWe've verified all emails and LinkedIn profiles to keep bounce rates under 5%.\n\nWould you be open to a quick look at a sample sheet of 20 leads matching your ICP next week?\n\nBest regards,\n[Sender Name]\nGo4Database Sales"
+                        },
+                        "follow_up_1": {
+                            "subject": "Re: Sample leads for Premier Realty?",
+                            "body": "Hi Bob,\n\nI know you are likely busy, so I put together a quick sample segment of 5 verified contacts directly matching your ideal buyer profile. Here is what they look like:\n\n1. Director of Growth, tech startup (verified business email + direct dial)\n2. VP of Marketing, retail brand (verified business email + LinkedIn URL)\n3. Head of Sales, mid-market IT services company\n\nWe have thousands more contacts in this exact segment. If you'd like to get the full list to test with your outreach tool, let me know when is a good time to connect.\n\nBest,\n[Sender Name]"
+                        },
+                        "follow_up_2": {
+                            "subject": "Closing the loop / Premier Realty",
+                            "body": "Hi Bob,\n\nI haven't heard back, so I'll assume that growing your database of prospects isn't a priority for Premier Realty right now.\n\nIf things change, or if you'd like to browse our list directory at Go4Database down the road, feel free to reach out anytime.\n\nIf you aren't the right contact for B2B lists, I'd appreciate it if you could point me to who is. Otherwise, this is the last email you'll receive from me.\n\nThanks,\n[Sender Name]"
+                        }
+                    },
+                    "sequence_step": 0,
+                    "last_sent_time": null,
+                    "is_approved": false,
+                    "history": [
+                        {
+                            "timestamp": "2026-06-09T19:41:00.646458",
+                            "action": "Ingested",
+                            "details": "Lead added to outreach queue"
+                        },
+                        {
+                            "timestamp": "2026-06-09T19:41:18.333853",
+                            "action": "AI Analysis Started",
+                            "details": "Running Go4Database matching rules & copy creation..."
+                        },
+                        {
+                            "timestamp": "2026-06-09T19:41:19.112678",
+                            "action": "AI Analysis Completed",
+                            "details": "Matched Offer: US Real Estate Agent & Broker Database. Email drafts generated (Score: 74)."
+                        }
+                    ],
+                    "replies": [],
+                    "last_action_date": "2026-06-09T19:41:18.333864"
+                },
+                {
+                    "id": "6a7e05eb-d7f2-4066-ac14-03d3d36cb9cf",
+                    "company": "Global Health",
+                    "name": "Carol White",
+                    "title": "Director",
+                    "email": "carol@globalhealth.com",
+                    "company_size": "201-500",
+                    "industry": "Healthcare",
+                    "location": "",
+                    "branch": "",
+                    "notes": "Wants direct dials for medical clinics.",
+                    "icp_tags": "",
+                    "status": "Ready",
+                    "score": 100,
+                    "matched_segment": {
+                        "icp_fit": "Healthcare Providers & Medical Clinics",
+                        "branch_target": "Practice Operations",
+                        "pain_point": "Healthcare gatekeepers",
+                        "go4db_offer": "Local Healthcare & Medical Clinics Directory",
+                        "data_usecase": "To pitch medical supply vendors, specialized clinic software, billing systems, or local search marketing services."
+                    },
+                    "email_drafts": {
+                        "initial_pitch": {
+                            "subject": "Growing outbound leads for Global Health?",
+                            "body": "Hi Carol,\n\nI was looking at Global Health and noticed your focus on B2B client acquisition. Typically, companies like yours run into the bottleneck of healthcare gatekeepers.\n\nAt Go4Database, we recently compiled our \"Local Healthcare & Medical Clinics Directory\" which includes over 350 million business contacts globally. For Global Health, this could be used to pitch medical supply vendors, specialized clinic software, billing systems, or local search marketing services..\n\nWe've verified all emails and LinkedIn profiles to keep bounce rates under 5%.\n\nWould you be open to a quick look at a sample sheet of 20 leads matching your ICP next week?\n\nBest regards,\n[Sender Name]\nGo4Database Sales"
+                        },
+                        "follow_up_1": {
+                            "subject": "Re: Sample leads for Global Health?",
+                            "body": "Hi Carol,\n\nI know you are likely busy, so I put together a quick sample segment of 5 verified contacts directly matching your ideal buyer profile. Here is what they look like:\n\n1. Director of Growth, tech startup (verified business email + direct dial)\n2. VP of Marketing, retail brand (verified business email + LinkedIn URL)\n3. Head of Sales, mid-market IT services company\n\nWe have thousands more contacts in this exact segment. If you'd like to get the full list to test with your outreach tool, let me know when is a good time to connect.\n\nBest,\n[Sender Name]"
+                        },
+                        "follow_up_2": {
+                            "subject": "Closing the loop / Global Health",
+                            "body": "Hi Carol,\n\nI haven't heard back, so I'll assume that growing your database of prospects isn't a priority for Global Health right now.\n\nIf things change, or if you'd like to browse our list directory at Go4Database down the road, feel free to reach out anytime.\n\nIf you aren't the right contact for B2B lists, I'd appreciate it if you could point me to who is. Otherwise, this is the last email you'll receive from me.\n\nThanks,\n[Sender Name]"
+                        }
+                    },
+                    "sequence_step": 0,
+                    "last_sent_time": null,
+                    "is_approved": true,
+                    "history": [
+                        {
+                            "timestamp": "2026-06-09T19:41:00.646468",
+                            "action": "Ingested",
+                            "details": "Lead added to outreach queue"
+                        },
+                        {
+                            "timestamp": "2026-06-09T19:41:19.120885",
+                            "action": "AI Analysis Started",
+                            "details": "Running Go4Database matching rules & copy creation..."
+                        },
+                        {
+                            "timestamp": "2026-06-09T19:41:19.800394",
+                            "action": "AI Analysis Completed",
+                            "details": "Matched Offer: Local Healthcare & Medical Clinics Directory. Email drafts generated (Score: 100)."
+                        }
+                    ],
+                    "replies": [],
+                    "last_action_date": "2026-06-09T19:41:19.120895"
+                }
+            ],
+            "logs": [
+                {
+                    "timestamp": "2026-06-09T19:41:00.632340",
+                    "level": "INFO",
+                    "message": "Campaign session 'test123' created.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T19:41:00.640312",
+                    "level": "INFO",
+                    "message": "Switched active campaign to 'test123'.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T19:41:00.646472",
+                    "level": "INFO",
+                    "message": "Ingested 3 new leads.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T19:41:07.481410",
+                    "level": "SYSTEM",
+                    "message": "Triggered AI Agent analysis pipeline for 3 leads.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-09T19:41:07.490507",
+                    "level": "INFO",
+                    "message": "Lead Alice Smith (TechSolutions) status changed to Analyzing: Running Go4Database matching rules & copy creation...",
+                    "lead_id": "b29f0dde-ce30-491b-89de-81f902203fa9"
+                },
+                {
+                    "timestamp": "2026-06-09T19:41:18.333883",
+                    "level": "INFO",
+                    "message": "Lead Bob Johnson (Premier Realty) status changed to Analyzing: Running Go4Database matching rules & copy creation...",
+                    "lead_id": "374f3dd0-71fc-4dfb-a03e-b08d2bd54161"
+                },
+                {
+                    "timestamp": "2026-06-09T19:41:19.120902",
+                    "level": "INFO",
+                    "message": "Lead Carol White (Global Health) status changed to Analyzing: Running Go4Database matching rules & copy creation...",
+                    "lead_id": "6a7e05eb-d7f2-4066-ac14-03d3d36cb9cf"
+                }
+            ],
+            "campaign_status": {
+                "is_running": false,
+                "total_sent": 0,
+                "total_replies": 0,
+                "total_interested": 0,
+                "total_not_interested": 0,
+                "total_leads": 3,
+                "total_junk": 0
+            }
+        },
+        "03b1a8ab-f525-4c51-a6be-71154afbc6a2": {
+            "id": "03b1a8ab-f525-4c51-a6be-71154afbc6a2",
+            "name": "Pasted Leads - 2026-06-10 14:43",
+            "created_at": "2026-06-10T14:43:02.186332",
+            "leads": [
+                {
+                    "id": "69ff26bd-e3ec-4d44-89f2-80a18c757679",
+                    "company": "TechSolutions",
+                    "name": "Alice Smith",
+                    "title": "CTO",
+                    "email": "alice@techsolutions.com",
+                    "company_size": "51-200",
+                    "industry": "SaaS",
+                    "location": "",
+                    "branch": "",
+                    "notes": "Looking to scale outreach to marketing teams.",
+                    "icp_tags": "",
+                    "status": "Ready",
+                    "score": 92,
+                    "matched_segment": {
+                        "icp_fit": "SaaS company needing to generate leads from marketing teams at other companies.",
+                        "branch_target": "Sales & Marketing",
+                        "pain_point": "Acquiring precise, verified contact data for marketing professionals to efficiently scale outbound campaigns.",
+                        "go4db_offer": "Custom B2B List Enrichment Service",
+                        "data_usecase": "To build and maintain a highly targeted database of marketing decision-makers (e.g., CMOs, VPs of Marketing, Marketing Directors) within TechSolutions' ideal customer profile, thereby reducing manual research, improving outreach efficiency, and increasing conversion rates for their SaaS product."
+                    },
+                    "email_drafts": {
+                        "initial_pitch": {
+                            "subject": "Scaling outreach to marketing teams at TechSolutions",
+                            "body": "Hi Alice,\n\nAs CTO at TechSolutions, I imagine you're constantly looking for ways to optimize growth engines. I saw a note that TechSolutions is aiming to scale outreach to marketing teams, and that's precisely where Go4Database excels.\n\nWe specialize in custom-building highly targeted, verified B2B contact lists. We can generate a precise database of marketing professionals (CMOs, VPs, Directors) matching your exact ICP, complete with direct dials and verified emails. This can drastically improve your team's outreach efficiency and conversion rates.\n\nWould you be open to a quick 10-minute chat to discuss how this could work for TechSolutions? Alternatively, I'd be happy to send you a small, complimentary sample list of 20 marketing leads tailored to your needs.\n\nBest,\n\n[Sender Name]"
+                        },
+                        "follow_up_1": {
+                            "subject": "Quick thought on scaling marketing outreach for TechSolutions",
+                            "body": "Hi Alice,\n\nJust following up on my previous email regarding TechSolutions' goal to scale outreach to marketing teams.\n\nMany SaaS companies find that generic data leads to frustratingly low response rates. Our approach with custom list building ensures you're reaching the right marketing decision-makers with accurate contact details from the start.\n\nIf it's helpful, I could send over an example of a data structure for a marketing leads list, or we could discuss what specific criteria TechSolutions uses for its ideal customer profile.\n\nLet me know if this sparks any interest.\n\nRegards,\n\n[Sender Name]"
+                        },
+                        "follow_up_2": {
+                            "subject": "Closing the loop: TechSolutions & B2B marketing data",
+                            "body": "Hi Alice,\n\nCircling back one last time on how Go4Database could help TechSolutions scale its outreach to marketing teams more efficiently.\n\nMy offer to provide a custom sample list of 20 marketing leads or to chat briefly about your ICP still stands. If now isn't the right time, no worries at all.\n\nWishing you and TechSolutions continued success!\n\nBest,\n\n[Sender Name]"
+                        }
+                    },
+                    "sequence_step": 0,
+                    "last_sent_time": null,
+                    "is_approved": true,
+                    "history": [
+                        {
+                            "timestamp": "2026-06-10T14:43:02.199175",
+                            "action": "Ingested",
+                            "details": "Lead added to outreach queue"
+                        },
+                        {
+                            "timestamp": "2026-06-10T14:43:06.349956",
+                            "action": "AI Analysis Started",
+                            "details": "Running Go4Database matching rules & copy creation..."
+                        },
+                        {
+                            "timestamp": "2026-06-10T14:43:36.524136",
+                            "action": "AI Analysis Completed",
+                            "details": "Matched Offer: Custom B2B List Enrichment Service. Email drafts generated (Score: 92)."
+                        }
+                    ],
+                    "replies": [],
+                    "last_action_date": "2026-06-10T14:43:06.349974"
+                },
+                {
+                    "id": "ae6691fc-5c82-47d1-876d-ad7570a44ae3",
+                    "company": "Premier Realty",
+                    "name": "Bob Johnson",
+                    "title": "Broker",
+                    "email": "bob@premier.com",
+                    "company_size": "1-10",
+                    "industry": "Real Estate",
+                    "location": "",
+                    "branch": "",
+                    "notes": "Struggling to find active homebuyers.",
+                    "icp_tags": "",
+                    "status": "Ready",
+                    "score": 80,
+                    "matched_segment": {
+                        "icp_fit": "Bob is a small, independent real estate broker (1-10 employees) in the real estate industry, primarily focused on finding active homebuyers.",
+                        "branch_target": "Founder's Office / Sales",
+                        "pain_point": "Inability to consistently find and acquire new active homebuyers, leading to missed commission opportunities and high reliance on expensive traditional lead sources.",
+                        "go4db_offer": "US Real Estate Agent & Broker Database",
+                        "data_usecase": "To identify and connect with high-velocity real estate agents or brokers in his target markets for potential co-brokerage opportunities, referral networks, or lead-sharing partnerships to collectively find and serve active homebuyers."
+                    },
+                    "email_drafts": {
+                        "initial_pitch": {
+                            "subject": "A fresh angle on finding active homebuyers, Bob?",
+                            "body": "Hi Bob,\n\nI noticed Premier Realty is focused on real estate, and it sounds like finding active homebuyers is a key challenge for you right now. Many independent brokers face this, especially with rising lead costs from traditional platforms.\n\nAt Go4Database, we help professionals like yourself identify and connect with over 2.1M licensed real estate agents and brokers across the US. While we don't provide B2C lists, our database is ideal for establishing powerful referral networks and co-brokerage partnerships. Imagine finding active, high-performing agents in specific markets open to sharing buyer leads or collaborating on listings.\n\nWould you be open to a quick chat to see how a targeted list of potential referral partners could help you expand your reach for active buyers? I can even send over a complimentary sample of 20 relevant broker contacts in your area.\n\nBest,\n[Sender Name]"
+                        },
+                        "follow_up_1": {
+                            "subject": "Quick thought on expanding your homebuyer reach, Bob",
+                            "body": "Hi Bob,\n\nJust circling back on my previous email.\n\nI know finding active homebuyers for Premier Realty is a priority, and I believe our database of fellow real estate professionals could be a valuable tool for building those crucial referral relationships. Instead of relying solely on expensive B2C platforms, you could tap into a network of agents looking to collaborate.\n\nWould you be interested in seeing a quick preview of how you could filter our 2.1M+ agent and broker contacts to pinpoint potential partners in your preferred markets? It could open up new avenues for buyer lead generation.\n\nNo pressure either way!\n\nRegards,\n[Sender Name]"
+                        },
+                        "follow_up_2": {
+                            "subject": "Closing the loop: Premier Realty & Lead Generation",
+                            "body": "Hi Bob,\n\nOne last gentle nudge regarding how Go4Database could potentially assist Premier Realty in finding more active homebuyers through strategic partnerships.\n\nIf exploring new referral networks with other licensed brokers is something that could benefit your business, I'm still happy to provide that customized sample list or jump on a quick call to show you the data structure.\n\nOtherwise, I'll assume now isn't the best time and will close the loop on my end. Wishing you all the best!\n\nThanks,\n[Sender Name]"
+                        }
+                    },
+                    "sequence_step": 0,
+                    "last_sent_time": null,
+                    "is_approved": true,
+                    "history": [
+                        {
+                            "timestamp": "2026-06-10T14:43:02.199191",
+                            "action": "Ingested",
+                            "details": "Lead added to outreach queue"
+                        },
+                        {
+                            "timestamp": "2026-06-10T14:43:36.531757",
+                            "action": "AI Analysis Started",
+                            "details": "Running Go4Database matching rules & copy creation..."
+                        },
+                        {
+                            "timestamp": "2026-06-10T14:44:02.176701",
+                            "action": "AI Analysis Completed",
+                            "details": "Matched Offer: US Real Estate Agent & Broker Database. Email drafts generated (Score: 80)."
+                        }
+                    ],
+                    "replies": [],
+                    "last_action_date": "2026-06-10T14:43:36.531767"
+                },
+                {
+                    "id": "e8a5ae60-6bff-4512-a3ef-b61275f137e3",
+                    "company": "Global Health",
+                    "name": "Carol White",
+                    "title": "Director",
+                    "email": "carol@globalhealth.com",
+                    "company_size": "201-500",
+                    "industry": "Healthcare",
+                    "location": "",
+                    "branch": "",
+                    "notes": "Wants direct dials for medical clinics.",
+                    "icp_tags": "",
+                    "status": "Ready",
+                    "score": 98,
+                    "matched_segment": {
+                        "icp_fit": "Carol, a Director at Global Health, is seeking direct contact information for medical clinics, indicating her company's ICP is within the healthcare sector, specifically B2B sales/partnerships with medical offices.",
+                        "branch_target": "Outbound Sales / Business Development",
+                        "pain_point": "Difficulty acquiring verified direct dials for medical clinics, leading to inefficient outreach and gatekeeper challenges.",
+                        "go4db_offer": "Local Healthcare & Medical Clinics Directory",
+                        "data_usecase": "Carol can leverage the Go4Database 'Local Healthcare & Medical Clinics Directory' to equip Global Health's sales and business development teams with direct phone numbers and contact details for decision-makers at medical clinics, significantly boosting lead generation efficiency and accelerating sales cycles within the healthcare market."
+                    },
+                    "email_drafts": {
+                        "initial_pitch": {
+                            "subject": "Direct Dials for Medical Clinics, Carol?",
+                            "body": "Hi Carol,\n\nSaw you're a Director at Global Health, and I understand you're looking for direct dials for medical clinics.\n\nAt Go4Database, our \"Local Healthcare & Medical Clinics Directory\" provides verified direct lines for over 650,000 healthcare offices across the US and Canada. This means your team can bypass gatekeepers and connect directly with key decision-makers, accelerating your outreach to potential clients.\n\nWould you be open to a quick chat to see how this list can boost your sales efforts? I'd be happy to send over a complimentary 20-lead sample tailored to Global Health's target profile.\n\nBest,\n\n[Sender Name]"
+                        },
+                        "follow_up_1": {
+                            "subject": "Re: Direct Dials for Medical Clinics, Carol?",
+                            "body": "Hi Carol,\n\nJust wanted to gently follow up on my previous email regarding direct dials for medical clinics.\n\nMany Directors in the healthcare space struggle with inefficient outreach, but our verified directory helps teams like yours connect instantly, saving valuable time and increasing conversion rates.\n\nI can quickly show you a sample data structure of how our direct lines and contact details for medical clinics are organized. This could really streamline how Global Health finds and engages new prospects.\n\nWould you have 10 minutes free later this week to take a look?\n\nRegards,\n\n[Sender Name]"
+                        },
+                        "follow_up_2": {
+                            "subject": "Closing the loop: Medical Clinic Outreach",
+                            "body": "Hi Carol,\n\nSince I haven't heard back, I'll assume this isn't a priority for Global Health right now, which is perfectly fine.\n\nJust wanted to reiterate that if finding verified direct dials for medical clinics ever becomes a focus for your team, Go4Database has a robust solution ready to help you dramatically improve your outreach efficiency.\n\nNo pressure at all, but please don't hesitate to reach out if anything changes.\n\nWishing you all the best,\n\n[Sender Name]"
+                        }
+                    },
+                    "sequence_step": 0,
+                    "last_sent_time": null,
+                    "is_approved": true,
+                    "history": [
+                        {
+                            "timestamp": "2026-06-10T14:43:02.199199",
+                            "action": "Ingested",
+                            "details": "Lead added to outreach queue"
+                        },
+                        {
+                            "timestamp": "2026-06-10T14:44:02.184569",
+                            "action": "AI Analysis Started",
+                            "details": "Running Go4Database matching rules & copy creation..."
+                        },
+                        {
+                            "timestamp": "2026-06-10T14:44:14.365358",
+                            "action": "AI Analysis Completed",
+                            "details": "Matched Offer: Local Healthcare & Medical Clinics Directory. Email drafts generated (Score: 98)."
+                        }
+                    ],
+                    "replies": [],
+                    "last_action_date": "2026-06-10T14:44:02.184584"
+                }
+            ],
+            "logs": [
+                {
+                    "timestamp": "2026-06-10T14:43:02.186373",
+                    "level": "INFO",
+                    "message": "Campaign session 'Pasted Leads - 2026-06-10 14:43' created.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-10T14:43:02.193514",
+                    "level": "INFO",
+                    "message": "Switched active campaign to 'Pasted Leads - 2026-06-10 14:43'.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-10T14:43:02.199202",
+                    "level": "INFO",
+                    "message": "Ingested 3 new leads.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-10T14:43:06.332776",
+                    "level": "SYSTEM",
+                    "message": "Triggered AI Agent analysis pipeline for 3 leads.",
+                    "lead_id": null
+                },
+                {
+                    "timestamp": "2026-06-10T14:43:06.349981",
+                    "level": "INFO",
+                    "message": "Lead Alice Smith (TechSolutions) status changed to Analyzing: Running Go4Database matching rules & copy creation...",
+                    "lead_id": "69ff26bd-e3ec-4d44-89f2-80a18c757679"
+                },
+                {
+                    "timestamp": "2026-06-10T14:43:36.531778",
+                    "level": "INFO",
+                    "message": "Lead Bob Johnson (Premier Realty) status changed to Analyzing: Running Go4Database matching rules & copy creation...",
+                    "lead_id": "ae6691fc-5c82-47d1-876d-ad7570a44ae3"
+                },
+                {
+                    "timestamp": "2026-06-10T14:44:02.184630",
+                    "level": "INFO",
+                    "message": "Lead Carol White (Global Health) status changed to Analyzing: Running Go4Database matching rules & copy creation...",
+                    "lead_id": "e8a5ae60-6bff-4512-a3ef-b61275f137e3"
+                }
+            ],
+            "campaign_status": {
+                "is_running": false,
+                "total_sent": 0,
+                "total_replies": 0,
+                "total_interested": 0,
+                "total_not_interested": 0,
+                "total_leads": 3,
+                "total_junk": 0
+            }
+        }
+    }
+}

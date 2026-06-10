@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Go4Database AI Outreach Agent</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=2">
+</head>
+<body>
+    <!-- Login Overlay -->
+    <div id="login-overlay" class="login-overlay" style="display: none;">
+        <div class="login-card glass-card">
+            <div class="login-header">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin: 0 auto 12px auto; display: block;">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#8b5cf6" stroke-width="2" stroke-linejoin="round"/>
+                    <path d="M2 17L12 22L22 17" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 12L12 17L22 12" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <h2>Go4Database</h2>
+                <span>AI Outreach Agent Portal</span>
+            </div>
+            <form id="login-form" onsubmit="event.preventDefault();">
+                <div class="form-group mb-3">
+                    <label for="login-email">Email or Username</label>
+                    <input type="text" id="login-email" class="form-control" placeholder="Enter email or username" required>
+                </div>
+                <div class="form-group mb-4">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" class="form-control" placeholder="Enter password" required>
+                </div>
+                <div id="login-error-msg" class="text-red mb-3" style="display: none; font-size: 13px; color: #ef4444; text-align: center;">Invalid credentials.</div>
+                <button type="submit" class="btn btn-primary w-100" id="btn-login-submit">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="app-container" id="app-container" style="display: none;">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand-logo">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#8b5cf6" stroke-width="2" stroke-linejoin="round"/>
+                    <path d="M2 17L12 22L22 17" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 12L12 17L22 12" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <div class="logo-text">
+                    <h2>Go4Database</h2>
+                    <span>AI Outreach Agent</span>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <button class="nav-item active" data-tab="sessions" id="nav-sessions">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                    </svg>
+                    Sessions
+                </button>
+                <button class="nav-item" data-tab="overview" id="nav-overview">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+                    Overview
+                </button>
+                <button class="nav-item" data-tab="import" id="nav-import">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                    Import Leads
+                </button>
+                <button class="nav-item" data-tab="leads" id="nav-leads">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    Leads & ICP
+                </button>
+                <button class="nav-item" data-tab="hot-leads" id="nav-hot-leads">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 9q3 0 3-4c0 0 5 3 5 8a8 8 0 01-.343 3.657zM9.879 16.121A3 3 0 1012.015 11L11 11.5c-1 1-1.5 2-1.121 4.621z"/>
+                    </svg>
+                    Hot Leads
+                </button>
+                <button class="nav-item" data-tab="replies" id="nav-replies">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                        <path d="M22 6l-10 7L2 6"/>
+                    </svg>
+                    Replies
+                </button>
+                <button class="nav-item" data-tab="email-preview" id="nav-email-preview">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg>
+                    Email Editor
+                </button>
+                <button class="nav-item" data-tab="settings" id="nav-settings">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    Settings
+                </button>
+                <button class="nav-item-logout" id="btn-logout-sidebar" style="margin-top: 24px; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 14px; width: 100%;">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                    Logout
+                </button>
+            </nav>
+
+            <div class="sidebar-status-box">
+                <div class="status-indicator">
+                    <span class="status-dot green animate-pulse"></span>
+                    <span class="status-lbl">Agent Server Online</span>
+                </div>
+                <div class="api-key-warning" id="key-warning">
+                    <span class="warning-icon">⚠</span>
+                    <span>No Gemini Key Configured</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="content-area">
+            <!-- Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <h1 id="page-title">Overview</h1>
+                    <p id="page-subtitle">Outreach performance, automation control, and activity logs.</p>
+                </div>
+                <div class="header-right">
+                    <div class="campaign-controls">
+                        <button class="btn btn-secondary" id="btn-reset-campaign">
+                            Reset All Data
+                        </button>
+                        <button class="btn btn-secondary" id="btn-pause-campaign" disabled>
+                            ⏸ Pause Outreach
+                        </button>
+                        <button class="btn btn-primary" id="btn-start-campaign" disabled>
+                            ⚡ Start Outreach
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- TAB: SESSIONS -->
+            <section class="tab-pane active" id="tab-sessions">
+                <!-- Summary Metrics Row -->
+                <div class="metrics-grid">
+                    <div class="metric-card glass-card" style="border-left-color: var(--color-primary);">
+                        <div class="metric-header">
+                            <span class="metric-label">Total Sessions</span>
+                            <div class="metric-icon purple">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="metric-value" id="val-total-sessions">0</div>
+                        <div class="metric-footer text-muted">Created campaigns</div>
+                    </div>
+                    <div class="metric-card glass-card" style="border-left-color: var(--color-success);">
+                        <div class="metric-header">
+                            <span class="metric-label">Active Outreach</span>
+                            <div class="metric-icon green">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="metric-value text-green" id="val-active-sessions">0</div>
+                        <div class="metric-footer text-muted">Sessions currently running</div>
+                    </div>
+                    <div class="metric-card glass-card" style="border-left-color: var(--color-info);">
+                        <div class="metric-header">
+                            <span class="metric-label">Total Ingested Leads</span>
+                            <div class="metric-icon blue">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                            </div>
+                        </div>
+                        <div class="metric-value" id="val-total-ingested-leads">0</div>
+                        <div class="metric-footer text-muted">Across all target segments</div>
+                    </div>
+                </div>
+
+                <!-- Sessions Grid -->
+                <div class="sessions-dashboard-header" style="display: flex; justify-content: space-between; align-items: center; margin: 24px 0 16px 0;">
+                    <h3 style="font-family: var(--font-heading); font-size: 16px; font-weight: 700; color: var(--text-main); margin: 0;">Your Outreach Campaigns</h3>
+                    <button class="btn btn-primary btn-sm" onclick="document.getElementById('nav-import').click()">+ Create Session</button>
+                </div>
+                
+                <div class="sessions-grid" id="sessions-grid">
+                    <!-- Populated dynamically -->
+                </div>
+            </section>
+
+            <!-- TAB: OVERVIEW -->
+            <section class="tab-pane" id="tab-overview">
+                <!-- Metrics Grid -->
+                <div class="metrics-grid" style="grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));">
+                    <!-- 1. Total Leads -->
+                    <div class="metric-card glass-card">
+                        <div class="metric-header">
+                            <span class="metric-label">Total Emails</span>
+                            <div class="metric-icon purple">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                            </div>
+                        </div>
+                        <div class="metric-value" id="val-total-leads">0</div>
+                        <div class="metric-footer text-muted">Uploaded target list size</div>
+                    </div>
+                    <!-- 2. Sent Emails -->
+                    <div class="metric-card glass-card">
+                        <div class="metric-header">
+                            <span class="metric-label">Sent Emails</span>
+                            <div class="metric-icon blue">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                            </div>
+                        </div>
+                        <div class="metric-value" id="val-total-sent">0</div>
+                        <div class="metric-footer text-muted" id="lbl-send-progress">0% of target sent</div>
+                    </div>
+                    <!-- 3. Replies Detected -->
+                    <div class="metric-card glass-card">
+                        <div class="metric-header">
+                            <span class="metric-label">Replies Detected</span>
+                            <div class="metric-icon orange">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                            </div>
+                        </div>
+                        <div class="metric-value" id="val-total-replies">0</div>
+                        <div class="metric-footer text-muted" id="lbl-reply-rate">0% response rate</div>
+                    </div>
+                    <!-- 4. Junk Mails -->
+                    <div class="metric-card glass-card">
+                        <div class="metric-header">
+                            <span class="metric-label">Junk Mails</span>
+                            <div class="metric-icon red" style="color: #ef4444; background: #fee2e2;">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M4.93 4.93l14.14 14.14"/></svg>
+                            </div>
+                        </div>
+                        <div class="metric-value text-red" id="val-total-junk" style="color: #ef4444;">0</div>
+                        <div class="metric-footer text-muted">Bounced or invalid contacts</div>
+                    </div>
+                    <!-- 5. Not Interested -->
+                    <div class="metric-card glass-card">
+                        <div class="metric-header">
+                            <span class="metric-label">Not Interested</span>
+                            <div class="metric-icon grey" style="color: #64748b; background: #f1f5f9;">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            </div>
+                        </div>
+                        <div class="metric-value" id="val-total-not-interested" style="color: #64748b;">0</div>
+                        <div class="metric-footer text-muted">Opt-out replies detected</div>
+                    </div>
+                    <!-- 6. Interested (Hot Leads) -->
+                    <div class="metric-card glass-card">
+                        <div class="metric-header">
+                            <span class="metric-label">Interested (Hot Leads)</span>
+                            <div class="metric-icon green">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                            </div>
+                        </div>
+                        <div class="metric-value text-green" id="val-total-interested">0</div>
+                        <div class="metric-footer text-muted" id="lbl-interest-rate">0% conversion rate</div>
+                    </div>
+                </div>
+
+                <!-- Funnel and Control Area -->
+                <div class="overview-layout">
+                    <!-- Conversion Funnel -->
+                    <div class="funnel-container glass-card">
+                        <h3>Outreach Funnel Conversion</h3>
+                        <div class="funnel-chart">
+                            <div class="funnel-stage">
+                                <div class="stage-label">Ingested Leads</div>
+                                <div class="stage-bar-wrapper">
+                                    <div class="stage-bar purple" id="bar-funnel-ingested" style="width: 100%;"></div>
+                                </div>
+                                <div class="stage-count" id="lbl-funnel-ingested">0</div>
+                            </div>
+                            <div class="funnel-stage">
+                                <div class="stage-label">Emails Sent</div>
+                                <div class="stage-bar-wrapper">
+                                    <div class="stage-bar blue" id="bar-funnel-sent" style="width: 0%;"></div>
+                                </div>
+                                <div class="stage-count" id="lbl-funnel-sent">0</div>
+                            </div>
+                            <div class="funnel-stage">
+                                <div class="stage-label">Replies Received</div>
+                                <div class="stage-bar-wrapper">
+                                    <div class="stage-bar orange" id="bar-funnel-replies" style="width: 0%;"></div>
+                                </div>
+                                <div class="stage-count" id="lbl-funnel-replies">0</div>
+                            </div>
+                            <div class="funnel-stage">
+                                <div class="stage-label">Interested prospects</div>
+                                <div class="stage-bar-wrapper">
+                                    <div class="stage-bar green" id="bar-funnel-interested" style="width: 0%;"></div>
+                                </div>
+                                <div class="stage-count" id="lbl-funnel-interested">0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Setup Quick Start -->
+                    <div class="quickstart-container glass-card">
+                        <h3>Outreach Automation Panel</h3>
+                        <div class="status-summary-box">
+                            <p>To launch outreach campaign:</p>
+                            <ol class="setup-steps">
+                                <li id="step-key">Configure Gemini API Key in <a href="#" class="tab-link" data-target="settings">Settings</a></li>
+                                <li id="step-upload">Upload a CSV or Excel in <a href="#" class="tab-link" data-target="import">Import Leads</a></li>
+                                <li id="step-analyze">Run AI analysis to match lists & generate personalized templates</li>
+                                <li id="step-send">Click <strong>Start Outreach</strong> above!</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Agent Audit Terminal -->
+                <div class="terminal-container glass-card">
+                    <div class="terminal-header">
+                        <div class="terminal-dots">
+                            <span class="dot-red"></span>
+                            <span class="dot-yellow"></span>
+                            <span class="dot-green"></span>
+                        </div>
+                        <span class="terminal-title">Go4Database Agent Audit Log</span>
+                        <button class="btn btn-mini" id="btn-clear-logs">Clear Logs</button>
+                    </div>
+                    <div class="terminal-body" id="agent-console">
+                        <div class="log-line system">[SYSTEM] Ready. Ingest leads or set API key to begin.</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB: IMPORT -->
+            <section class="tab-pane" id="tab-import">
+                <div class="import-layout">
+                    <div class="import-source glass-card">
+                        <h3>Outreach Session Name</h3>
+                        <div class="form-group mb-4">
+                            <label for="import-campaign-name">Session Name (Optional)</label>
+                            <input type="text" id="import-campaign-name" class="form-control" placeholder="e.g. June Target List (defaults to file name or timestamp)">
+                        </div>
+
+                        <h3>Upload File (CSV / Excel)</h3>
+                        <p class="text-muted">Drag & drop or browse your local file system to load your prospects.</p>
+                        
+                        <div class="file-dropzone" id="file-dropzone">
+                            <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+                            <p class="dropzone-text">Drag & drop your CSV or Excel file here</p>
+                            <span class="dropzone-or">or</span>
+                            <input type="file" id="lead-file-input" accept=".csv,.xlsx,.xls" style="display: none;">
+                            <button class="btn btn-primary" onclick="document.getElementById('lead-file-input').click()">Browse Files</button>
+                        </div>
+
+                        <div class="import-separator">
+                            <span>OR COPY & PASTE TABLE DATA</span>
+                        </div>
+
+                        <h3>Paste Lead Table</h3>
+                        <p class="text-muted">Paste data copied directly from Excel or Google Sheets (Tab or comma delimited columns).</p>
+                        <textarea id="paste-input" class="form-control" rows="8" placeholder="company_name,person_name,title,email,company_size,industry,location,branch,notes,icp_tags
+Acme Corp,John Doe,CEO,john@acme.com,11-50,SaaS,New York,Growth,,
+Wayne Enterprises,Bruce Wayne,Founder,bruce@wayne.co,201-500,Defense,Gotham,Executive,,"></textarea>
+                        
+                        <button class="btn btn-primary mt-3 w-100" id="btn-paste-import">Import Pasted Data</button>
+                    </div>
+
+                    <div class="import-help glass-card">
+                        <h3>Sample CSV Format Guide</h3>
+                        <p class="text-muted">For best results, include these headers in your column row:</p>
+                        <table class="format-table">
+                            <thead>
+                                <tr><th>Header</th><th>Relevance</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>company_name</code> / <code>company</code></td><td>Prospect organization name (Required)</td></tr>
+                                <tr><td><code>person_name</code> / <code>name</code></td><td>Contact name (Required)</td></tr>
+                                <tr><td><code>title</code></td><td>Job title (helps AI find the target angle)</td></tr>
+                                <tr><td><code>email</code></td><td>Direct email address (Required)</td></tr>
+                                <tr><td><code>industry</code></td><td>Helps AI match the perfect Go4Database list</td></tr>
+                                <tr><td><code>company_size</code></td><td>Helps score and tailor the value pitch</td></tr>
+                                <tr><td><code>notes</code></td><td>Specific notes to enhance email personalization</td></tr>
+                            </tbody>
+                        </table>
+                        
+                        <div class="sample-copy-box">
+                            <span class="sample-lbl">CSV Sample Template:</span>
+                            <pre id="sample-csv-text">company,name,title,email,industry,company_size,notes
+TechSolutions,Alice Smith,CTO,alice@techsolutions.com,SaaS,51-200,Looking to scale outreach to marketing teams.
+Premier Realty,Bob Johnson,Broker,bob@premier.com,Real Estate,1-10,Struggling to find active homebuyers.
+Global Health,Carol White,Director,carol@globalhealth.com,Healthcare,201-500,Wants direct dials for medical clinics.</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB: LEADS & ICP MATCHING -->
+            <section class="tab-pane" id="tab-leads">
+                <div class="leads-toolbar glass-card mb-3">
+                    <div class="toolbar-left">
+                        <span class="leads-count" id="lbl-leads-count">0 Leads Loaded</span>
+                    </div>
+                    <div class="toolbar-right">
+                        <button class="btn btn-secondary" id="btn-trigger-analysis">
+                            ⚙ Run AI ICP Matching & Email Drafting
+                        </button>
+                    </div>
+                </div>
+
+                <div class="leads-table-container glass-card">
+                    <table class="leads-table" id="leads-table">
+                        <thead>
+                            <tr>
+                                <th>Prospect & Company</th>
+                                <th>Matched Go4Database Offer</th>
+                                <th>Fit Details</th>
+                                <th>Score</th>
+                                <th>Status</th>
+                                <th class="actions-col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leads-table-body">
+                            <!-- Populated dynamically -->
+                            <tr class="empty-state-row">
+                                <td colspan="6" class="text-center py-5">
+                                    <div class="empty-state">
+                                        <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                                        <h4>No leads loaded yet</h4>
+                                        <p class="text-muted">Import leads via CSV or pastable tables to begin outreach.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- TAB: HOT LEADS -->
+            <section class="tab-pane" id="tab-hot-leads">
+                <div class="leads-toolbar glass-card mb-3">
+                    <div class="toolbar-left">
+                        <span class="leads-count" id="lbl-hot-leads-count">0 Hot Leads Detected</span>
+                    </div>
+                    <div class="toolbar-right" style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 13px; color: var(--text-muted);">Assignee:</span>
+                        <select id="hot-leads-assignee-filter" class="form-control form-control-sm" style="width: auto; background: var(--bg-surface); border-color: var(--border-color); color: var(--text-main);">
+                            <option value="all">All Assignees</option>
+                            <option value="unassigned">Unassigned</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="leads-table-container glass-card">
+                    <table class="leads-table" id="hot-leads-table">
+                        <thead>
+                            <tr>
+                                <th>Prospect & Company</th>
+                                <th>Email</th>
+                                <th>Company Website & LinkedIn</th>
+                                <th>Latest Reply Response</th>
+                                <th>Fit Score</th>
+                                <th>Assigned To</th>
+                                <th class="actions-col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="hot-leads-table-body">
+                            <!-- Populated dynamically -->
+                            <tr class="empty-state-row">
+                                <td colspan="6" class="text-center py-5">
+                                    <div class="empty-state">
+                                        <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                            <path d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 9q3 0 3-4c0 0 5 3 5 8a8 8 0 01-.343 3.657zM9.879 16.121A3 3 0 1012.015 11L11 11.5c-1 1-1.5 2-1.121 4.621z"/>
+                                        </svg>
+                                        <h4>No hot leads detected yet</h4>
+                                        <p class="text-muted">Prospects who reply with positive/interested sentiment will automatically appear here.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- TAB: REPLIES INBOX -->
+            <section class="tab-pane" id="tab-replies">
+                <div class="leads-toolbar glass-card mb-3">
+                    <div class="toolbar-left">
+                        <span class="leads-count" id="lbl-replies-count">0 Replies Detected</span>
+                    </div>
+                </div>
+
+                <div class="leads-table-container glass-card">
+                    <table class="leads-table" id="replies-table">
+                        <thead>
+                            <tr>
+                                <th>Prospect & Company</th>
+                                <th>Email</th>
+                                <th>Sentiment Class</th>
+                                <th>Received Email Reply</th>
+                                <th class="actions-col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="replies-table-body">
+                            <!-- Populated dynamically -->
+                            <tr class="empty-state-row">
+                                <td colspan="5" class="text-center py-5">
+                                    <div class="empty-state">
+                                        <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                                        </svg>
+                                        <h4>No replies detected yet</h4>
+                                        <p class="text-muted">Replies from prospects will automatically appear here as they are received.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- TAB: EMAIL PREVIEW & EDITOR -->
+            <section class="tab-pane" id="tab-email-preview">
+                <div class="email-preview-layout">
+                    <!-- Left: Lead Selector -->
+                    <div class="lead-selector-panel glass-card">
+                        <h3>Outreach Queue</h3>
+                        <div class="queue-search">
+                            <input type="text" id="queue-search-input" class="form-control form-control-sm" placeholder="Search leads...">
+                        </div>
+                        <ul class="queue-lead-list" id="queue-lead-list">
+                            <!-- Populated dynamically -->
+                            <li class="empty-state text-muted text-center py-4">No leads available</li>
+                        </ul>
+                    </div>
+
+                    <!-- Right: Editor & Previewer -->
+                    <div class="email-editor-panel glass-card" id="email-editor-workspace" style="display:none;">
+                        <div class="editor-header-bar">
+                            <div class="prospect-summary">
+                                <h3 id="edit-prospect-name">John Doe</h3>
+                                <span id="edit-prospect-meta">CEO at Acme Corp • SaaS • Size: 11-50</span>
+                            </div>
+                            <div class="matched-pill-indicator" id="edit-matched-offer">
+                                VC-backed Startups List
+                            </div>
+                        </div>
+
+                        <!-- Analysis Details Accordion -->
+                        <div class="analysis-summary-accordion">
+                            <div class="accordion-header" id="btn-toggle-accordion">
+                                <strong>💡 Target Segment Angle & Pain Point</strong>
+                                <span class="accordion-arrow">▼</span>
+                            </div>
+                            <div class="accordion-content" id="analysis-accordion-content">
+                                <div class="analysis-grid">
+                                    <div class="analysis-item">
+                                        <label>ICP Classification</label>
+                                        <p id="an-icp-fit">B2B SaaS Provider</p>
+                                    </div>
+                                    <div class="analysis-item">
+                                        <label>Target Department</label>
+                                        <p id="an-branch">Sales & Growth</p>
+                                    </div>
+                                    <div class="analysis-item">
+                                        <label>Identified Pain Point</label>
+                                        <p id="an-pain-point">Struggling to source tech decision makers</p>
+                                    </div>
+                                    <div class="analysis-item">
+                                        <label>Data Enrichment Use-Case</label>
+                                        <p id="an-usecase">Enrich outbound pipeline with verified direct dials.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Email Sequence Tabs -->
+                        <div class="sequence-tabs">
+                            <button class="seq-tab active" data-seq="initial_pitch" id="tab-seq-pitch">Email 1: Pitch</button>
+                            <button class="seq-tab" data-seq="follow_up_1" id="tab-seq-fu1">Email 2: Follow-up 1</button>
+                            <button class="seq-tab" data-seq="follow_up_2" id="tab-seq-fu2">Email 3: Follow-up 2</button>
+                            <button class="seq-tab nurture-badge" data-seq="reply_nurture" id="tab-seq-nurture" style="display:none;">Email 4: Nurture</button>
+                        </div>
+
+                        <!-- Draft Editor -->
+                        <div class="email-draft-box">
+                            <div class="form-group mb-3">
+                                <label for="draft-subject">Subject</label>
+                                <input type="text" id="draft-subject" class="form-control" value="">
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="draft-body">Body</label>
+                                <textarea id="draft-body" class="form-control" rows="12"></textarea>
+                            </div>
+                            <div class="editor-footer">
+                                <span class="variables-hint text-muted">Use standard tags: <code>[Sender Name]</code> will fill from Settings automatically.</span>
+                                <button class="btn btn-primary" id="btn-save-draft">Save Draft Changes</button>
+                            </div>
+                        </div>
+
+                        <!-- Interactive Simulator Section -->
+                        <div class="simulation-sandbox">
+                            <div class="sandbox-header">
+                                <h4>📬 Sequence Simulator Sandbox</h4>
+                                <p class="text-muted">Simulate prospect replies to test the agent's real-time intent analysis & automated follow-ups.</p>
+                            </div>
+                            <div class="sandbox-body">
+                                <div class="sandbox-controls">
+                                    <button class="btn btn-secondary btn-sm" id="btn-sim-interested">👍 Simulate "Interested" Reply</button>
+                                    <button class="btn btn-secondary btn-sm" id="btn-sim-uninterested">👎 Simulate "Not Interested" Reply</button>
+                                    <button class="btn btn-secondary btn-sm" id="btn-sim-ooo">✈ Simulate "Out of Office"</button>
+                                    <button class="btn btn-secondary btn-sm" id="btn-sim-wrong">👤 Simulate "Wrong Contact"</button>
+                                </div>
+                                <div class="sandbox-custom-reply">
+                                    <input type="text" id="sim-custom-reply-text" class="form-control form-control-sm" placeholder="Or type a custom reply here...">
+                                    <button class="btn btn-secondary btn-sm" id="btn-sim-custom-reply">Inject Custom Reply</button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    
+                    <div class="email-editor-panel glass-card text-center py-5" id="email-editor-empty-state">
+                        <div class="empty-state py-5">
+                            <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg>
+                            <h4>No Lead Selected</h4>
+                            <p class="text-muted">Select a lead from the outreach queue on the left to preview or customize their emails.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB: SETTINGS -->
+            <section class="tab-pane" id="tab-settings">
+                <div class="settings-layout">
+                    <!-- Config Left -->
+                    <div class="settings-column glass-card">
+                        <h3>Gemini LLM Integration</h3>
+                        <p class="text-muted">Provide your Gemini API key to activate the intelligent agent matching & reply analysis engine.</p>
+                        <div class="form-group mb-4">
+                            <label for="settings-api-key">Gemini API Key</label>
+                            <input type="password" id="settings-api-key" class="form-control" placeholder="AIzaSy...">
+                            <span class="field-hint text-green" id="api-key-configured-status" style="display:none;">✓ Key configured locally.</span>
+                        </div>
+
+                        <h3>Sequence & Delay Settings</h3>
+                        <p class="text-muted">Control sending throttling limits and simulated time increments.</p>
+                        <div class="form-row mb-3">
+                            <div class="form-group col">
+                                <label for="settings-min-delay">Outbox Delay (sec)</label>
+                                <input type="number" id="settings-min-delay" class="form-control" value="5">
+                                <span class="field-hint text-muted">Delay between individual sent emails.</span>
+                            </div>
+                            <div class="form-group col">
+                                <label for="settings-limit">Daily Send Limit</label>
+                                <input type="number" id="settings-limit" class="form-control" value="50">
+                                <span class="field-hint text-muted">Max emails sent per 24h.</span>
+                            </div>
+                        </div>
+                        <div class="form-group mb-4">
+                            <label for="settings-followup-delay">Simulated Follow-up Interval (hours)</label>
+                            <input type="number" step="any" id="settings-followup-delay" class="form-control" value="24">
+                            <span class="field-hint text-muted">Time before the system automatically sends a follow-up email if no reply occurs. Supports decimals (e.g. 0.005 for 18 seconds).</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="toggle-switch-label">
+                                <input type="checkbox" id="settings-auto-mode">
+                                <span class="toggle-switch-slider"></span>
+                                <strong>Fully Automated Mode</strong>
+                            </label>
+                            <span class="field-hint text-muted block mt-1">If enabled, leads bypass manual review and send immediately once AI drafts are created. If disabled, leads require approval in "Leads & ICP" tab.</span>
+                        </div>
+                    </div>
+
+                    <!-- Config Right -->
+                    <div class="settings-column glass-card">
+                        <h3>Sender Signature Settings</h3>
+                        <p class="text-muted">Set what signature replaces the <code>[Sender Name]</code> placeholder in emails.</p>
+                        <div class="form-row mb-3">
+                            <div class="form-group col">
+                                <label for="settings-sender-name">Sender Name</label>
+                                <input type="text" id="settings-sender-name" class="form-control" value="Go4Database Sales Team">
+                            </div>
+                            <div class="form-group col">
+                                <label for="settings-sender-email">Sender Email</label>
+                                <input type="email" id="settings-sender-email" class="form-control" placeholder="sales@go4database.com">
+                            </div>
+                        </div>
+
+                        <h3>Email Integration (SMTP & IMAP)</h3>
+                        <p class="text-muted">Input SMTP & IMAP details to send actual emails and automatically track replies. Leave credentials blank to run in simulated Mock mode (safe for testing!).</p>
+                        <div class="form-row mb-3">
+                            <div class="form-group col">
+                                <label for="settings-smtp-server">SMTP Server</label>
+                                <input type="text" id="settings-smtp-server" class="form-control" value="smtp.gmail.com">
+                            </div>
+                            <div class="form-group col-4">
+                                <label for="settings-smtp-port">Port</label>
+                                <input type="number" id="settings-smtp-port" class="form-control" value="587">
+                            </div>
+                        </div>
+                        <div class="form-row mb-3">
+                            <div class="form-group col">
+                                <label for="settings-imap-server">IMAP Server (Optional)</label>
+                                <input type="text" id="settings-imap-server" class="form-control" placeholder="Autodetected (e.g. imap.gmail.com)">
+                            </div>
+                            <div class="form-group col-4">
+                                <label for="settings-imap-port">IMAP Port</label>
+                                <input type="number" id="settings-imap-port" class="form-control" value="993">
+                            </div>
+                        </div>
+                        <div class="form-row mb-3">
+                            <div class="form-group col">
+                                <label for="settings-smtp-user">SMTP / IMAP Username</label>
+                                <input type="text" id="settings-smtp-user" class="form-control" placeholder="your_email@gmail.com">
+                            </div>
+                        </div>
+                        <div class="form-group mb-4">
+                            <label for="settings-smtp-pass">SMTP / IMAP Password (or App Password)</label>
+                            <input type="password" id="settings-smtp-pass" class="form-control" placeholder="••••••••••••••••">
+                        </div>
+
+                        <button class="btn btn-primary w-100" id="btn-save-settings">Save All Configuration Settings</button>
+                    </div>
+                </div>
+
+                <!-- Additional Sender Accounts Pool -->
+                <div class="glass-card mt-3" style="margin-top: 24px;">
+                    <h3>Additional Sender Accounts (For Rotation)</h3>
+                    <p class="text-muted mb-4">Consecutive initial pitches will rotate round-robin across all active accounts in this pool. The primary sender configured above is automatically included.</p>
+                    
+                    <div class="leads-table-container mb-4">
+                        <table class="leads-table">
+                            <thead>
+                                <tr>
+                                    <th>Sender Name</th>
+                                    <th>Email / SMTP User</th>
+                                    <th>SMTP Server</th>
+                                    <th>IMAP Server</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rotation-accounts-tbody">
+                                <!-- Rendered dynamically via app.js -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="mt-3" style="margin-top: 24px;">Add Additional Sender Account</h3>
+                    <p class="text-muted">Fill out SMTP/IMAP credentials to add another sender to the rotation pool.</p>
+                    <form id="form-add-rotation-account" onsubmit="event.preventDefault();" style="display: flex; flex-direction: column; gap: 12px; margin-top: 12px;">
+                        <div class="form-row mb-3">
+                            <div class="form-group col">
+                                <label for="rotation-name">Sender Name</label>
+                                <input type="text" id="rotation-name" class="form-control" placeholder="e.g. John Doe">
+                            </div>
+                            <div class="form-group col">
+                                <label for="rotation-user">SMTP/IMAP Username (Email)</label>
+                                <input type="email" id="rotation-user" class="form-control" placeholder="john@example.com">
+                            </div>
+                            <div class="form-group col">
+                                <label for="rotation-pass">Password / App Password</label>
+                                <input type="password" id="rotation-pass" class="form-control" placeholder="••••••••••••••••">
+                            </div>
+                        </div>
+                        <div class="form-row mb-3">
+                            <div class="form-group col">
+                                <label for="rotation-smtp-server">SMTP Server</label>
+                                <input type="text" id="rotation-smtp-server" class="form-control" placeholder="smtp.gmail.com" value="smtp.gmail.com">
+                            </div>
+                            <div class="form-group col-2">
+                                <label for="rotation-smtp-port">SMTP Port</label>
+                                <input type="number" id="rotation-smtp-port" class="form-control" value="587">
+                            </div>
+                            <div class="form-group col">
+                                <label for="rotation-imap-server">IMAP Server (Optional)</label>
+                                <input type="text" id="rotation-imap-server" class="form-control" placeholder="Autodetected">
+                            </div>
+                            <div class="form-group col-2">
+                                <label for="rotation-imap-port">IMAP Port</label>
+                                <input type="number" id="rotation-imap-port" class="form-control" value="993">
+                            </div>
+                        </div>
+                        <div style="text-align: left;">
+                            <button class="btn btn-secondary" id="btn-add-rotation-account" type="button">Add Account to Pool</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Sales Team & Role Management -->
+                <div class="glass-card mt-3" id="settings-role-management" style="margin-top: 24px; display: none;">
+                    <h3>Sales Team & Role Management</h3>
+                    <p class="text-muted mb-4">Manage your sales representatives, administrators, and their access privileges.</p>
+                    
+                    <div class="leads-table-container mb-4">
+                        <table class="leads-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="team-members-tbody">
+                                <!-- Rendered dynamically via app.js -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="mt-3" style="margin-top: 24px;">Add New Team Member</h3>
+                    <p class="text-muted">Create a new user account with specific access roles.</p>
+                    <form id="form-add-team-member" onsubmit="event.preventDefault();" style="display: flex; flex-direction: column; gap: 12px; margin-top: 12px;">
+                        <div class="form-row mb-3">
+                            <div class="form-group col">
+                                <label for="team-name">Full Name</label>
+                                <input type="text" id="team-name" class="form-control" placeholder="e.g. Sarah Connor">
+                            </div>
+                            <div class="form-group col">
+                                <label for="team-email">Email Address</label>
+                                <input type="email" id="team-email" class="form-control" placeholder="sarah@example.com">
+                            </div>
+                            <div class="form-group col">
+                                <label for="team-password">Password</label>
+                                <input type="password" id="team-password" class="form-control" placeholder="••••••••">
+                            </div>
+                            <div class="form-group col">
+                                <label for="team-role">Role</label>
+                                <select id="team-role" class="form-control">
+                                    <option value="Sales Rep">Sales Rep</option>
+                                    <option value="Admin">Admin</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="text-align: left;">
+                            <button class="btn btn-primary" id="btn-add-team-member" type="button">Add Team Member</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+        </main>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

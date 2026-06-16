@@ -84,9 +84,28 @@
                     </svg>
                     Replies
                 </button>
+                <button class="nav-item" data-tab="agent-training" id="nav-agent-training">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M12 14l9-5-9-5-9 5 9 5z"/>
+                        <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479L12 21l-6.83-3.943a12.077 12.077 0 01.665-6.479L12 14z"/>
+                    </svg>
+                    Agent Training
+                </button>
+                <button class="nav-item" data-tab="hyper-agent" id="nav-hyper-agent">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M9.663 17h4.673M12 3v1m6.364.364l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0012 18.75c-.93 0-1.77-.375-2.38-.98l-.548-.547z"/>
+                    </svg>
+                    Hyper-Agent
+                </button>
                 <button class="nav-item" data-tab="email-preview" id="nav-email-preview">
                     <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg>
                     Email Editor
+                </button>
+                <button class="nav-item" data-tab="warmup" id="nav-warmup">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                    Warmup Report
                 </button>
                 <button class="nav-item" data-tab="settings" id="nav-settings">
                     <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -512,6 +531,110 @@ Global Health,Carol White,Director,carol@globalhealth.com,Healthcare,201-500,Wan
                 </div>
             </section>
 
+            <!-- TAB: AGENT TRAINING & PIPELINE -->
+            <section class="tab-pane" id="tab-agent-training">
+                <!-- Training Prompts Editor -->
+                <div class="glass-card mb-4">
+                    <h3 style="font-family: var(--font-heading); font-size: 15px; font-weight: 700; margin-bottom: 4px;">SDR Conversation Stage Training Guidelines</h3>
+                    <p class="text-muted mb-4">Modify the prompt instructions for transitions between SDR stages. The AI agent will dynamically follow these rules when classifying replies and drafting responses.</p>
+                    
+                    <!-- Global SDR Persona Prompt Editor -->
+                    <div style="margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 24px;">
+                        <h4 style="font-size: 13px; font-weight: 700; margin-bottom: 6px;">Global SDR Persona Prompt Override</h4>
+                        <p class="text-muted" style="font-size: 11px; margin-top: -4px; margin-bottom: 10px;">Define the core Sales Development Representative (SDR) persona, objectives, conversation rules, and qualification flow. Leave empty to use system defaults.</p>
+                        <textarea id="train-sdr-persona" class="form-control" rows="12" placeholder="You are an expert Sales Development Representative (SDR)..."></textarea>
+                    </div>
+
+                    <div class="training-grid">
+                        <!-- Customer to MQL -->
+                        <div class="training-card">
+                            <h4>
+                                <span style="background: #e0e7ff; color: #4338ca; padding: 4px 8px; border-radius: 4px; font-size: 11px;">Stage 1</span>
+                                Customer to MQL Transition
+                            </h4>
+                            <p class="text-muted" style="font-size: 11px; margin-top: -4px;">Define rules for initial interest detection and exploratory responses.</p>
+                            <textarea id="train-customer-to-mql" class="form-control" placeholder="Enter Stage 1 guidelines..."></textarea>
+                        </div>
+                        
+                        <!-- MQL to SQL -->
+                        <div class="training-card">
+                            <h4>
+                                <span style="background: #d1fae5; color: #065f46; padding: 4px 8px; border-radius: 4px; font-size: 11px;">Stage 2</span>
+                                MQL to SQL Transition
+                            </h4>
+                            <p class="text-muted" style="font-size: 11px; margin-top: -4px;">Define rules to discover pain points, qualify fit, and schedule meetings.</p>
+                            <textarea id="train-mql-to-sql" class="form-control" placeholder="Enter Stage 2 guidelines..."></textarea>
+                        </div>
+                        
+                        <!-- SQL to Sample Approval -->
+                        <div class="training-card">
+                            <h4>
+                                <span style="background: #fae8ff; color: #86198f; padding: 4px 8px; border-radius: 4px; font-size: 11px;">Stage 3</span>
+                                SQL to Sample Approval
+                            </h4>
+                            <p class="text-muted" style="font-size: 11px; margin-top: -4px;">Define rules to handle data sample requests and prepare samples for review.</p>
+                            <textarea id="train-sql-to-sample-approval" class="form-control" placeholder="Enter Stage 3 guidelines..."></textarea>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: right;">
+                        <button class="btn btn-primary" id="btn-save-training">Save Training Guidelines</button>
+                    </div>
+                </div>
+
+                <!-- Live Kanban Pipeline Board -->
+                <div class="glass-card">
+                    <h3 style="font-family: var(--font-heading); font-size: 15px; font-weight: 700; margin-bottom: 4px;">SDR Conversation Stages Pipeline</h3>
+                    <p class="text-muted mb-4">View your leads moving through the SDR pipeline stages in real time. Click any card to review or customize follow-ups.</p>
+                    
+                    <div class="pipeline-board">
+                        <!-- Customer (New / In Sequence) -->
+                        <div class="pipeline-column" id="pipe-col-customer">
+                            <div class="pipeline-column-header">
+                                <h4>New / Customer</h4>
+                                <span class="pipeline-column-count" id="pipe-count-customer">0</span>
+                            </div>
+                            <div class="pipeline-leads-list" id="pipe-list-customer">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- MQL (Nurturing) -->
+                        <div class="pipeline-column" id="pipe-col-mql">
+                            <div class="pipeline-column-header">
+                                <h4>MQL (Nurturing)</h4>
+                                <span class="pipeline-column-count" id="pipe-count-mql">0</span>
+                            </div>
+                            <div class="pipeline-leads-list" id="pipe-list-mql">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- SQL (Hot Lead) -->
+                        <div class="pipeline-column" id="pipe-col-sql">
+                            <div class="pipeline-column-header">
+                                <h4>SQL (Hot Lead)</h4>
+                                <span class="pipeline-column-count" id="pipe-count-sql">0</span>
+                            </div>
+                            <div class="pipeline-leads-list" id="pipe-list-sql">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- Sample Approval -->
+                        <div class="pipeline-column" id="pipe-col-sample-approval">
+                            <div class="pipeline-column-header">
+                                <h4>Sample Approval</h4>
+                                <span class="pipeline-column-count" id="pipe-count-sample-approval">0</span>
+                            </div>
+                            <div class="pipeline-leads-list" id="pipe-list-sample-approval">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- TAB: EMAIL PREVIEW & EDITOR -->
             <section class="tab-pane" id="tab-email-preview">
                 <div class="email-preview-layout">
@@ -591,6 +714,7 @@ Global Health,Carol White,Director,carol@globalhealth.com,Healthcare,201-500,Wan
                             </div>
                         </div>
 
+
                         <!-- Interactive Simulator Section -->
                         <div class="simulation-sandbox">
                             <div class="sandbox-header">
@@ -618,6 +742,130 @@ Global Health,Carol White,Director,carol@globalhealth.com,Healthcare,201-500,Wan
                             <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg>
                             <h4>No Lead Selected</h4>
                             <p class="text-muted">Select a lead from the outreach queue on the left to preview or customize their emails.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB: HYPER-AGENT -->
+            <section class="tab-pane" id="tab-hyper-agent">
+                <div class="hyper-layout">
+                    <!-- Left: Hot Queue -->
+                    <div class="hyper-queue-panel glass-card">
+                        <h3>Hot Queue</h3>
+                        <div class="queue-search">
+                            <input type="text" id="hyper-queue-search-input" class="form-control form-control-sm" placeholder="Search hot leads...">
+                        </div>
+                        <ul class="queue-lead-list" id="hyper-queue-lead-list">
+                            <!-- Populated dynamically -->
+                            <li class="empty-state text-muted text-center py-4">No hot leads available</li>
+                        </ul>
+                    </div>
+
+                    <!-- Right: Hyper-Workspace -->
+                    <div class="hyper-workspace-panel glass-card" id="hyper-workspace" style="display:none;">
+                        <!-- Profile Header -->
+                        <div class="editor-header-bar">
+                            <div class="prospect-summary">
+                                <h3 id="hyper-prospect-name">John Doe</h3>
+                                <span id="hyper-prospect-meta">CEO at Acme Corp • SaaS</span>
+                            </div>
+                            <div class="matched-pill-indicator status-pill" id="hyper-prospect-status-badge">
+                                SQL
+                            </div>
+                        </div>
+
+                        <!-- Live Stage Status Card -->
+                        <div class="stage-status-card" style="background: rgba(255, 255, 255, 0.05); padding: 16px; border-radius: 8px; border: 1px solid var(--border-color); display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px;">
+                            <div>
+                                <label style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); display: block; margin-bottom: 4px;">SDR Stage</label>
+                                <span id="hyper-stage-value" style="font-weight: 700; font-size: 14px; color: var(--primary-color);">Sample Approval</span>
+                            </div>
+                            <div>
+                                <label style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); display: block; margin-bottom: 4px;">Qual. Score</label>
+                                <span id="hyper-score-value" style="font-weight: 700; font-size: 14px; color: var(--text-main);">85</span>
+                            </div>
+                            <div>
+                                <label style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); display: block; margin-bottom: 4px;">Buying Intent</label>
+                                <span id="hyper-intent-value" style="font-weight: 700; font-size: 14px; color: var(--text-main);">High</span>
+                            </div>
+                            <div style="grid-column: span 2;">
+                                <label style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); display: block; margin-bottom: 4px;">Detected Pain Points</label>
+                                <span id="hyper-pain-points-value" style="font-size: 13px; color: var(--text-main);">Needs custom database sample</span>
+                            </div>
+                            <div style="grid-column: span 2;">
+                                <label style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); display: block; margin-bottom: 4px;">Suggested Next Action</label>
+                                <span id="hyper-next-action-value" style="font-style: italic; font-size: 13px; color: #10b981;">Prepare and send custom sample list.</span>
+                            </div>
+                        </div>
+
+                        <!-- Prospect-Specific Guidelines Override -->
+                        <div class="custom-instructions-editor-box" style="margin-top: 8px;">
+                            <h4>
+                                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 6px;">
+                                    <path d="M9.813 15.904L9 21l5-2.096M9.813 15.904a4 4 0 105.62-5.62M9.813 15.904L13.9 11.8M15.433 10.284l1.39-1.39a3 3 0 00-4.242-4.242l-1.39 1.39m4.242 4.242L11.2 14.5"/>
+                                </svg>
+                                Prospect-Specific Guidelines Override
+                            </h4>
+                            <p class="text-muted" style="font-size: 11px; margin-top: -4px;">Provide custom rules for subsequent AI follow-ups specifically for this prospect's conversation.</p>
+                            <textarea id="hyper-custom-instructions-text" class="form-control" rows="3" placeholder="e.g. Focus on direct dial verification. Emphasize real estate CRM integrations."></textarea>
+                            <div style="text-align: right; margin-top: 6px;">
+                                <button class="btn btn-primary btn-sm" id="btn-save-hyper-instructions">Save Personalized Instructions</button>
+                            </div>
+                        </div>
+
+                        <!-- Latest Conversation History & Nurture Draft Editor -->
+                        <div class="nurture-editor-box" style="display: flex; flex-direction: column; gap: 12px; margin-top: 8px;">
+                            <div>
+                                <h4>💬 Latest Received Reply</h4>
+                                <div id="hyper-latest-incoming-reply" style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); padding: 12px; border-radius: 6px; font-size: 13px; max-height: 150px; overflow-y: auto; color: var(--text-main); white-space: pre-wrap;">
+                                    No reply received yet.
+                                </div>
+                            </div>
+
+                            <div>
+                                <h4>✍ Draft Nurture Response</h4>
+                                <div class="form-group mb-2">
+                                    <label for="hyper-draft-subject" style="font-size: 12px; color: var(--text-muted);">Subject</label>
+                                    <input type="text" id="hyper-draft-subject" class="form-control form-control-sm">
+                                </div>
+                                <div class="form-group mb-2">
+                                    <label for="hyper-draft-body" style="font-size: 12px; color: var(--text-muted);">Body</label>
+                                    <textarea id="hyper-draft-body" class="form-control form-control-sm" rows="8"></textarea>
+                                </div>
+                                <div style="text-align: right;">
+                                    <button class="btn btn-primary btn-sm" id="btn-save-hyper-draft">Save Nurture Draft</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sequence Simulator -->
+                        <div class="simulation-sandbox" style="margin-top: 8px; border-top: 1px solid var(--border-color); padding-top: 16px;">
+                            <div class="sandbox-header">
+                                <h4>📬 Sequence Simulator Sandbox (Prospect Reply Simulation)</h4>
+                                <p class="text-muted" style="font-size: 11px;">Simulate customer response to verify agent guidelines behavior.</p>
+                            </div>
+                            <div class="sandbox-body">
+                                <div class="sandbox-controls" style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;">
+                                    <button class="btn btn-secondary btn-sm" id="hyper-btn-sim-interested">👍 Simulate "Interested" Reply</button>
+                                    <button class="btn btn-secondary btn-sm" id="hyper-btn-sim-uninterested">👎 Simulate "Not Interested" Reply</button>
+                                    <button class="btn btn-secondary btn-sm" id="hyper-btn-sim-ooo">✈ Simulate "Out of Office"</button>
+                                    <button class="btn btn-secondary btn-sm" id="hyper-btn-sim-wrong">👤 Simulate "Wrong Contact"</button>
+                                </div>
+                                <div class="sandbox-custom-reply" style="display: flex; gap: 8px;">
+                                    <input type="text" id="hyper-sim-custom-reply-text" class="form-control form-control-sm" placeholder="Or type a custom reply here...">
+                                    <button class="btn btn-secondary btn-sm" id="hyper-btn-sim-custom-reply">Inject Custom Reply</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div class="hyper-workspace-panel glass-card text-center py-5" id="hyper-workspace-empty-state">
+                        <div class="empty-state py-5">
+                            <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                            <h4>No Hot Lead Selected</h4>
+                            <p class="text-muted">Select a lead from the hot queue on the left to manage their guidelines and nurture drafts.</p>
                         </div>
                     </div>
                 </div>
@@ -834,8 +1082,46 @@ Global Health,Carol White,Director,carol@globalhealth.com,Healthcare,201-500,Wan
                 </div>
             </section>
 
+            <!-- TAB: WARMUP REPORT -->
+            <section class="tab-pane" id="tab-warmup">
+                <!-- Summary Metrics Row -->
+                <div class="metrics-grid">
+                    <div class="metric-card glass-card" style="border-left-color: var(--color-primary);">
+                        <div class="metric-header">
+                            <span class="metric-label">Total Outbound Volume</span>
+                            <div class="metric-icon blue" style="background: var(--color-info-bg); color: var(--color-info-text);">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="metric-value" id="warmup-total-sends">0</div>
+                        <div class="metric-footer text-muted">Across all configured senders</div>
+                    </div>
+                </div>
+
+                <!-- Warmup Table -->
+                <div class="leads-table-container glass-card mt-3">
+                    <h3 style="font-family: var(--font-heading); font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 16px;">Warmup Send Counts per Email Address</h3>
+                    <table class="leads-table" id="warmup-table">
+                        <thead>
+                            <tr>
+                                <th>Sender Email Address</th>
+                                <th>Account Role / Type</th>
+                                <th class="text-center">Status</th>
+                                <th>Warmup Progress (14 Days Track)</th>
+                                <th>Daily Limit (Sent/Cap)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="warmup-table-body">
+                            <!-- Populated dynamically via app.js -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
         </main>
     </div>
-    <script src="app.js"></script>
+    <script src="app.js?v=2"></script>
 </body>
 </html>

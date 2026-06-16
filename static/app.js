@@ -5,6 +5,7 @@ let state = {
     settings: {},
     campaignStatus: {},
     selectedLeadId: null,
+    selectedHyperLeadId: null,
     activeSeqTab: 'initial_pitch',
     campaigns: [],
     activeCampaignId: null,
@@ -24,6 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initSettings();
     initCampaignControls();
     initEmailEditor();
+    initHyperAgent();
     initCampaignSelector();
     initSessionsDashboard();
     initTeamManagementUI();
@@ -53,7 +55,10 @@ function initTabs() {
         'leads': { title: 'Leads & ICP Matching', sub: 'Analyze ideal customer profile fit and Go4Database service matches.' },
         'hot-leads': { title: 'Hot Leads (Interested Prospects)', sub: 'Centralized directory of interested prospects who replied positively. Copy details or reply directly.' },
         'replies': { title: 'Replies Inbox', sub: 'Review replies received from email targets and their automated AI classifications.' },
+        'agent-training': { title: 'Agent Training & Pipeline', sub: 'Customize SDR stage transition guidelines and track prospect progression.' },
+        'hyper-agent': { title: 'Hyper-Agent Workspace', sub: 'Manage hyper-personalized conversation guidelines and draft responses for hot leads.' },
         'email-preview': { title: 'Email Editor', sub: 'Review, customize, and edit AI personalized sequence drafts.' },
+        'warmup': { title: 'Warmup Report', sub: 'Monitor email send count per address to optimize reputation and avoid spam triggers.' },
         'settings': { title: 'Settings', sub: 'Configure API keys, SMTP credentials, and sequence automation parameters.' }
     };
 
@@ -79,11 +84,23 @@ function initTabs() {
                 renderHotLeadsTable();
             } else if (tab === 'replies') {
                 renderRepliesTable();
+            } else if (tab === 'agent-training') {
+                loadSdrTrainingSettings();
+                renderPipelineBoard();
+            } else if (tab === 'hyper-agent') {
+                renderHyperAgentTab();
             } else if (tab === 'email-preview') {
                 renderOutreachQueue();
+            } else if (tab === 'warmup') {
+                renderWarmupReport();
             }
         });
     });
+
+    const btnSaveTraining = document.getElementById("btn-save-training");
+    if (btnSaveTraining) {
+        btnSaveTraining.addEventListener("click", saveSdrTrainingSettings);
+    }
 
     // Set initial title based on active tab button
     const activeNav = document.querySelector(".nav-item.active");
@@ -191,6 +208,16 @@ async function fetchState() {
         // If on email preview page, refresh queue counts/statuses
         if (document.getElementById("tab-email-preview").classList.contains("active")) {
             renderOutreachQueue(false); // don't force select
+        }
+        
+        // If on hyper-agent page, refresh queue counts/statuses
+        if (document.getElementById("tab-hyper-agent").classList.contains("active")) {
+            renderHyperAgentTab(false); // don't force select
+        }
+        
+        // If on warmup page, keep it updated
+        if (document.getElementById("tab-warmup").classList.contains("active")) {
+            renderWarmupReport();
         }
         
         if (role !== "Sales Rep") {
@@ -1140,7 +1167,7 @@ function initEmailEditor() {
             btnSaveDraft.textContent = "Save Draft Changes";
         }
     });
-    
+
     // 4. Sequence Simulator reply injections
     const btnSimInt = document.getElementById("btn-sim-interested");
     const btnSimUnint = document.getElementById("btn-sim-uninterested");
@@ -1591,9 +1618,9 @@ window.renderRepliesTable = function() {
     const countLabel = document.getElementById("lbl-replies-count");
     if (!tbody) return;
     
-    // Filter leads that have replied (status in Replied, Interested, Not_Interested, OOO, Wrong_Contact)
+    // Filter leads that have replied (status in Replied, Interested, Not_Interested, OOO, Wrong_Contact, Sample_Approval)
     const repliedLeads = state.leads.filter(l => 
-        ["Replied", "Interested", "Not_Interested", "OOO", "Wrong_Contact"].includes(l.status)
+        ["Replied", "Interested", "Not_Interested", "OOO", "Wrong_Contact", "Sample_Approval"].includes(l.status)
     );
     
     if (countLabel) {
@@ -1631,6 +1658,39 @@ window.renderRepliesTable = function() {
         const displayReply = escapeHtml(latestReply).replace(/\n/g, "<br>");
         const statusClass = lead.status.toLowerCase();
         
+        let sentimentHtml = `<span class="status-pill ${statusClass}">${lead.status.replace(/_/g, ' ')}</span>`;
+        if (lead.lead_stage) {
+            const stageClass = lead.lead_stage.toLowerCase();
+            const intentClass = (lead.buying_intent || 'medium').toLowerCase();
+            const score = lead.qualification_score || 0;
+            let scoreClass = 'medium';
+            if (score >= 85) scoreClass = 'high';
+            else if (score < 40) scoreClass = 'low';
+            
+            sentimentHtml = `
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <div style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
+                        <span class="status-pill ${stageClass}">${lead.lead_stage}</span>
+                        <span class="score-badge ${scoreClass}" style="font-size: 10px; padding: 2px 4px; height: auto;">Score: ${score}</span>
+                    </div>
+                    <div style="font-size: 11px; display: flex; align-items: center; gap: 4px; margin-top: 2px;">
+                        <span class="text-muted" style="font-size: 10px;">Intent:</span>
+                        <span class="status-pill ${intentClass}" style="font-size: 9px; padding: 1px 4px; line-height: 1;">${lead.buying_intent}</span>
+                    </div>
+                    ${lead.pain_points && lead.pain_points.length > 0 ? `
+                        <div style="font-size: 10.5px; color: var(--text-muted); max-width: 180px; line-height: 1.2; margin-top: 2px;">
+                            <strong>Pains:</strong> ${escapeHtml(lead.pain_points.join(', '))}
+                        </div>
+                    ` : ''}
+                    ${lead.next_action ? `
+                        <div style="font-size: 10.5px; color: #b45309; max-width: 180px; line-height: 1.2; margin-top: 2px;">
+                            <strong>Next:</strong> ${escapeHtml(lead.next_action)}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+        
         return `
             <tr>
                 <td>
@@ -1646,7 +1706,7 @@ window.renderRepliesTable = function() {
                     </div>
                 </td>
                 <td>
-                    <span class="status-pill ${statusClass}">${lead.status.replace(/_/g, ' ')}</span>
+                    ${sentimentHtml}
                 </td>
                 <td style="max-width: 400px; font-size: 12px; line-height: 1.4; color: var(--text-main);">
                     <div style="max-height: 100px; overflow-y: auto; background: var(--bg-surface-hover); border: 1px solid var(--border-color); border-radius: 4px; padding: 8px 12px; font-family: monospace;">
@@ -1997,4 +2057,568 @@ function initLogoutButton() {
         }
     });
 }
+
+async function renderWarmupReport() {
+    const tbody = document.getElementById("warmup-table-body");
+    if (!tbody) return;
+    
+    // Show loading indicator on first render
+    if (tbody.children.length === 0 || tbody.querySelector(".text-center")) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center">Loading warmup data...</td></tr>`;
+    }
+    
+    try {
+        const res = await fetch("/api/campaign/warmup");
+        if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        const data = await res.json();
+        
+        const counts = data.counts || {};
+        const warmupProgress = data.warmup_progress || {};
+        const totalSends = data.total_sends || 0;
+        
+        const totalSendsEl = document.getElementById("warmup-total-sends");
+        if (totalSendsEl) {
+            totalSendsEl.textContent = totalSends;
+        }
+        
+        const keys = Object.keys(warmupProgress);
+        if (keys.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="text-center text-muted" style="padding: 20px;">
+                        No emails have been sent yet. Once outreach campaigns start sending, the volumes will appear here.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+        
+        tbody.innerHTML = "";
+        
+        // Sort senders by completed days, then by total counts
+        const sortedSenders = Object.keys(warmupProgress).sort((a, b) => {
+            const daysA = warmupProgress[a].completed_days || 0;
+            const daysB = warmupProgress[b].completed_days || 0;
+            if (daysB !== daysA) return daysB - daysA;
+            return (counts[b] || 0) - (counts[a] || 0);
+        });
+        
+        const primaryEmail = (state.settings.sender_email || state.settings.smtp_user || "primary@example.com").toLowerCase().trim();
+        
+        sortedSenders.forEach(email => {
+            const progress = warmupProgress[email] || { completed_days: 0, is_completed: false, dates: [] };
+            const count = counts[email] || 0;
+            
+            const tr = document.createElement("tr");
+            
+            // 1. Sender Email Address
+            const emailCell = document.createElement("td");
+            emailCell.innerHTML = `<strong>${escapeHtml(email)}</strong>`;
+            tr.appendChild(emailCell);
+            
+            // 2. Account Role / Type
+            const roleCell = document.createElement("td");
+            let roleText = "Rotation Account";
+            if (email.toLowerCase().trim() === primaryEmail) {
+                roleText = "Primary Sender";
+            }
+            roleCell.textContent = roleText;
+            tr.appendChild(roleCell);
+            
+            // 3. Status
+            const statusCell = document.createElement("td");
+            statusCell.className = "text-center";
+            if (progress.is_completed) {
+                statusCell.innerHTML = `<span class="badge" style="background: var(--color-success-bg); color: var(--color-success-text); padding: 4px 8px; border-radius: 4px; font-weight: 700; font-size: 11px;">Completed</span>`;
+            } else {
+                statusCell.innerHTML = `<span class="badge" style="background: var(--color-warning-bg); color: var(--color-warning-text); padding: 4px 8px; border-radius: 4px; font-weight: 700; font-size: 11px;">Warming Up</span>`;
+            }
+            tr.appendChild(statusCell);
+            
+            // 4. Warmup Progress (14 Days Track)
+            const progressCell = document.createElement("td");
+            const days = progress.completed_days || 0;
+            const pctDays = Math.min(Math.round((days / 14) * 100), 100);
+            let dayBarColor = "var(--color-primary)";
+            if (progress.is_completed) {
+                dayBarColor = "var(--color-success)";
+            }
+            
+            progressCell.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="flex-grow: 1; height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden;" title="Active Days: ${escapeHtml(progress.dates.join(', '))}">
+                        <div style="width: ${pctDays}%; height: 100%; background: ${dayBarColor};"></div>
+                    </div>
+                    <span style="font-size: 11px; font-weight: 600; min-width: 60px; text-align: right;">${days}/14 days</span>
+                </div>
+            `;
+            tr.appendChild(progressCell);
+            
+            // 5. Daily Limit (Sent/Cap)
+            const thresholdCell = document.createElement("td");
+            const limit = state.settings.daily_limit || 50;
+            const pct = Math.min(Math.round((count / limit) * 100), 100);
+            let barColor = "var(--color-success)";
+            if (pct > 80) barColor = "var(--color-danger)";
+            else if (pct > 50) barColor = "var(--color-warning)";
+            
+            thresholdCell.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="flex-grow: 1; height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden;">
+                        <div style="width: ${pct}%; height: 100%; background: ${barColor};"></div>
+                    </div>
+                    <span style="font-size: 11px; font-weight: 600; min-width: 50px; text-align: right;">${count}/${limit}</span>
+                </div>
+            `;
+            tr.appendChild(thresholdCell);
+            
+            tbody.appendChild(tr);
+        });
+    } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center" style="color: var(--color-danger);">Failed to load warmup data: ${escapeHtml(e.message)}</td></tr>`;
+    }
+}
+
+// SDR Training & Pipeline Board functions
+function loadSdrTrainingSettings() {
+    if (!state.settings) {
+        return;
+    }
+    const sdr = state.settings.sdr_training || {};
+    const trainCustToMql = document.getElementById("train-customer-to-mql");
+    const trainMqlToSql = document.getElementById("train-mql-to-sql");
+    const trainSqlToSample = document.getElementById("train-sql-to-sample-approval");
+    const trainSdrPersona = document.getElementById("train-sdr-persona");
+    
+    if (trainCustToMql) trainCustToMql.value = sdr.customer_to_mql || "";
+    if (trainMqlToSql) trainMqlToSql.value = sdr.mql_to_sql || "";
+    if (trainSqlToSample) trainSqlToSample.value = sdr.sql_to_sample_approval || "";
+    if (trainSdrPersona) trainSdrPersona.value = state.settings.sdr_persona || "";
+}
+
+async function saveSdrTrainingSettings() {
+    const btnSaveTraining = document.getElementById("btn-save-training");
+    if (btnSaveTraining) {
+        btnSaveTraining.disabled = true;
+        btnSaveTraining.textContent = "Saving...";
+    }
+    
+    const sdr_training = {
+        customer_to_mql: document.getElementById("train-customer-to-mql").value,
+        mql_to_sql: document.getElementById("train-mql-to-sql").value,
+        sql_to_sample_approval: document.getElementById("train-sql-to-sample-approval").value
+    };
+    
+    const sdr_persona = document.getElementById("train-sdr-persona").value;
+    
+    const settings = {
+        ...state.settings,
+        sdr_training,
+        sdr_persona
+    };
+    
+    try {
+        const res = await fetch("/api/settings", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(settings)
+        });
+        const data = await res.json();
+        if (data.status === "success") {
+            state.settings = data.settings;
+            alert("Agent Training guidelines saved successfully!");
+            fetchSettings();
+        }
+    } catch (e) {
+        alert("Failed to save Agent Training guidelines: " + e);
+    } finally {
+        if (btnSaveTraining) {
+            btnSaveTraining.disabled = false;
+            btnSaveTraining.textContent = "Save Training Guidelines";
+        }
+    }
+}
+
+function renderPipelineBoard() {
+    const colCustomerList = document.getElementById("pipe-list-customer");
+    const colMqlList = document.getElementById("pipe-list-mql");
+    const colSqlList = document.getElementById("pipe-list-sql");
+    const colSampleList = document.getElementById("pipe-list-sample-approval");
+    
+    if (!colCustomerList || !colMqlList || !colSqlList || !colSampleList) return;
+    
+    colCustomerList.innerHTML = "";
+    colMqlList.innerHTML = "";
+    colSqlList.innerHTML = "";
+    colSampleList.innerHTML = "";
+    
+    const customerLeads = [];
+    const mqlLeads = [];
+    const sqlLeads = [];
+    const sampleApprovalLeads = [];
+    
+    state.leads.forEach(lead => {
+        const status = lead.status;
+        if (status === "Interested") {
+            sqlLeads.push(lead);
+        } else if (status === "Sample_Approval") {
+            sampleApprovalLeads.push(lead);
+        } else if (status === "Replied") {
+            mqlLeads.push(lead);
+        } else if (["Pending", "Analyzing", "Ready", "Sending", "Sent", "Follow_Up_1_Sent", "Follow_Up_2_Sent"].includes(status)) {
+            customerLeads.push(lead);
+        }
+    });
+    
+    document.getElementById("pipe-count-customer").textContent = customerLeads.length;
+    document.getElementById("pipe-count-mql").textContent = mqlLeads.length;
+    document.getElementById("pipe-count-sql").textContent = sqlLeads.length;
+    document.getElementById("pipe-count-sample-approval").textContent = sampleApprovalLeads.length;
+    
+    const getLeadCardHtml = (lead) => {
+        const score = lead.score || 0;
+        let scoreClass = 'medium';
+        if (score >= 85) scoreClass = 'high';
+        else if (score < 40) scoreClass = 'low';
+        
+        return `
+            <div class="pipeline-lead-card" id="pipe-card-${lead.id}">
+                <div class="pipeline-card-name">${escapeHtml(lead.name)}</div>
+                <div class="pipeline-card-meta">${escapeHtml(lead.title)} at <strong>${escapeHtml(lead.company)}</strong></div>
+                <div style="display: flex; gap: 4px; align-items: center; margin-top: 2px;">
+                    <span class="status-pill ${lead.status.toLowerCase()}">${lead.status.replace(/_/g, ' ')}</span>
+                    ${score > 0 ? `<span class="score-badge ${scoreClass}" style="font-size: 9px; padding: 2px 4px; height: auto;">Fit: ${score}</span>` : ''}
+                </div>
+                <div class="pipeline-card-footer">
+                    <button class="btn btn-secondary btn-mini" onclick="navigateToEmailEditor('${lead.id}')">✏ Reply</button>
+                    ${lead.status === 'Sample_Approval' ? `<span class="badge" style="font-size: 9px; padding: 2px 4px; background: #fae8ff; color: #86198f; font-weight: 700; border-radius: 4px;">Wants Sample</span>` : ''}
+                </div>
+            </div>
+        `;
+    };
+    
+    if (customerLeads.length === 0) colCustomerList.innerHTML = `<div class="text-muted text-center" style="font-size: 11px; padding: 10px;">No leads</div>`;
+    else colCustomerList.innerHTML = customerLeads.map(getLeadCardHtml).join("");
+    
+    if (mqlLeads.length === 0) colMqlList.innerHTML = `<div class="text-muted text-center" style="font-size: 11px; padding: 10px;">No leads</div>`;
+    else colMqlList.innerHTML = mqlLeads.map(getLeadCardHtml).join("");
+    
+    if (sqlLeads.length === 0) colSqlList.innerHTML = `<div class="text-muted text-center" style="font-size: 11px; padding: 10px;">No leads</div>`;
+    else colSqlList.innerHTML = sqlLeads.map(getLeadCardHtml).join("");
+    
+    if (sampleApprovalLeads.length === 0) colSampleList.innerHTML = `<div class="text-muted text-center" style="font-size: 11px; padding: 10px;">No leads</div>`;
+    else colSampleList.innerHTML = sampleApprovalLeads.map(getLeadCardHtml).join("");
+}
+
+window.navigateToEmailEditor = function(leadId) {
+    const lead = state.leads.find(l => l.id === leadId);
+    if (lead && (lead.status === "Interested" || lead.status === "Sample_Approval")) {
+        window.openLeadInHyperAgent(leadId);
+    } else {
+        const navBtn = document.getElementById("nav-email-preview");
+        if (navBtn) {
+            navBtn.click();
+            selectLeadFromQueue(leadId);
+        }
+    }
+};
+
+window.openLeadInHyperAgent = function(leadId) {
+    state.selectedHyperLeadId = leadId;
+    const navBtn = document.getElementById("nav-hyper-agent");
+    if (navBtn) {
+        navBtn.click();
+        renderHyperAgentTab(true);
+    }
+};
+
+function initHyperAgent() {
+    // Search input handler
+    const searchInput = document.getElementById("hyper-queue-search-input");
+    if (searchInput) {
+        searchInput.addEventListener("input", () => {
+            renderHyperAgentTab(false);
+        });
+    }
+
+    // Save personalized instructions handler
+    const btnSaveInstructions = document.getElementById("btn-save-hyper-instructions");
+    if (btnSaveInstructions) {
+        btnSaveInstructions.addEventListener("click", async () => {
+            if (!state.selectedHyperLeadId) return;
+            
+            btnSaveInstructions.disabled = true;
+            btnSaveInstructions.textContent = "Saving...";
+            
+            const custom_agent_instructions = document.getElementById("hyper-custom-instructions-text").value.trim();
+            
+            try {
+                const res = await fetch(`/api/leads/custom-instructions/${state.selectedHyperLeadId}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ custom_agent_instructions })
+                });
+                const data = await res.json();
+                if (data.status === "success") {
+                    const lead = state.leads.find(l => l.id === state.selectedHyperLeadId);
+                    if (lead) {
+                        lead.custom_agent_instructions = custom_agent_instructions;
+                    }
+                    alert("Hyper-personalized instructions saved for this prospect!");
+                }
+            } catch (e) {
+                alert("Failed to save personalized instructions: " + e);
+            } finally {
+                btnSaveInstructions.disabled = false;
+                btnSaveInstructions.textContent = "Save Personalized Instructions";
+            }
+        });
+    }
+
+    // Save nurture draft handler
+    const btnSaveNurture = document.getElementById("btn-save-hyper-draft");
+    if (btnSaveNurture) {
+        btnSaveNurture.addEventListener("click", async () => {
+            if (!state.selectedHyperLeadId) return;
+            
+            btnSaveNurture.disabled = true;
+            btnSaveNurture.textContent = "Saving...";
+            
+            const payload = {
+                lead_id: state.selectedHyperLeadId,
+                email_type: "reply_nurture",
+                subject: document.getElementById("hyper-draft-subject").value,
+                body: document.getElementById("hyper-draft-body").value
+            };
+            
+            try {
+                const res = await fetch("/api/leads/update-email", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.status === "success") {
+                    const lead = state.leads.find(l => l.id === state.selectedHyperLeadId);
+                    if (lead) {
+                        if (!lead.email_drafts) lead.email_drafts = {};
+                        if (!lead.email_drafts.reply_nurture) lead.email_drafts.reply_nurture = {};
+                        lead.email_drafts.reply_nurture.subject = payload.subject;
+                        lead.email_drafts.reply_nurture.body = payload.body;
+                    }
+                    alert("Nurture response draft saved!");
+                }
+            } catch (e) {
+                alert("Failed to save draft changes: " + e);
+            } finally {
+                btnSaveNurture.disabled = false;
+                btnSaveNurture.textContent = "Save Nurture Draft";
+            }
+        });
+    }
+
+    // Simulator triggers
+    const btnSimInt = document.getElementById("hyper-btn-sim-interested");
+    const btnSimUnint = document.getElementById("hyper-btn-sim-uninterested");
+    const btnSimOoo = document.getElementById("hyper-btn-sim-ooo");
+    const btnSimWrong = document.getElementById("hyper-btn-sim-wrong");
+    const btnSimCustom = document.getElementById("hyper-btn-sim-custom-reply");
+    const customReplyInput = document.getElementById("hyper-sim-custom-reply-text");
+    
+    const injectHyperReply = async (text) => {
+        if (!state.selectedHyperLeadId) {
+            alert("Select a lead first.");
+            return;
+        }
+        
+        try {
+            const res = await fetch("/api/campaign/simulate-reply", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    lead_id: state.selectedHyperLeadId,
+                    reply_body: text
+                })
+            });
+            const data = await res.json();
+            if (data.status === "success") {
+                alert(`Injected simulated reply. The agent is analyzing it in the background...`);
+                // Poll quickly
+                setTimeout(async () => {
+                    await fetchState();
+                    renderHyperAgentTab(false);
+                }, 1500);
+            }
+        } catch (e) {
+            alert("Simulation failed: " + e);
+        }
+    };
+    
+    if (btnSimInt) {
+        btnSimInt.addEventListener("click", () => {
+            injectHyperReply("Hi! This sounds like a great list. What is the pricing for the US Tech Buyers Database? Also, can you send over a sample of 20 contacts to inspect? Thanks!");
+        });
+    }
+    if (btnSimUnint) {
+        btnSimUnint.addEventListener("click", () => {
+            injectHyperReply("No, we already have our own contact acquisition provider. Please unsubscribe me and stop emailing.");
+        });
+    }
+    if (btnSimOoo) {
+        btnSimOoo.addEventListener("click", () => {
+            injectHyperReply("Thank you for your message. I am out of the office on vacation with limited access to email until June 18th. For urgent growth issues, contact my colleague Dave at dave@acme.com.");
+        });
+    }
+    if (btnSimWrong) {
+        btnSimWrong.addEventListener("click", () => {
+            injectHyperReply("I am no longer handling lead acquisitions or marketing lists. Please reach out to our Head of Sales, Clara Brown, at clara.brown@acme.com instead.");
+        });
+    }
+    if (btnSimCustom) {
+        btnSimCustom.addEventListener("click", () => {
+            const val = customReplyInput.value.trim();
+            if (!val) {
+                alert("Type a custom response message first.");
+                return;
+            }
+            injectHyperReply(val);
+            customReplyInput.value = "";
+        });
+    }
+}
+
+function renderHyperAgentTab(forceSelectFirst = true) {
+    const queueList = document.getElementById("hyper-queue-lead-list");
+    if (!queueList) return;
+    
+    const hotLeads = state.leads.filter(lead => lead.status === "Interested" || lead.status === "Sample_Approval");
+    
+    const searchInput = document.getElementById("hyper-queue-search-input");
+    const searchQuery = searchInput ? searchInput.value.toLowerCase().trim() : "";
+    
+    const filteredLeads = hotLeads.filter(lead => {
+        if (!searchQuery) return true;
+        const offer = lead.matched_segment ? lead.matched_segment.go4db_offer : "";
+        return lead.name.toLowerCase().includes(searchQuery) ||
+               lead.company.toLowerCase().includes(searchQuery) ||
+               offer.toLowerCase().includes(searchQuery);
+    });
+    
+    if (filteredLeads.length === 0) {
+        queueList.innerHTML = `<li class="empty-state text-muted text-center py-4">No hot leads available</li>`;
+        state.selectedHyperLeadId = null;
+        document.getElementById("hyper-workspace").style.display = "none";
+        document.getElementById("hyper-workspace-empty-state").style.display = "block";
+        return;
+    }
+    
+    let html = "";
+    filteredLeads.forEach(lead => {
+        const activeClass = lead.id === state.selectedHyperLeadId ? "active" : "";
+        const offer = lead.matched_segment ? lead.matched_segment.go4db_offer : "Not Matched";
+        
+        let statusText = lead.status.replace(/_/g, ' ');
+        
+        html += `
+            <li class="queue-item ${activeClass}" onclick="selectLeadFromHyperQueue('${lead.id}')">
+                <h4>${lead.name}</h4>
+                <p>${lead.company} • ${offer}</p>
+                <div class="queue-item-meta">
+                    <span class="status-pill ${lead.status.toLowerCase()}" style="font-size: 9px; padding: 2px 4px;">${statusText}</span>
+                    <span class="score text-muted">Score: ${lead.score || '-'}</span>
+                </div>
+            </li>`;
+    });
+    
+    queueList.innerHTML = html;
+    
+    // Auto-select first lead if nothing selected yet or if current selection is no longer in the list
+    const selectedStillExists = filteredLeads.some(l => l.id === state.selectedHyperLeadId);
+    if ((forceSelectFirst && !state.selectedHyperLeadId && filteredLeads.length > 0) || (state.selectedHyperLeadId && !selectedStillExists)) {
+        selectLeadFromHyperQueue(filteredLeads[0].id);
+    } else if (state.selectedHyperLeadId) {
+        populateHyperAgentWorkspace(state.selectedHyperLeadId);
+    }
+}
+
+window.selectLeadFromHyperQueue = function(leadId) {
+    state.selectedHyperLeadId = leadId;
+    
+    // Highlight active class on DOM items
+    const items = document.getElementById("hyper-queue-lead-list").querySelectorAll(".queue-item");
+    const hotLeads = state.leads.filter(lead => lead.status === "Interested" || lead.status === "Sample_Approval");
+    const searchInput = document.getElementById("hyper-queue-search-input");
+    const searchQuery = searchInput ? searchInput.value.toLowerCase().trim() : "";
+    const filteredLeads = hotLeads.filter(lead => {
+        if (!searchQuery) return true;
+        const offer = lead.matched_segment ? lead.matched_segment.go4db_offer : "";
+        return lead.name.toLowerCase().includes(searchQuery) ||
+               lead.company.toLowerCase().includes(searchQuery) ||
+               offer.toLowerCase().includes(searchQuery);
+    });
+    
+    const leadIndex = filteredLeads.findIndex(l => l.id === leadId);
+    items.forEach(el => el.classList.remove("active"));
+    if (leadIndex !== -1 && items[leadIndex]) {
+        items[leadIndex].classList.add("active");
+    }
+    
+    populateHyperAgentWorkspace(leadId);
+};
+
+function populateHyperAgentWorkspace(leadId) {
+    const lead = state.leads.find(l => l.id === leadId);
+    if (!lead) return;
+    
+    const workspace = document.getElementById("hyper-workspace");
+    const emptyState = document.getElementById("hyper-workspace-empty-state");
+    
+    workspace.style.display = "flex";
+    emptyState.style.display = "none";
+    
+    // Header details
+    document.getElementById("hyper-prospect-name").textContent = lead.name;
+    document.getElementById("hyper-prospect-meta").textContent = `${lead.title} at ${lead.company} • ${lead.industry} • Size: ${lead.company_size}`;
+    
+    const statusBadge = document.getElementById("hyper-prospect-status-badge");
+    statusBadge.textContent = lead.status.replace(/_/g, ' ');
+    statusBadge.className = `matched-pill-indicator status-pill ${lead.status.toLowerCase()}`;
+    
+    // Live stage status cards
+    document.getElementById("hyper-stage-value").textContent = lead.lead_stage || lead.status.replace(/_/g, ' ');
+    document.getElementById("hyper-score-value").textContent = lead.qualification_score || lead.score || '-';
+    document.getElementById("hyper-intent-value").textContent = lead.buying_intent || 'Medium';
+    
+    const painPoints = lead.pain_points || [];
+    document.getElementById("hyper-pain-points-value").textContent = painPoints.length > 0 ? painPoints.join(", ") : "None detected";
+    document.getElementById("hyper-next-action-value").textContent = lead.next_action || "Continue nurturing";
+    
+    // Custom instructions text
+    document.getElementById("hyper-custom-instructions-text").value = lead.custom_agent_instructions || "";
+    
+    // Latest incoming reply
+    const incomingReplyDiv = document.getElementById("hyper-latest-incoming-reply");
+    if (lead.replies && lead.replies.length > 0) {
+        const lastReply = lead.replies[lead.replies.length - 1];
+        incomingReplyDiv.textContent = `[${new Date(lastReply.timestamp).toLocaleString()}] ${lead.name}:\n\n${lastReply.body}`;
+    } else {
+        incomingReplyDiv.textContent = "No reply received yet.";
+    }
+    
+    // Nurture draft responses
+    const draftSubject = document.getElementById("hyper-draft-subject");
+    const draftBody = document.getElementById("hyper-draft-body");
+    
+    if (lead.email_drafts && lead.email_drafts.reply_nurture) {
+        draftSubject.value = lead.email_drafts.reply_nurture.subject || "";
+        draftBody.value = lead.email_drafts.reply_nurture.body || "";
+    } else {
+        draftSubject.value = "";
+        draftBody.value = "";
+    }
+}
+
+
 

@@ -10,6 +10,7 @@ STATE_FILE = "campaign_state.json"
 class LeadManager:
     def __init__(self):
         self.lock = threading.RLock()
+        from agent_logic import DEFAULT_SDR_PERSONA
         self.state = {
             "active_campaign_id": "default",
             "users": [
@@ -23,6 +24,7 @@ class LeadManager:
             ],
             "settings": {
                 "gemini_api_key": os.getenv("GEMINI_API_KEY", ""),
+                "sdr_persona": DEFAULT_SDR_PERSONA,
                 "smtp_server": "smtp.gmail.com",
                 "smtp_port": 587,
                 "smtp_user": "",
@@ -35,7 +37,12 @@ class LeadManager:
                 "min_delay": 5,  # seconds (for demo/speed)
                 "max_delay": 15, # seconds (for demo/speed)
                 "auto_followup_delay_days": 24,
-                "automation_mode": False  # False = requires manual approval before sending
+                "automation_mode": False,  # False = requires manual approval before sending
+                "sdr_training": {
+                    "customer_to_mql": "Understand the prospect's situation, their role, and company fit. Communicate naturally, professionally, and conversationally. Answer introductory questions, explore initial interest, and offer to prepare a custom sample list.",
+                    "mql_to_sql": "Explore pain points (e.g. low conversions, outdated contacts, gatekeepers) and current outbound tools/workflow. Qualify on need and authority. Recommend a sales discussion / book a meeting.",
+                    "sql_to_sample_approval": "Identify if the prospect asks for custom data samples (e.g. 'send me a sample list'). Ask clarifying questions about their target filters (industries, location, size) to compile the sample. Guide them to sample approval."
+                }
             },
             "campaigns": {
                 "default": {
@@ -67,6 +74,14 @@ class LeadManager:
                         # Load settings if present (shared globally)
                         if "settings" in saved_state:
                             self.state["settings"].update(saved_state["settings"])
+                            if "sdr_training" not in saved_state["settings"]:
+                                self.state["settings"]["sdr_training"] = {
+                                    "customer_to_mql": "Understand the prospect's situation, their role, and company fit. Communicate naturally, professionally, and conversationally. Answer introductory questions, explore initial interest, and offer to prepare a custom sample list.",
+                                    "mql_to_sql": "Explore pain points (e.g. low conversions, outdated contacts, gatekeepers) and current outbound tools/workflow. Qualify on need and authority. Recommend a sales discussion / book a meeting.",
+                                    "sql_to_sample_approval": "Identify if the prospect asks for custom data samples (e.g. 'send me a sample list'). Ask clarifying questions about their target filters (industries, location, size) to compile the sample. Guide them to sample approval."
+                                }
+                            if "sdr_persona" not in saved_state["settings"]:
+                                self.state["settings"]["sdr_persona"] = DEFAULT_SDR_PERSONA
                             if not self.state["settings"].get("gemini_api_key") and os.getenv("GEMINI_API_KEY"):
                                 self.state["settings"]["gemini_api_key"] = os.getenv("GEMINI_API_KEY")
                         
@@ -312,6 +327,7 @@ class LeadManager:
                     "sequence_step": 0,
                     "last_sent_time": None,
                     "is_approved": False,
+                    "custom_agent_instructions": lead.get("custom_agent_instructions", "").strip(),
                     "history": [{
                         "timestamp": datetime.datetime.now().isoformat(),
                         "action": "Ingested",
@@ -463,7 +479,7 @@ class LeadManager:
         leads = campaign.get("leads", [])
         total = len(leads)
         sent = sum(l.get("sequence_step", 0) for l in leads)
-        replies = sum(1 for l in leads if l["status"] in ["Replied", "Interested", "Not_Interested", "OOO", "Wrong_Contact"])
+        replies = sum(1 for l in leads if l["status"] in ["Replied", "Interested", "Not_Interested", "OOO", "Wrong_Contact", "Sample_Approval"])
         interested = sum(1 for l in leads if l["status"] == "Interested")
         not_interested = sum(1 for l in leads if l["status"] == "Not_Interested")
         junk = sum(1 for l in leads if l["status"] in ["Junk", "Bounced", "Wrong_Contact"])

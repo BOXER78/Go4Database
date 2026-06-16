@@ -13,9 +13,21 @@ from pydantic import BaseModel
 import pandas as pd
 import io
 from typing import List, Dict, Any, Optional
+import socket
 
+# Set default socket timeout to 10 seconds to prevent IMAP/SMTP hanging
+socket.setdefaulttimeout(10)
+
+from enum import Enum
 from lead_manager import LeadManager
-from agent_logic import analyze_and_draft, classify_reply, generate_custom_followup
+from agent_logic import analyze_and_draft, classify_reply, generate_custom_followup, qualify_and_draft_reply
+
+class ConversationStage(Enum):
+    COLD_OUTREACH = "COLD_OUTREACH"
+    MQL = "MQL"
+    SQL_SAMPLE_APPROVAL = "SQL_SAMPLE_APPROVAL"
+    OBJECTION_HANDLING = "OBJECTION_HANDLING"
+    DEAL_CLOSURE = "DEAL_CLOSURE"
 
 app = FastAPI(title="Go4Database AI Sales Outreach Agent")
 lead_manager = LeadManager()
@@ -87,7 +99,7 @@ def get_imap_server_from_smtp(smtp_server: str) -> str:
         return "imap." + smtp_server[5:]
     return smtp_server
 
-def get_active_sender_accounts(settings: dict) -> list:
+def get_all_enabled_sender_accounts(settings: dict) -> list:
     accounts = []
     
     # 1. Add primary account if configured
@@ -129,6 +141,26 @@ def get_active_sender_accounts(settings: dict) -> list:
             })
             
     return accounts
+
+def get_active_sender_accounts(settings: dict) -> list:
+    accounts = get_all_enabled_sender_accounts(settings)
+    
+    # Filter out accounts that have completed 14 working days of warmup
+    try:
+        warmup_progress = calculate_warmup_progress(lead_manager.state)
+        filtered_accounts = []
+        for acc in accounts:
+            email = acc["email"].lower().strip()
+            progress = warmup_progress.get(email, {})
+            if progress.get("completed_days", 0) < 14:
+                filtered_accounts.append(acc)
+            else:
+                print(f"[WARMUP COMPLETE] Excluding {email} from active pool (completed 14 working days).")
+        return filtered_accounts
+    except Exception as e:
+        print(f"Error filtering warmup completed accounts: {e}")
+        return accounts
+
 
 def get_sender_account_by_id(settings: dict, account_id: str) -> dict:
     primary_user = settings.get("smtp_user")
@@ -197,7 +229,7 @@ def parse_dt_to_utc(dt_str: str):
     except Exception:
         return None
 
-def check_imap_replies(settings: dict, leads: list, processed_message_ids: list = None) -> list:
+def check_imap_replies(account: dict, all_lead_emails: set) -> list:
     """
     Connects to the IMAP server, checks for new/unread and recent emails,
     and returns a list of dictionaries with sender email, body, subject, message_id,
@@ -208,58 +240,95 @@ def check_imap_replies(settings: dict, leads: list, processed_message_ids: list 
     import email.utils
     import re
 
-    if processed_message_ids is None:
-        processed_message_ids = []
-
-    smtp_user = settings.get("smtp_user")
-    smtp_password = settings.get("smtp_password")
-    smtp_server = settings.get("smtp_server")
+    smtp_user = account.get("smtp_user")
+    smtp_password = account.get("smtp_password")
+    smtp_server = account.get("smtp_server")
     
     if not smtp_user or not smtp_password or not smtp_server:
         return []
         
-    imap_server = settings.get("imap_server") or get_imap_server_from_smtp(smtp_server)
-    imap_port = int(settings.get("imap_port") or 993)
+    imap_server = account.get("imap_server") or get_imap_server_from_smtp(smtp_server)
+    imap_port = int(account.get("imap_port") or 993)
     
     replies_found = []
     try:
-        mail = imaplib.IMAP4_SSL(imap_server, imap_port)
+        mail = imaplib.IMAP4_SSL(imap_server, imap_port, timeout=10)
         mail.login(smtp_user, smtp_password)
-        mail.select("inbox")
         
-        # 1. Fetch UNSEEN message IDs
-        status_unseen, messages_unseen = mail.search(None, "UNSEEN")
-        unseen_ids = messages_unseen[0].split() if status_unseen == "OK" and messages_unseen[0] else []
-        
-        # 2. Fetch ALL message IDs to check the last 50
-        status_all, messages_all = mail.search(None, "ALL")
-        all_ids = messages_all[0].split() if status_all == "OK" and messages_all[0] else []
-        recent_ids = all_ids[-50:]
-        
-        # Combine IDs chronologically, removing duplicates
-        combined_set = set(unseen_ids + recent_ids)
-        mail_ids = sorted(list(combined_set), key=lambda x: int(x))
-        
-        if not mail_ids:
-            mail.close()
-            mail.logout()
-            return []
+        folders_to_check = ["INBOX"]
+        try:
+            status, folder_list = mail.list()
+            if status == "OK":
+                for f in folder_list:
+                    f_str = f.decode()
+                    if "\\junk" in f_str.lower() or "spam" in f_str.lower() or "junk" in f_str.lower():
+                        parts = f_str.split(' "/" ')
+                        if len(parts) > 1:
+                            spam_folder = parts[1].strip('"')
+                            if spam_folder not in folders_to_check:
+                                folders_to_check.append(spam_folder)
+                        else:
+                            parts = f_str.split()
+                            if parts:
+                                spam_folder = parts[-1].strip('"')
+                                if spam_folder not in folders_to_check:
+                                    folders_to_check.append(spam_folder)
+                        break
+        except Exception as list_err:
+            print(f"Error listing folders for spam check: {list_err}")
             
-        lead_emails = {l["email"].lower().strip() for l in leads if l.get("email")}
+        mailbox_selected = False
         
-        for mail_id in mail_ids:
-            res_headers, header_data = mail.fetch(mail_id, "(BODY.PEEK[HEADER.FIELDS (MESSAGE-ID FROM SUBJECT DATE)])")
-            if res_headers != "OK":
-                continue
-            
-            msg_id_val = None
-            from_email = None
-            subject_val = ""
-            date_val = None
-            
-            for part in header_data:
-                if isinstance(part, tuple):
+        for folder in folders_to_check:
+            try:
+                select_status, select_data = mail.select(f'"{folder}"')
+                if select_status != "OK":
+                    continue
+                mailbox_selected = True
+                
+                # 1. Fetch UNSEEN message IDs
+                status_unseen, messages_unseen = mail.search(None, "UNSEEN")
+                unseen_ids = messages_unseen[0].split() if status_unseen == "OK" and messages_unseen[0] else []
+                
+                # 2. Fetch ALL message IDs to check the last 50
+                status_all, messages_all = mail.search(None, "ALL")
+                all_ids = messages_all[0].split() if status_all == "OK" and messages_all[0] else []
+                recent_ids = all_ids[-50:]
+                
+                # Combine IDs chronologically, removing duplicates
+                combined_set = set(unseen_ids + recent_ids)
+                mail_ids = sorted(list(combined_set), key=lambda x: int(x))
+                
+                if not mail_ids:
+                    continue
+                    
+                # Batch fetch headers to speed up check significantly (1 roundtrip instead of len(mail_ids) roundtrips)
+                try:
+                    mail_ids_bytes = b",".join(mail_ids)
+                    res_headers, header_data = mail.fetch(mail_ids_bytes, "(BODY.PEEK[HEADER.FIELDS (MESSAGE-ID FROM SUBJECT DATE)])")
+                except Exception as fetch_err:
+                    print(f"Error batch fetching headers: {fetch_err}", flush=True)
+                    continue
+                    
+                if res_headers != "OK" or not header_data:
+                    continue
+                
+                for part in header_data:
+                    if not isinstance(part, tuple):
+                        continue
+                        
+                    # Extract the mail_id (sequence number) from part[0]
+                    try:
+                        mail_id = part[0].split()[0]
+                    except Exception:
+                        continue
+                        
                     header_msg = email.message_from_bytes(part[1])
+                    
+                    msg_id_val = None
+                    from_email = None
+                    subject_val = ""
+                    date_val = None
                     
                     from_header = header_msg.get("From", "")
                     parsed_from = email.utils.parseaddr(from_header)
@@ -281,95 +350,87 @@ def check_imap_replies(settings: dict, leads: list, processed_message_ids: list 
                                 date_val = date_val.astimezone(datetime.timezone.utc)
                         except Exception:
                             date_val = None
-            
-            # If we have a Message-ID, check if we already processed it
-            if msg_id_val and msg_id_val in processed_message_ids:
-                continue
-            
-            # Check if it is a bounce
-            is_bounce = False
-            if from_email and any(x in from_email for x in ["mailer-daemon", "postmaster", "bounce", "mail-noreply", "noreply"]):
-                is_bounce = True
-            
-            matched_lead_email = None
-            if from_email and from_email in lead_emails:
-                matched_lead_email = from_email
-            
-            # If it is not from a lead and not a bounce, we don't need to process it
-            if not matched_lead_email and not is_bounce:
-                continue
-                
-            # Fetch the full email body
-            res, msg_data = mail.fetch(mail_id, "(RFC822)")
-            if res != "OK":
-                continue
-                
-            for response_part in msg_data:
-                if isinstance(response_part, tuple):
-                    msg = email.message_from_bytes(response_part[1])
                     
-                    body = ""
-                    if msg.is_multipart():
-                        for part in msg.walk():
-                            content_type = part.get_content_type()
-                            content_disposition = str(part.get("Content-Disposition"))
-                            if content_type == "text/plain" and "attachment" not in content_disposition:
-                                try:
-                                    body = part.get_payload(decode=True).decode(part.get_content_charset() or "utf-8", errors="ignore")
-                                except Exception:
-                                    pass
-                                break
-                    else:
-                        try:
-                            body = msg.get_payload(decode=True).decode(msg.get_content_charset() or "utf-8", errors="ignore")
-                        except Exception:
-                            pass
+                    # Check if it is a bounce
+                    is_bounce = False
+                    if from_email and any(x in from_email for x in ["mailer-daemon", "postmaster", "bounce", "mail-noreply", "noreply"]):
+                        is_bounce = True
+                    
+                    matched_lead_email = None
+                    if from_email and from_email in all_lead_emails:
+                        matched_lead_email = from_email
+                    
+                    # If it is not from a lead and not a bounce, we don't need to process it
+                    if not matched_lead_email and not is_bounce:
+                        continue
+                        
+                    # Fetch the full email body
+                    res, msg_data = mail.fetch(mail_id, "(RFC822)")
+                    if res != "OK":
+                        continue
+                        
+                    for response_part in msg_data:
+                        if isinstance(response_part, tuple):
+                            msg = email.message_from_bytes(response_part[1])
                             
-                    if not body:
-                        for part in msg.walk():
-                            content_type = part.get_content_type()
-                            if content_type == "text/html":
+                            body = ""
+                            if msg.is_multipart():
+                                for part_walk in msg.walk():
+                                    content_type = part_walk.get_content_type()
+                                    content_disposition = str(part_walk.get("Content-Disposition"))
+                                    if content_type == "text/plain" and "attachment" not in content_disposition:
+                                        try:
+                                            body = part_walk.get_payload(decode=True).decode(part_walk.get_content_charset() or "utf-8", errors="ignore")
+                                        except Exception:
+                                            pass
+                                        break
+                            else:
                                 try:
-                                    html_body = part.get_payload(decode=True).decode(part.get_content_charset() or "utf-8", errors="ignore")
-                                    body = re.sub('<[^<]+?>', '', html_body)
+                                    body = msg.get_payload(decode=True).decode(msg.get_content_charset() or "utf-8", errors="ignore")
                                 except Exception:
                                     pass
-                                break
+                                    
+                            if not body:
+                                for part_walk in msg.walk():
+                                    content_type = part_walk.get_content_type()
+                                    if content_type == "text/html":
+                                        try:
+                                            html_body = part_walk.get_payload(decode=True).decode(part_walk.get_content_charset() or "utf-8", errors="ignore")
+                                            body = re.sub('<[^<]+?>', '', html_body)
+                                        except Exception:
+                                            pass
+                                        break
+                                        
+                            if is_bounce:
+                                search_text = (subject_val + " " + body).lower()
+                                for le in all_lead_emails:
+                                    if le in search_text:
+                                        matched_lead_email = le
+                                        break
+                            
+                            if matched_lead_email or is_bounce:
+                                mail.store(mail_id, "+FLAGS", "\\Seen")
                                 
-                    if is_bounce:
-                        search_text = (subject_val + " " + body).lower()
-                        for le in lead_emails:
-                            if le in search_text:
-                                matched_lead_email = le
-                                break
-                    
-                    if matched_lead_email:
-                        # Verify that the email date is newer than the lead's last_sent_time
-                        lead = next((l for l in leads if l["email"].lower().strip() == matched_lead_email), None)
-                        if lead:
-                            last_sent_str = lead.get("last_sent_time")
-                            if not last_sent_str:
-                                continue # Ignore: we haven't sent them anything yet
-                            
-                            last_sent_dt = parse_dt_to_utc(last_sent_str)
-                            if last_sent_dt and date_val and date_val <= last_sent_dt:
-                                continue # Ignore: this is an old email from before the outreach sent time
-                        
-                        mail.store(mail_id, "+FLAGS", "\\Seen")
-                        
-                        replies_found.append({
-                            "sender": matched_lead_email,
-                            "body": body.strip(),
-                            "subject": subject_val,
-                            "is_bounce": is_bounce,
-                            "message_id": msg_id_val
-                        })
-                        
-        mail.close()
+                                replies_found.append({
+                                    "sender": matched_lead_email,
+                                    "body": body.strip(),
+                                    "subject": subject_val,
+                                    "is_bounce": is_bounce,
+                                    "message_id": msg_id_val,
+                                    "date_val": date_val
+                                })
+            except Exception as folder_err:
+                print(f"Error checking folder {folder} for {smtp_user}: {folder_err}", flush=True)
+                
+        if mailbox_selected:
+            try:
+                mail.close()
+            except Exception:
+                pass
         mail.logout()
     except Exception as e:
-        print(f"IMAP check failed: {e}")
-        lead_manager.add_log("ERROR", f"IMAP connection or credentials failed: {str(e)}")
+        print(f"IMAP check failed for {smtp_user}: {e}", flush=True)
+        lead_manager.add_log("ERROR", f"IMAP connection failed for {smtp_user}: {str(e)}")
         
     return replies_found
 
@@ -386,65 +447,91 @@ def campaign_worker_loop():
         # Check IMAP for replies every 30 seconds
         now_ts = time.time()
         if now_ts - last_imap_check_time >= 30:
-            last_imap_check_time = now_ts
-            active_accounts = get_active_sender_accounts(settings)
-            if active_accounts:
+            print(f"BG worker: starting IMAP check for {len(campaigns)} campaigns...", flush=True)
+            all_accounts = get_all_enabled_sender_accounts(settings)
+            if all_accounts:
+                # 1. Collect all lead emails
+                all_lead_emails = set()
                 for c in campaigns:
-                    if c.get("is_running", False):
-                        campaign_id = c["id"]
-                        leads = lead_manager.get_leads(campaign_id=campaign_id)
-                        if leads:
-                            for account in active_accounts:
-                                if not account.get("smtp_user") or not account.get("smtp_password"):
-                                    continue
-                                try:
-                                    # Retrieve processed_message_ids for this campaign from state
+                    leads = lead_manager.get_leads(campaign_id=c["id"])
+                    for l in leads:
+                        if l.get("email"):
+                            all_lead_emails.add(l["email"].lower().strip())
+                
+                # 2. Poll each account once
+                for account in all_accounts:
+                    if not account.get("smtp_user") or not account.get("smtp_password"):
+                        continue
+                    
+                    real_replies = check_imap_replies(account, all_lead_emails)
+                    if real_replies:
+                        print(f"BG worker: found {len(real_replies)} replies/bounces for account {account['email']}", flush=True)
+                        
+                        # 3. Match replies with campaigns
+                        for reply in real_replies:
+                            sender = reply["sender"]
+                            body = reply["body"]
+                            msg_id = reply.get("message_id")
+                            is_bounce = reply.get("is_bounce")
+                            date_val = reply.get("date_val")
+                            subject_val = reply.get("subject")
+                            
+                            # Find which campaigns have a lead matching this sender or bounce
+                            for c in campaigns:
+                                campaign_id = c["id"]
+                                leads = lead_manager.get_leads(campaign_id=campaign_id)
+                                
+                                matched_lead = None
+                                if is_bounce:
+                                    search_text = (subject_val + " " + body).lower()
+                                    for lead in leads:
+                                        if lead.get("email") and lead["email"].lower().strip() in search_text:
+                                            matched_lead = lead
+                                            break
+                                else:
+                                    if sender:
+                                        matched_lead = next((l for l in leads if l["email"].lower().strip() == sender), None)
+                                        
+                                if matched_lead:
+                                    # Deduplicate
+                                    already_processed = False
                                     with lead_manager.lock:
                                         campaign_obj = lead_manager.state["campaigns"].get(campaign_id)
                                         if campaign_obj:
-                                            processed_message_ids = list(campaign_obj.get("processed_message_ids", []))
-                                        else:
-                                            processed_message_ids = []
-                                    
-                                    real_replies = check_imap_replies(account, leads, processed_message_ids)
-                                    for reply in real_replies:
-                                        sender = reply["sender"]
-                                        body = reply["body"]
-                                        msg_id = reply.get("message_id")
+                                            if "processed_message_ids" not in campaign_obj:
+                                                campaign_obj["processed_message_ids"] = []
+                                            if msg_id:
+                                                if msg_id in campaign_obj["processed_message_ids"]:
+                                                    already_processed = True
+                                                else:
+                                                    campaign_obj["processed_message_ids"].append(msg_id)
+                                                    
+                                    if already_processed:
+                                        continue
                                         
-                                        lead = next((l for l in leads if l["email"].lower().strip() == sender), None)
-                                        if lead:
-                                            # Deduplicate using lock and state check
-                                            already_processed = False
-                                            with lead_manager.lock:
-                                                campaign_obj = lead_manager.state["campaigns"].get(campaign_id)
-                                                if campaign_obj:
-                                                    if "processed_message_ids" not in campaign_obj:
-                                                        campaign_obj["processed_message_ids"] = []
-                                                    if msg_id:
-                                                        if msg_id in campaign_obj["processed_message_ids"]:
-                                                            already_processed = True
-                                                        else:
-                                                            campaign_obj["processed_message_ids"].append(msg_id)
-                                                            
-                                            if already_processed:
-                                                continue
-                                                
-                                            if reply.get("is_bounce"):
-                                                with lead_manager.lock:
-                                                    lead["status"] = "Junk"
-                                                    lead["history"].append({
-                                                        "timestamp": datetime.datetime.now().isoformat(),
-                                                        "action": "Email Bounced",
-                                                        "details": f"Delivery bounce notice: {reply.get('subject')}\n\n{body[:250]}... (Account: {account.get('email')})"
-                                                    })
-                                                lead_manager.add_log("ERROR", f"Outbound email to {lead['name']} ({lead['email']}) bounced. Marked as Junk. (Account: {account.get('email')})", lead["id"], campaign_id)
-                                                lead_manager.update_campaign_stats_unsafe(campaign_id)
-                                                lead_manager.save_state()
-                                            else:
-                                                handle_received_reply(lead, body, campaign_id, is_simulated=False)
-                                except Exception as imap_err:
-                                    print(f"IMAP polling error for account {account.get('email')} in campaign {campaign_id}: {imap_err}")
+                                    # Verify dates
+                                    last_sent_str = matched_lead.get("last_sent_time")
+                                    if not last_sent_str:
+                                        continue
+                                    last_sent_dt = parse_dt_to_utc(last_sent_str)
+                                    if last_sent_dt and date_val and date_val <= last_sent_dt:
+                                        continue
+                                        
+                                    if is_bounce:
+                                        with lead_manager.lock:
+                                            matched_lead["status"] = "Junk"
+                                            matched_lead["history"].append({
+                                                "timestamp": datetime.datetime.now().isoformat(),
+                                                "action": "Email Bounced",
+                                                "details": f"Delivery bounce notice: {subject_val}\n\n{body[:250]}... (Account: {account.get('email')})"
+                                            })
+                                        lead_manager.add_log("ERROR", f"Outbound email to {matched_lead['name']} ({matched_lead['email']}) bounced. Marked as Junk. (Account: {account.get('email')})", matched_lead["id"], campaign_id)
+                                        lead_manager.update_campaign_stats_unsafe(campaign_id)
+                                        lead_manager.save_state()
+                                    else:
+                                        print(f"BG worker: processing reply from {matched_lead['name']} in campaign {campaign_id}", flush=True)
+                                        handle_received_reply(matched_lead, body, campaign_id, is_simulated=False)
+            last_imap_check_time = time.time()
 
         for c in campaigns:
             if c.get("is_running", False):
@@ -478,6 +565,13 @@ def campaign_worker_loop():
                     
                     if is_eligible_initial:
                         active_accounts = get_active_sender_accounts(settings)
+                        has_configured_accounts = bool(settings.get("smtp_user") or settings.get("sender_accounts"))
+                        
+                        if not active_accounts and has_configured_accounts:
+                            lead_manager.add_log("SYSTEM", "All configured sender accounts have completed their 14-day warmup. Outreach paused.", None, campaign_id)
+                            lead_manager.set_campaign_running(False, campaign_id=campaign_id)
+                            break
+                            
                         if not active_accounts:
                             # Create a mock/simulated account so simulation mode still runs
                             active_accounts = [{
@@ -566,6 +660,13 @@ def campaign_worker_loop():
                             sender_account_id = lead.get("sender_account_id", "primary")
                             selected_account = get_sender_account_by_id(settings, sender_account_id)
                             
+                            # Check warmup completion
+                            email = selected_account.get("email", "").lower().strip()
+                            warmup_progress = calculate_warmup_progress(lead_manager.state)
+                            if warmup_progress.get(email, {}).get("completed_days", 0) >= 14:
+                                lead_manager.add_log("SYSTEM", f"Skipping follow-up 1 for {lead['name']}: sender {email} completed 14-day warmup.", lead["id"], campaign_id)
+                                continue
+                            
                             lead_manager.update_lead_status(
                                 lead["id"], "Sending", "Sending Follow-up 1", 
                                 f"Sending automatic follow-up 1 from {selected_account['email']} (no reply detected)",
@@ -621,6 +722,13 @@ def campaign_worker_loop():
                         if (now - last_sent).total_seconds() >= delay_seconds:
                             sender_account_id = lead.get("sender_account_id", "primary")
                             selected_account = get_sender_account_by_id(settings, sender_account_id)
+                            
+                            # Check warmup completion
+                            email = selected_account.get("email", "").lower().strip()
+                            warmup_progress = calculate_warmup_progress(lead_manager.state)
+                            if warmup_progress.get(email, {}).get("completed_days", 0) >= 14:
+                                lead_manager.add_log("SYSTEM", f"Skipping follow-up 2 for {lead['name']}: sender {email} completed 14-day warmup.", lead["id"], campaign_id)
+                                continue
                             
                             lead_manager.update_lead_status(
                                 lead["id"], "Sending", "Sending Follow-up 2", 
@@ -846,7 +954,7 @@ def update_settings(settings: dict, user: dict = Depends(verify_admin)):
 def get_leads(user: dict = Depends(get_current_user)):
     leads = lead_manager.get_leads()
     if user.get("role") == "Sales Rep":
-        hot_statuses = {"Interested", "Replied", "Not_Interested", "OOO", "Wrong_Contact"}
+        hot_statuses = {"Interested", "Replied", "Not_Interested", "OOO", "Wrong_Contact", "Sample_Approval"}
         leads = [l for l in leads if l.get("status") in hot_statuses]
     return leads
 
@@ -891,6 +999,27 @@ def set_lead_status(lead_id: str, payload: SetStatusPayload, user: dict = Depend
     
     lead_manager.update_lead_status(lead_id, status, action, details, campaign_id=active_id)
     return {"status": "success"}
+
+class CustomInstructionsPayload(BaseModel):
+    custom_agent_instructions: str
+
+@app.post("/api/leads/custom-instructions/{lead_id}")
+def update_lead_custom_instructions(lead_id: str, payload: CustomInstructionsPayload, user: dict = Depends(get_current_user)):
+    active_id = lead_manager.state.get("active_campaign_id", "default")
+    lead = lead_manager.get_lead(lead_id, campaign_id=active_id)
+    if not lead:
+        raise HTTPException(status_code=404, detail="Lead not found")
+        
+    with lead_manager.lock:
+        lead["custom_agent_instructions"] = payload.custom_agent_instructions.strip()
+        lead["history"].append({
+            "timestamp": datetime.datetime.now().isoformat(),
+            "action": "Agent Instructions Updated",
+            "details": f"Hyper-personalized guidelines updated by {user['name']}."
+        })
+        lead_manager.save_state()
+        
+    return {"status": "success", "lead": lead}
 
 @app.post("/api/leads/upload")
 async def upload_leads(
@@ -1094,6 +1223,145 @@ def get_campaign_logs(user: dict = Depends(verify_admin)):
     return lead_manager.get_logs(limit=100, campaign_id=active_id)
 
 
+def calculate_warmup_progress(state: dict) -> dict:
+    import re
+    import datetime
+    
+    progress = {}
+    campaigns = state.get("campaigns", {})
+    settings = state.get("settings", {})
+    
+    primary_email = (settings.get("sender_email") or settings.get("smtp_user") or "primary@example.com").lower().strip()
+    
+    for c_id, campaign in campaigns.items():
+        leads = campaign.get("leads", [])
+        for lead in leads:
+            history = lead.get("history", [])
+            for event in history:
+                action = event.get("action", "")
+                details = event.get("details", "")
+                ts_str = event.get("timestamp", "")
+                
+                if "Email Sent" in action:
+                    match = re.search(r"\(Sender:\s*([^\s)]+)\)", details)
+                    if match:
+                        sender_email = match.group(1).strip().lower()
+                    else:
+                        acc_id = lead.get("sender_account_id")
+                        if acc_id == "primary":
+                            sender_email = primary_email
+                        elif acc_id:
+                            accounts = settings.get("sender_accounts", [])
+                            acc = next((a for a in accounts if a.get("id") == acc_id), None)
+                            if acc:
+                                sender_email = (acc.get("email") or acc.get("smtp_user") or acc_id).lower().strip()
+                            else:
+                                sender_email = acc_id.lower().strip()
+                        else:
+                            sender_email = primary_email
+                    
+                    if sender_email in {"primary@example.com", "rota@example.com", "rotb@example.com"}:
+                        continue
+                        
+                    if sender_email not in progress:
+                        progress[sender_email] = {
+                            "completed_days": 0,
+                            "is_completed": False,
+                            "dates": set()
+                        }
+                    
+                    try:
+                        dt = datetime.datetime.fromisoformat(ts_str)
+                        if dt.weekday() < 5:  # Monday to Friday
+                            progress[sender_email]["dates"].add(dt.date().isoformat())
+                    except Exception:
+                        pass
+                        
+    for sender, data in progress.items():
+        sorted_dates = sorted(list(data["dates"]))
+        data["dates"] = sorted_dates
+        data["completed_days"] = len(sorted_dates)
+        data["is_completed"] = len(sorted_dates) >= 14
+        
+    return progress
+
+
+@app.get("/api/campaign/warmup")
+def get_campaign_warmup(user: dict = Depends(verify_admin)):
+    import re
+    from collections import Counter
+    
+    sent_counts = Counter()
+    
+    campaigns = lead_manager.state.get("campaigns", {})
+    settings = lead_manager.get_settings()
+    
+    for c_id, campaign in campaigns.items():
+        leads = campaign.get("leads", [])
+        for lead in leads:
+            history = lead.get("history", [])
+            for event in history:
+                action = event.get("action", "")
+                details = event.get("details", "")
+                
+                if "Email Sent" in action:
+                    match = re.search(r"\(Sender:\s*([^\s)]+)\)", details)
+                    if match:
+                        sender_email = match.group(1).strip()
+                    else:
+                        acc_id = lead.get("sender_account_id")
+                        if acc_id == "primary":
+                            sender_email = settings.get("sender_email") or settings.get("smtp_user") or "primary@example.com"
+                        elif acc_id:
+                            accounts = settings.get("sender_accounts", [])
+                            acc = next((a for a in accounts if a.get("id") == acc_id), None)
+                            if acc:
+                                sender_email = acc.get("email") or acc.get("smtp_user") or acc_id
+                            else:
+                                sender_email = acc_id
+                        else:
+                            sender_email = settings.get("sender_email") or settings.get("smtp_user") or "primary@example.com"
+                    
+                    sender_email = sender_email.lower().strip()
+                    if sender_email in {"primary@example.com", "rota@example.com", "rotb@example.com"}:
+                        continue
+                        
+                    sent_counts[sender_email] += 1
+                    
+    progress_map = calculate_warmup_progress(lead_manager.state)
+    
+    # Ensure all configured accounts are present in progress_map and sent_counts
+    for account in get_all_enabled_sender_accounts(settings):
+        email_clean = account["email"].lower().strip()
+        if email_clean in {"primary@example.com", "rota@example.com", "rotb@example.com"}:
+            continue
+        if email_clean not in progress_map:
+            progress_map[email_clean] = {
+                "completed_days": 0,
+                "is_completed": False,
+                "dates": []
+            }
+        if email_clean not in sent_counts:
+            sent_counts[email_clean] = 0
+            
+    # Ensure all senders in counts also exist in progress_map (fallback)
+    for sender in sent_counts:
+        s_lower = sender.lower().strip()
+        if s_lower not in progress_map:
+            progress_map[s_lower] = {
+                "completed_days": 0,
+                "is_completed": False,
+                "dates": []
+            }
+            
+    return {
+        "counts": dict(sent_counts),
+        "warmup_progress": progress_map,
+        "total_sends": sum(sent_counts.values())
+    }
+
+
+
 @app.post("/api/test/reload-state")
 def reload_state(user: dict = Depends(verify_admin)):
     lead_manager.load_state()
@@ -1152,43 +1420,53 @@ def handle_received_reply(lead: dict, reply_body: str, campaign_id: str, is_simu
     
     def process_reply_logic():
         try:
-            category, reason = classify_reply(lead, reply_body, api_key)
+            result = qualify_and_draft_reply(
+                lead, 
+                reply_body, 
+                api_key, 
+                sdr_training=settings.get("sdr_training"),
+                sdr_persona=settings.get("sdr_persona")
+            )
+            stage = result.get("lead_stage", "MQL")
+            score = result.get("qualification_score", 50)
+            pain_points = result.get("pain_points", [])
+            buying_intent = result.get("buying_intent", "Medium")
+            next_action = result.get("next_action", "Nurture lead")
+            followup_text = result.get("response_to_send", "")
             
-            lead_manager.add_log("AGENT", f"Classified reply from {lead['name']}: {category.upper()}. Reason: {reason}", lead_id, campaign_id=campaign_id)
+            lead_manager.add_log("AGENT", f"Classified reply from {lead['name']}: {stage.upper()}. Score: {score}/100. Intent: {buying_intent}.", lead_id, campaign_id=campaign_id)
             
             with lead_manager.lock:
+                lead["lead_stage"] = stage
+                lead["qualification_score"] = score
+                lead["pain_points"] = pain_points
+                lead["buying_intent"] = buying_intent
+                lead["next_action"] = next_action
+                
                 initial_subject = "Outreach"
                 if lead.get("email_drafts") and lead["email_drafts"].get("initial_pitch"):
                     initial_subject = lead["email_drafts"]["initial_pitch"].get("subject", "Outreach")
                 
                 # Map standard category outputs to state statuses
-                if category == "Interested":
-                    lead["status"] = "Interested"
-                    # Generate the reply draft
-                    followup_text = generate_custom_followup(lead, reply_body, "Interested", api_key)
-                    if not lead.get("email_drafts"):
-                        lead["email_drafts"] = {}
-                    lead["email_drafts"]["reply_nurture"] = {
-                        "subject": f"Re: {initial_subject}",
-                        "body": followup_text
-                    }
+                if stage == "SQL":
+                    lead["status"] = "Interested" # Treated as Hot lead in the app
                     lead["history"].append({
                         "timestamp": datetime.datetime.now().isoformat(),
-                        "action": "Nurturing Triggered",
-                        "details": f"Generated nurturing follow-up response:\n\n{followup_text}"
+                        "action": "SDR SQL Qualified",
+                        "details": f"Lead qualified as SQL.\nScore: {score}\nBuying Intent: {buying_intent}\nPain Points: {', '.join(pain_points)}\nNext Action: {next_action}"
                     })
-                    lead_manager.add_log("INFO", f"Nurturing sequence triggered for {lead['name']}. Automated response drafted.", lead_id, campaign_id=campaign_id)
+                    lead_manager.add_log("INFO", f"Lead {lead['name']} qualified as SQL (Hot).", lead_id, campaign_id=campaign_id)
                     
-                elif category == "Not_Interested":
-                    lead["status"] = "Not_Interested"
+                elif stage == "Sample Approval":
+                    lead["status"] = "Sample_Approval"
                     lead["history"].append({
                         "timestamp": datetime.datetime.now().isoformat(),
-                        "action": "Outreach Stopped",
-                        "details": "Lead marked not interested. Removed from outbound sequences."
+                        "action": "SDR Sample Approval Requested",
+                        "details": f"Lead qualified as Sample Approval.\nScore: {score}\nBuying Intent: {buying_intent}\nPain Points: {', '.join(pain_points)}\nNext Action: {next_action}"
                     })
-                    lead_manager.add_log("INFO", f"Stopped outreach for {lead['name']} (Not Interested).", lead_id, campaign_id=campaign_id)
+                    lead_manager.add_log("INFO", f"Lead {lead['name']} qualified for Sample Approval.", lead_id, campaign_id=campaign_id)
                     
-                elif category == "OOO":
+                elif stage == "OOO":
                     lead["status"] = "OOO"
                     lead["history"].append({
                         "timestamp": datetime.datetime.now().isoformat(),
@@ -1197,18 +1475,36 @@ def handle_received_reply(lead: dict, reply_body: str, campaign_id: str, is_simu
                     })
                     lead_manager.add_log("INFO", f"Snoozing campaigns for {lead['name']} (Out of Office).", lead_id, campaign_id=campaign_id)
                     
-                elif category == "Wrong_Contact":
-                    lead["status"] = "Wrong_Contact"
+                elif stage == "Disqualified":
+                    if "wrong" in next_action.lower() or "wrong" in followup_text.lower():
+                        lead["status"] = "Wrong_Contact"
+                        details_text = "Lead reported wrong contact. Stopped outbound sequence."
+                        action_text = "Wrong Contact / Stopped"
+                        log_msg = f"Stopped campaign for {lead['name']} (Wrong Contact)."
+                    else:
+                        lead["status"] = "Not_Interested"
+                        details_text = "Lead marked not interested. Removed from outbound sequences."
+                        action_text = "Not Interested / Stopped"
+                        log_msg = f"Stopped outreach for {lead['name']} (Not Interested)."
+                    
                     lead["history"].append({
                         "timestamp": datetime.datetime.now().isoformat(),
-                        "action": "Wrong Contact / Stopped",
-                        "details": "Lead reported wrong contact. Stopped outbound sequence."
+                        "action": action_text,
+                        "details": details_text
                     })
-                    lead_manager.add_log("INFO", f"Stopped campaign for {lead['name']} (Wrong Contact).", lead_id, campaign_id=campaign_id)
+                    lead_manager.add_log("INFO", log_msg, lead_id, campaign_id=campaign_id)
                     
-                else: # Needs Follow up / pending questions
-                    lead["status"] = "Replied" # Keep as replied
-                    followup_text = generate_custom_followup(lead, reply_body, "Needs_Follow_Up_Pending", api_key)
+                else: # MQL / other
+                    lead["status"] = "Replied"
+                    lead["history"].append({
+                        "timestamp": datetime.datetime.now().isoformat(),
+                        "action": "SDR MQL Qualified",
+                        "details": f"Lead qualified as MQL.\nScore: {score}\nBuying Intent: {buying_intent}\nPain Points: {', '.join(pain_points)}\nNext Action: {next_action}"
+                    })
+                    lead_manager.add_log("INFO", f"Lead {lead['name']} qualified as MQL (Replied).", lead_id, campaign_id=campaign_id)
+                
+                # If a follow-up response was generated, save it
+                if followup_text:
                     if not lead.get("email_drafts"):
                         lead["email_drafts"] = {}
                     lead["email_drafts"]["reply_nurture"] = {
@@ -1218,7 +1514,7 @@ def handle_received_reply(lead: dict, reply_body: str, campaign_id: str, is_simu
                     lead["history"].append({
                         "timestamp": datetime.datetime.now().isoformat(),
                         "action": "Custom Response Generated",
-                        "details": f"Generated response to prospect question:\n\n{followup_text}"
+                        "details": f"Generated response to prospect:\n\n{followup_text}"
                     })
                     lead_manager.add_log("INFO", f"Custom reply draft generated for {lead['name']}.", lead_id, campaign_id=campaign_id)
                     

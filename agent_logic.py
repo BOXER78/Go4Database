@@ -1,7 +1,7 @@
 import os
 import json
 import re
-from typing import Dict, Any, Tuple
+from typing import Dict, Any, Tuple, Optional
 import google.generativeai as genai
 
 # Predefined Go4Database Offer Lists and descriptions
@@ -332,23 +332,34 @@ def strip_reply_history(body: str) -> str:
         
     return "\n".join(reply_lines).strip()
 
-def classify_reply_fallback(reply_body: str) -> Tuple[str, str]:
-    """
-    Fallback keyword-based sentiment classifier.
-    """
-    cleaned_body = strip_reply_history(reply_body)
-    body_lower = cleaned_body.lower()
+def qualify_and_draft_reply_fallback(lead: Dict[str, Any], reply_body: str) -> Dict[str, Any]:
+    cleaned_reply = strip_reply_history(reply_body)
+    body_lower = cleaned_reply.lower()
     body_norm = body_lower.replace("'", "").replace("’", "").replace("`", "")
     
     # Check Out of Office
     ooo_keywords = ["out of office", "vacation", "annual leave", "ooo", "snooze", "until i return", "returning on", "away from my"]
     if any(x in body_norm for x in ooo_keywords):
-        return "OOO", "The responder is currently out of office."
+        return {
+            "lead_stage": "OOO",
+            "qualification_score": 0,
+            "pain_points": [],
+            "buying_intent": "Low",
+            "next_action": "Snooze automated campaigns.",
+            "response_to_send": ""
+        }
     
     # Check Wrong Contact
     wrong_contact_keywords = ["not the right person", "wrong contact", "wrong person", "try contacting", "not in charge", "forwarded to", "not the person"]
     if any(x in body_norm for x in wrong_contact_keywords):
-        return "Wrong_Contact", "The responder indicates they are not the correct decision maker."
+        return {
+            "lead_stage": "Disqualified",
+            "qualification_score": 10,
+            "pain_points": [],
+            "buying_intent": "Low",
+            "next_action": "Remove contact and search for correct decision maker.",
+            "response_to_send": "Understood. I will update our records. If you can point me to the right person, that would be great. Thanks!"
+        }
 
     # Check Not Interested
     not_interested_keywords = [
@@ -359,69 +370,254 @@ def classify_reply_fallback(reply_body: str) -> Tuple[str, str]:
         "dont write", "no further", "dont contact", "do not contact"
     ]
     if any(x in body_norm for x in not_interested_keywords):
-        return "Not_Interested", "The responder is not interested in Go4Database products."
+        return {
+            "lead_stage": "Disqualified",
+            "qualification_score": 0,
+            "pain_points": [],
+            "buying_intent": "Low",
+            "next_action": "Opt-out / Remove from list.",
+            "response_to_send": "Understood. I have removed you from our outbound list."
+        }
 
-    # Check Interested
-    interested_keywords = [
-        "interested", "intrested", "pricing", "cost", "demo", "sample", 
-        "send me", "call", "zoom", "schedule", "sounds good", 
-        "please send", "details", "info", "information"
-    ]
+    # Check Sample Approval
+    sample_keywords = ["sample", "test list", "demo sample", "data test", "contacts sample", "list sample", "sample of"]
+    if any(x in body_norm for x in sample_keywords):
+        return {
+            "lead_stage": "Sample Approval",
+            "qualification_score": 85,
+            "pain_points": ["Wants database sample"],
+            "buying_intent": "High",
+            "next_action": "Compile sample list and seek approval.",
+            "response_to_send": "Hi,\n\nI'd be happy to prepare a sample list of 20 leads matching your target criteria. Let me verify the details and I'll send it over for your approval."
+        }
+
+    # Check Escalation / Handoff
+    escalate_keywords = ["pricing", "cost", "proposal", "contract", "quote", "legal", "compliance", "integration"]
+    if any(x in body_norm for x in escalate_keywords):
+        return {
+            "lead_stage": "SQL",
+            "qualification_score": 90,
+            "pain_points": ["Requires custom details"],
+            "buying_intent": "High",
+            "next_action": "Escalate to human sales: requested pricing or technical details.",
+            "response_to_send": "Hi,\n\nThanks for reaching out. I'll have a sales manager follow up shortly with pricing and proposal details. Would next week work for a brief call?"
+        }
+
+    # Check SQL
+    sql_keywords = ["call", "zoom", "meeting", "schedule", "demo", "yes", "sure", "sounds good", "please send"]
+    if any(x in body_norm for x in sql_keywords):
+        return {
+            "lead_stage": "SQL",
+            "qualification_score": 80,
+            "pain_points": ["Looking for demo/call"],
+            "buying_intent": "High",
+            "next_action": "Schedule sales call / book meeting.",
+            "response_to_send": "Hi,\n\nI'd be happy to arrange a short call to explore how we can help. Would next week work for you?"
+        }
+
+    # Check MQL
+    interested_keywords = ["interested", "intrested", "details", "info", "information"]
     if any(x in body_norm for x in interested_keywords):
-        return "Interested", "The responder asked for pricing, details, a sample, or a call."
+        return {
+            "lead_stage": "MQL",
+            "qualification_score": 60,
+            "pain_points": ["Evaluating options"],
+            "buying_intent": "Medium",
+            "next_action": "Send educational information and build trust.",
+            "response_to_send": "Hi,\n\nThanks for the interest! I'd be happy to send over details. What challenges are you currently facing with your target outreach?"
+        }
 
-    # Default to Needs Follow-up
-    return "Needs_Follow_Up_Pending", "The reply contains questions or requires customized follow-up."
+    # Default to MQL
+    return {
+        "lead_stage": "MQL",
+        "qualification_score": 50,
+        "pain_points": ["Inbound inquiry"],
+        "buying_intent": "Medium",
+        "next_action": "Nurture lead.",
+        "response_to_send": "Hi,\n\nThanks for reaching out. What caught your attention about our solution?"
+    }
 
 
-def classify_reply(lead: Dict[str, Any], reply_body: str, api_key: str = "") -> Tuple[str, str]:
+DEFAULT_SDR_PERSONA = """You are an expert Sales Development Representative (SDR) for our company, Go4Database (a B2B lead generation database provider with 350M+ records).
+Your primary goal is to qualify prospects and move them through the sales pipeline from MQL to SQL.
+You should communicate naturally, professionally, and conversationally. Never sound robotic or pushy.
+
+========================
+YOUR OBJECTIVES
+========================
+1. Understand the prospect's situation.
+2. Identify their pain points.
+3. Determine if they fit our Ideal Customer Profile (ICP).
+4. Qualify them based on:
+   - Need
+   - Company fit
+   - Budget (if relevant)
+   - Authority
+   - Timeline
+
+5. Categorize leads into:
+MQL (Marketing Qualified Lead):
+- Interested but not ready.
+- Needs more information.
+- Exploring options.
+- No immediate buying intent.
+
+SQL (Sales Qualified Lead):
+- Has a clear need.
+- Shows buying intent.
+- Wants pricing/demo/proposal.
+- Interested in discussing implementation.
+- Ready for a sales call.
+
+Sample Approval:
+- Prospect requested a target database sample matching specific ICP criteria.
+- Needs custom records to test quality before booking call / proceeding.
+
+(If they are asking to unsubscribe, are not interested, are wrong contact, or this is an OOO auto-response, classify the lead_stage as "Disqualified" or "OOO" respectively, and keep qualification_score low).
+
+========================
+CONVERSATION RULES
+========================
+- Do not ask more than one or two questions at a time.
+- Focus on understanding:
+   - Current workflow
+   - Existing tools
+   - Challenges
+   - Team size
+   - Decision-making process
+- Keep responses concise.
+- Always acknowledge the prospect's previous message before asking the next question.
+- Never make false claims.
+- Never pressure the prospect.
+
+========================
+QUALIFICATION FLOW
+========================
+- Step 1: Understand why they responded (What caught attention? Challenges?).
+- Step 2: Explore pain points (How handling current process? Biggest challenge?).
+- Step 3: Assess urgency (Actively looking to solve? Evaluating solutions now?).
+- Step 4: Determine buying readiness (Who is involved in decisions? Timeline?).
+
+========================
+MQL ACTIONS
+========================
+If the lead is MQL:
+- Share relevant value propositions.
+- Offer educational resources (if requested).
+- Address early objections.
+- Do not push for a meeting yet.
+
+========================
+SQL ACTIONS
+========================
+If the lead is SQL:
+- Focus on scheduling a meeting.
+- Share case studies / success stories.
+- Address specific pricing or proposal questions.
+- Hand off to human sales representative."""
+
+DEFAULT_SDR_TRAINING = {
+    "customer_to_mql": "Understand the prospect's situation, their role, and company fit. Communicate naturally, professionally, and conversationally. Answer introductory questions, explore initial interest, and offer to prepare a custom sample list.",
+    "mql_to_sql": "Explore pain points (e.g. low conversions, outdated contacts, gatekeepers) and current outbound tools/workflow. Qualify on need and authority. Recommend a sales discussion / book a meeting.",
+    "sql_to_sample_approval": "Identify if the prospect asks for custom data samples (e.g. 'send me a sample list'). Ask clarifying questions about their target filters (industries, location, size) to compile the sample. Guide them to sample approval."
+}
+
+def qualify_and_draft_reply(lead: Dict[str, Any], reply_body: str, api_key: str = "", sdr_training: Optional[Dict[str, str]] = None, sdr_persona: Optional[str] = None) -> Dict[str, Any]:
     """
-    Classifies a prospect's email reply using Gemini.
-    Outputs: (Status, Explanation)
-    Status must be one of: Interested, Not_Interested, OOO, Wrong_Contact, Needs_Follow_Up_Pending
+    SDR agent logic that qualifies the lead reply and drafts the next response.
+    Returns:
+    {
+      "lead_stage": "MQL" | "SQL" | "Sample Approval" | "Disqualified" | "OOO",
+      "qualification_score": 0-100,
+      "pain_points": ["string"],
+      "buying_intent": "Low" | "Medium" | "High",
+      "next_action": "string",
+      "response_to_send": "string"
+    }
     """
-    cleaned_reply = strip_reply_history(reply_body)
     if not api_key:
-        return classify_reply_fallback(cleaned_reply)
+        return qualify_and_draft_reply_fallback(lead, reply_body)
 
     try:
         genai.configure(api_key=api_key)
         model = genai.GenerativeModel("gemini-2.5-flash")
+
+        sdr_rules = sdr_training if sdr_training else DEFAULT_SDR_TRAINING
+        customer_to_mql = sdr_rules.get("customer_to_mql", "")
+        mql_to_sql = sdr_rules.get("mql_to_sql", "")
+        sql_to_sample_approval = sdr_rules.get("sql_to_sample_approval", "")
+        
+        lead_custom_instructions = lead.get("custom_agent_instructions", "").strip()
+        custom_instructions_str = ""
+        if lead_custom_instructions:
+            custom_instructions_str = f"""
+========================
+HYPER-PERSONALIZED INSTRUCTIONS FOR THIS PROSPECT
+========================
+You MUST strictly follow these specific guidelines for this prospect's conversation:
+{lead_custom_instructions}
+"""
 
         history_str = ""
         for hist in lead.get("history", []):
             if "Email Sent" in hist.get("action", "") or "Follow-up" in hist.get("action", ""):
                 history_str += f"- {hist.get('action')}: {hist.get('details')}\n"
 
-        prompt = f"""
-You are an email sales assistant for Go4Database. You need to analyze the reply received from a prospect and classify it into one of the following category codes:
-- "Interested" (Prospect wants pricing, a meeting, a sample list, more details, or expresses positive intent)
-- "Not_Interested" (Prospect explicitly refuses, says no thanks, requests opt-out/unsubscribe, or has negative intent)
-- "OOO" (Out of office autoreply, vacation notice, away, etc.)
-- "Wrong_Contact" (Prospect states they are not the correct person and/or points to a different person/department)
-- "Needs_Follow_Up_Pending" (Prospect asks complex questions, seeks clarifications, or the response doesn't fit standard categories but is not negative)
+        persona_str = sdr_persona if sdr_persona else DEFAULT_SDR_PERSONA
 
+        prompt = f"""
+{persona_str}
+
+========================
+SDR STAGE TRANSITION TRAINING RULES
+========================
+Use these specific transition instructions to qualify the lead and draft response copy:
+- Customer to MQL: {customer_to_mql}
+- MQL to SQL: {mql_to_sql}
+- SQL to Sample Approval: {sql_to_sample_approval}
+{custom_instructions_str}
+
+========================
+HANDOFF / ESCALATION RULES
+========================
+Immediately escalate to human sales if:
+- Prospect requests pricing.
+- Prospect requests proposal.
+- Prospect asks legal/compliance questions.
+- Prospect asks technical implementation questions beyond available knowledge.
+- Prospect requests contract information.
+If escalation is triggered, next_action should start with "Escalate to human sales: [reason]" and the response should let them know we'll have a team member follow up with those details.
+
+========================
+CONTEXT
+========================
 Prospect Info:
 - Name: {lead.get('name')}
+- Title: {lead.get('title')}
 - Company: {lead.get('company')}
-- Offer Matched: {lead.get('matched_segment', {}).get('go4db_offer')}
+- Industry: {lead.get('industry')}
+- Matched Go4Database Offer: {lead.get('matched_segment', {}).get('go4db_offer', 'B2B Lists')}
 
-Outbound Campaign History:
+Outbound Conversation History:
 {history_str}
 
-Incoming Reply:
+Incoming Prospect Reply:
 \"\"\"
-{cleaned_reply}
+{reply_body}
 \"\"\"
 
-Please analyze the email and return a JSON response containing:
-1. "category": The exact category code from the list above.
-2. "reason": A brief 1-sentence reason for the classification.
-
-Output ONLY a valid JSON object. No other text.
+========================
+OUTPUT FORMAT
+========================
+Your response must be ONLY a valid JSON object. No markdown wrapping (like ```json), no other text, preambles, or postscripts.
+JSON Structure:
 {{
-  "category": "Interested" | "Not_Interested" | "OOO" | "Wrong_Contact" | "Needs_Follow_Up_Pending",
-  "reason": "reason string"
+  "lead_stage": "MQL" | "SQL" | "Sample Approval" | "Disqualified" | "OOO",
+  "qualification_score": number,
+  "pain_points": ["string"],
+  "buying_intent": "Low" | "Medium" | "High",
+  "next_action": "string",
+  "response_to_send": "string"
 }}
 """
         response = model.generate_content(prompt)
@@ -433,69 +629,28 @@ Output ONLY a valid JSON object. No other text.
             text = text[:-3]
         text = text.strip()
         
-        data = json.loads(text)
-        return data["category"], data["reason"]
+        return json.loads(text)
     except Exception as e:
-        print(f"Gemini reply classification failed: {e}. Using fallback.")
-        return classify_reply_fallback(cleaned_reply)
+        print(f"Gemini SDR qualification failed: {e}. Falling back to rules engine.")
+        return qualify_and_draft_reply_fallback(lead, reply_body)
+
+
+def classify_reply(lead: Dict[str, Any], reply_body: str, api_key: str = "") -> Tuple[str, str]:
+    res = qualify_and_draft_reply(lead, reply_body, api_key)
+    stage = res.get("lead_stage", "MQL")
+    if stage == "SQL":
+        return "Interested", res.get("next_action", "")
+    elif stage == "Sample Approval":
+        return "Sample_Approval", res.get("next_action", "")
+    elif stage == "MQL":
+        return "Needs_Follow_Up_Pending", res.get("next_action", "")
+    elif stage == "Disqualified":
+        return "Not_Interested", res.get("next_action", "")
+    elif stage == "OOO":
+        return "OOO", "Out of office"
+    return "Needs_Follow_Up_Pending", res.get("next_action", "")
 
 
 def generate_custom_followup(lead: Dict[str, Any], reply_body: str, category: str, api_key: str = "") -> str:
-    """
-    Generates a personalized response back to the prospect's reply.
-    Used for Interested or Needs_Follow_Up replies to move them along the funnel.
-    """
-    name_parts = (lead.get("name") or "there").split()
-    name = name_parts[0] if name_parts else "there"
-    company = lead.get("company", "your company")
-    offer = lead.get("matched_segment", {}).get("go4db_offer", "B2B Lists")
-
-    if not api_key:
-        # Fallback responses
-        if category == "Interested":
-            return (
-                f"Hi {name},\n\n"
-                f"Thanks for the quick response! I'm thrilled you'd like to take a look at the {offer}.\n\n"
-                f"I've attached a customized sample of 15 contacts in Excel format matching your criteria. "
-                f"You can also schedule a brief 5-minute call using my calendar link: [Calendar Link].\n\n"
-                f"Let me know what you think of the sample records!\n\n"
-                f"Best,\n"
-                f"[Sender Name]"
-            )
-        else: # Needs Follow up
-            return (
-                f"Hi {name},\n\n"
-                f"Thanks for reaching out with your question.\n\n"
-                f"Regarding our {offer}: we update and re-verify email addresses every 30 days. "
-                f"We also offer custom appending if you have specific criteria not covered in our standard categories.\n\n"
-                f"I'd be happy to show you a demo of the portal. Do you have a few minutes for a quick call next week?\n\n"
-                f"Best,\n"
-                f"[Sender Name]"
-            )
-
-    try:
-        genai.configure(api_key=api_key)
-        model = genai.GenerativeModel("gemini-2.5-flash")
-
-        prompt = f"""
-You are a sales agent at Go4Database. You need to write a personalized email response to a lead who has just replied.
-
-Lead Name: {lead.get('name')}
-Lead Company: {lead.get('company')}
-Go4Database Offer Matched: {offer}
-Category of lead reply: {category}
-
-Prospect's incoming email:
-\"\"\"
-{reply_body}
-\"\"\"
-
-Write a short, professional, sales-focused response that addresses their reply directly, reinforces Go4Database's value proposition, and secures the next step (booking a meeting or trying a sample). Keep it under 120 words. Use [Sender Name] as the signature placeholder.
-
-Output only the email body.
-"""
-        response = model.generate_content(prompt)
-        return response.text.strip()
-    except Exception as e:
-        print(f"Gemini custom follow-up generation failed: {e}. Using fallback.")
-        return generate_custom_followup(lead, reply_body, category, api_key="")
+    res = qualify_and_draft_reply(lead, reply_body, api_key)
+    return res.get("response_to_send", "")

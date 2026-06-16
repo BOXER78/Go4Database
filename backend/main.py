@@ -1554,9 +1554,22 @@ async def simulate_reply(payload: dict, user: dict = Depends(verify_admin)):
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
 
+# Fallback to public_html if frontend dir doesn't exist (production standard)
+if not os.path.isdir(FRONTEND_DIR):
+    public_html_dir = os.path.join(BASE_DIR, "public_html")
+    if os.path.isdir(public_html_dir):
+        FRONTEND_DIR = public_html_dir
+    else:
+        # If still not found, create a dummy directory to avoid uvicorn start crash
+        os.makedirs(FRONTEND_DIR, exist_ok=True)
+
 @app.get("/")
 def read_root():
-    return FileResponse(os.path.join(FRONTEND_DIR, "index.html"))
+    index_path = os.path.join(FRONTEND_DIR, "index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
+    return {"message": "Go4Database Outreach API Backend is Running"}
 
 app.mount("/", StaticFiles(directory=FRONTEND_DIR), name="frontend")
+
 

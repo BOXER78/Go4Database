@@ -368,6 +368,33 @@ function initSettings() {
             alert("Failed to save settings: " + e);
         }
     });
+    const inputSmtpUser = document.getElementById("settings-smtp-user");
+    if (inputSmtpUser) {
+        inputSmtpUser.addEventListener("input", (e) => {
+            const val = e.target.value.trim().toLowerCase();
+            const smtpServerInput = document.getElementById("settings-smtp-server");
+            const smtpPortInput = document.getElementById("settings-smtp-port");
+            const imapServerInput = document.getElementById("settings-imap-server");
+            const imapPortInput = document.getElementById("settings-imap-port");
+            
+            if (val.includes("@outlook.com") || val.includes("@hotmail.com") || val.includes("@live.com") || val.includes("@msn.com") || val.includes("@office365.com")) {
+                if (smtpServerInput) smtpServerInput.value = "smtp.office365.com";
+                if (smtpPortInput) smtpPortInput.value = "587";
+                if (imapServerInput) imapServerInput.value = "outlook.office365.com";
+                if (imapPortInput) imapPortInput.value = "993";
+            } else if (val.includes("@gmail.com")) {
+                if (smtpServerInput) smtpServerInput.value = "smtp.gmail.com";
+                if (smtpPortInput) smtpPortInput.value = "587";
+                if (imapServerInput) imapServerInput.value = "imap.gmail.com";
+                if (imapPortInput) imapPortInput.value = "993";
+            } else if (val.includes("@yahoo.com") || val.includes("@myyahoo.com")) {
+                if (smtpServerInput) smtpServerInput.value = "smtp.mail.yahoo.com";
+                if (smtpPortInput) smtpPortInput.value = "587";
+                if (imapServerInput) imapServerInput.value = "imap.mail.yahoo.com";
+                if (imapPortInput) imapPortInput.value = "993";
+            }
+        });
+    }
 
     initRotationAccountsUI();
 }
@@ -511,6 +538,34 @@ function deleteRotationAccount(id) {
 function initRotationAccountsUI() {
     const btnAdd = document.getElementById("btn-add-rotation-account");
     if (!btnAdd) return;
+    
+    const inputRotationUser = document.getElementById("rotation-user");
+    if (inputRotationUser) {
+        inputRotationUser.addEventListener("input", (e) => {
+            const val = e.target.value.trim().toLowerCase();
+            const smtpServerInput = document.getElementById("rotation-smtp-server");
+            const smtpPortInput = document.getElementById("rotation-smtp-port");
+            const imapServerInput = document.getElementById("rotation-imap-server");
+            const imapPortInput = document.getElementById("rotation-imap-port");
+            
+            if (val.includes("@outlook.com") || val.includes("@hotmail.com") || val.includes("@live.com") || val.includes("@msn.com") || val.includes("@office365.com")) {
+                if (smtpServerInput) smtpServerInput.value = "smtp.office365.com";
+                if (smtpPortInput) smtpPortInput.value = "587";
+                if (imapServerInput) imapServerInput.value = "outlook.office365.com";
+                if (imapPortInput) imapPortInput.value = "993";
+            } else if (val.includes("@gmail.com")) {
+                if (smtpServerInput) smtpServerInput.value = "smtp.gmail.com";
+                if (smtpPortInput) smtpPortInput.value = "587";
+                if (imapServerInput) imapServerInput.value = "imap.gmail.com";
+                if (imapPortInput) imapPortInput.value = "993";
+            } else if (val.includes("@yahoo.com") || val.includes("@myyahoo.com")) {
+                if (smtpServerInput) smtpServerInput.value = "smtp.mail.yahoo.com";
+                if (smtpPortInput) smtpPortInput.value = "587";
+                if (imapServerInput) imapServerInput.value = "imap.mail.yahoo.com";
+                if (imapPortInput) imapPortInput.value = "993";
+            }
+        });
+    }
     
     btnAdd.addEventListener("click", () => {
         const nameVal = document.getElementById("rotation-name").value.trim();

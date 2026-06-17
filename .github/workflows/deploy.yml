@@ -18,6 +18,6 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           timeout: 120s
           command_timeout: 20m
-
+          debug: true
           script: |
             /home/go4database.in/deploy.sh

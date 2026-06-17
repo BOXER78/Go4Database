@@ -22,7 +22,6 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-
           script: |
             cd /home/go4database.in/public_html/Go4Database
 
@@ -30,8 +29,14 @@ jobs:
 
             pkill -f "uvicorn main:app" || true
 
-            nohup /home/go4database.in/backend/venv/bin/uvicorn main:app \
+            sleep 3
+
+            setsid /home/go4database.in/backend/venv/bin/uvicorn main:app \
             --host 127.0.0.1 \
             --port 8080 \
             --app-dir backend \
-            > /home/go4database.in/logs/app.log 2>&1 &
+            > /home/go4database.in/logs/app.log 2>&1 < /dev/null &
+
+            sleep 5
+
+            pgrep -f "uvicorn main:app"

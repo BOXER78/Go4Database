@@ -10,33 +10,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check secrets
-        run: |
-          echo "Host exists: ${{ secrets.HOST != '' }}"
-          echo "Username exists: ${{ secrets.USERNAME != '' }}"
-          echo "Key exists: ${{ secrets.SSH_PRIVATE_KEY != '' }}"
-
       - name: Deploy over SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          timeout: 120s
+          command_timeout: 20m
+
           script: |
-            cd /home/go4database.in/public_html/Go4Database
-
-            git pull origin main
-
-            pkill -f "uvicorn main:app" || true
-
-            sleep 3
-
-            setsid /home/go4database.in/backend/venv/bin/uvicorn main:app \
-            --host 127.0.0.1 \
-            --port 8080 \
-            --app-dir backend \
-            > /home/go4database.in/logs/app.log 2>&1 < /dev/null &
-
-            sleep 5
-
-            pgrep -f "uvicorn main:app"
+            /home/go4database.in/deploy.sh

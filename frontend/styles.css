@@ -954,6 +954,8 @@ a:hover {
 }
 
 .toggle-switch-slider {
+    display: inline-block;
+    flex-shrink: 0;
     width: 32px;
     height: 16px;
     background: #cbd5e1;

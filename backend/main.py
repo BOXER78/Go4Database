@@ -467,6 +467,12 @@ def campaign_worker_loop():
                     if not account.get("smtp_user") or not account.get("smtp_password"):
                         continue
                     
+                    # Skip IMAP polling for Microsoft 365 / Outlook accounts since Basic Auth is disabled by Microsoft
+                    smtp_server = (account.get("smtp_server") or "").lower()
+                    imap_server = (account.get("imap_server") or "").lower()
+                    if "office365" in smtp_server or "outlook" in smtp_server or "office365" in imap_server or "outlook" in imap_server:
+                        continue
+                    
                     real_replies = check_imap_replies(account, all_lead_emails)
                     if real_replies:
                         print(f"BG worker: found {len(real_replies)} replies/bounces for account {account['email']}", flush=True)

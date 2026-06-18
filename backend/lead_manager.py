@@ -44,6 +44,12 @@ class LeadManager:
                 "max_delay": 15, # seconds
                 "auto_followup_delay_days": 24,
                 "automation_mode": False,
+                "warmup_total_cap": 50,
+                "allow_duplicate_leads": True,
+                "warmup_schedule": {
+                    "1": 5, "2": 8, "3": 10, "4": 12, "5": 15, "6": 18, "7": 20,
+                    "8": 25, "9": 30, "10": 35, "11": 40, "12": 45, "13": 50, "14": 50
+                },
                 "sdr_training": {
                     "customer_to_mql": "Understand the prospect's situation, their role, and company fit. Communicate naturally, professionally, and conversationally. Answer introductory questions, explore initial interest, and offer to prepare a custom sample list.",
                     "mql_to_sql": "Explore pain points (e.g. low conversions, outdated contacts, gatekeepers) and current outbound tools/workflow. Qualify on need and authority. Recommend a sales discussion / book a meeting.",
@@ -88,7 +94,8 @@ class LeadManager:
                     name TEXT,
                     email TEXT,
                     password TEXT,
-                    role TEXT
+                    role TEXT,
+                    permissions TEXT
                 )
             """)
             cursor.execute("""
@@ -96,7 +103,8 @@ class LeadManager:
                     id TEXT PRIMARY KEY,
                     name TEXT,
                     created_at TEXT,
-                    campaign_status TEXT
+                    campaign_status TEXT,
+                    start_date TEXT
                 )
             """)
             cursor.execute("""
@@ -138,6 +146,32 @@ class LeadManager:
                     FOREIGN KEY(campaign_id) REFERENCES campaigns(id) ON DELETE CASCADE
                 )
             """)
+            
+            # Safe Schema Migration Check
+            try:
+                cursor.execute("PRAGMA table_info(users)")
+                user_cols = [col[1] for col in cursor.fetchall()]
+                if "permissions" not in user_cols:
+                    cursor.execute("ALTER TABLE users ADD COLUMN permissions TEXT")
+            except Exception as e:
+                print(f"Migration error (users table): {e}")
+
+            try:
+                cursor.execute("PRAGMA table_info(campaigns)")
+                camp_cols = [col[1] for col in cursor.fetchall()]
+                if "start_date" not in camp_cols:
+                    cursor.execute("ALTER TABLE campaigns ADD COLUMN start_date TEXT")
+            except Exception as e:
+                print(f"Migration error (campaigns table): {e}")
+
+            try:
+                cursor.execute("PRAGMA table_info(leads)")
+                lead_cols = [col[1] for col in cursor.fetchall()]
+                if "sender_account_id" not in lead_cols:
+                    cursor.execute("ALTER TABLE leads ADD COLUMN sender_account_id TEXT")
+            except Exception as e:
+                print(f"Migration error (leads table): {e}")
+
             conn.commit()
 
     def _load_from_db(self) -> dict:
@@ -163,18 +197,25 @@ class LeadManager:
                 state["settings"][r["key"]] = json.loads(r["value"])
                 
             # Load users
-            cursor.execute("SELECT id, name, email, password, role FROM users")
+            cursor.execute("SELECT id, name, email, password, role, permissions FROM users")
             for r in cursor.fetchall():
+                perms = []
+                if r["permissions"]:
+                    try:
+                        perms = json.loads(r["permissions"])
+                    except Exception:
+                        perms = [p.strip() for p in r["permissions"].split(",") if p.strip()]
                 state["users"].append({
                     "id": r["id"],
                     "name": r["name"],
                     "email": r["email"],
                     "password": r["password"],
-                    "role": r["role"]
+                    "role": r["role"],
+                    "permissions": perms
                 })
                 
             # Load campaigns
-            cursor.execute("SELECT id, name, created_at, campaign_status FROM campaigns")
+            cursor.execute("SELECT id, name, created_at, campaign_status, start_date FROM campaigns")
             for r in cursor.fetchall():
                 c_id = r["id"]
                 state["campaigns"][c_id] = {
@@ -182,6 +223,7 @@ class LeadManager:
                     "name": r["name"],
                     "created_at": r["created_at"],
                     "campaign_status": json.loads(r["campaign_status"]) if r["campaign_status"] else {},
+                    "start_date": r["start_date"],
                     "leads": [],
                     "logs": []
                 }
@@ -190,7 +232,7 @@ class LeadManager:
             cursor.execute("""
                 SELECT id, campaign_id, company, name, title, email, company_size, industry, location, branch, notes, icp_tags, 
                        status, score, matched_segment, email_drafts, sequence_step, last_sent_time, is_approved, 
-                       custom_agent_instructions, history, replies, last_action_date
+                       custom_agent_instructions, history, replies, last_action_date, sender_account_id
                 FROM leads
             """)
             for r in cursor.fetchall():
@@ -218,7 +260,8 @@ class LeadManager:
                         "custom_agent_instructions": r["custom_agent_instructions"],
                         "history": json.loads(r["history"]) if r["history"] else [],
                         "replies": json.loads(r["replies"]) if r["replies"] else [],
-                        "last_action_date": r["last_action_date"]
+                        "last_action_date": r["last_action_date"],
+                        "sender_account_id": r["sender_account_id"] if "sender_account_id" in r.keys() and r["sender_account_id"] else "primary"
                     })
                     
             # Load logs (limit to 1000 per campaign)
@@ -314,26 +357,26 @@ class LeadManager:
                                 
                             # 3. Save users
                             for u in self.state["users"]:
-                                conn.execute("INSERT OR REPLACE INTO users (id, name, email, password, role) VALUES (?, ?, ?, ?, ?)", 
-                                             (u["id"], u["name"], u.get("email", ""), u.get("password", ""), u.get("role", "")))
+                                conn.execute("INSERT OR REPLACE INTO users (id, name, email, password, role, permissions) VALUES (?, ?, ?, ?, ?, ?)", 
+                                             (u["id"], u["name"], u.get("email", ""), u.get("password", ""), u.get("role", ""), json.dumps(u.get("permissions", []))))
                                 
                             # 4. Save campaigns, leads, logs
                             for c_id, campaign in self.state["campaigns"].items():
-                                conn.execute("INSERT OR REPLACE INTO campaigns (id, name, created_at, campaign_status) VALUES (?, ?, ?, ?)", 
-                                             (c_id, campaign["name"], campaign["created_at"], json.dumps(campaign.get("campaign_status", {}))))
+                                conn.execute("INSERT OR REPLACE INTO campaigns (id, name, created_at, campaign_status, start_date) VALUES (?, ?, ?, ?, ?)", 
+                                             (c_id, campaign["name"], campaign["created_at"], json.dumps(campaign.get("campaign_status", {})), campaign.get("start_date")))
                                 
                                 for lead in campaign.get("leads", []):
                                     conn.execute("""
                                         INSERT OR REPLACE INTO leads (id, campaign_id, company, name, title, email, company_size, industry, location, branch, 
                                                            notes, icp_tags, status, score, matched_segment, email_drafts, sequence_step, 
-                                                           last_sent_time, is_approved, custom_agent_instructions, history, replies, last_action_date)
-                                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                                           last_sent_time, is_approved, custom_agent_instructions, history, replies, last_action_date, sender_account_id)
+                                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                                     """, (
                                         lead["id"], c_id, lead.get("company", ""), lead.get("name", ""), lead.get("title", ""), lead.get("email", ""), 
                                         lead.get("company_size", ""), lead.get("industry", ""), lead.get("location", ""), lead.get("branch", ""), lead.get("notes", ""), lead.get("icp_tags", ""), 
                                         lead.get("status", "Pending"), lead.get("score", 0), json.dumps(lead.get("matched_segment")), json.dumps(lead.get("email_drafts")), 
                                         lead.get("sequence_step", 0), lead.get("last_sent_time"), int(lead.get("is_approved", False)), lead.get("custom_agent_instructions", ""), 
-                                        json.dumps(lead.get("history", [])), json.dumps(lead.get("replies", [])), lead.get("last_action_date")
+                                        json.dumps(lead.get("history", [])), json.dumps(lead.get("replies", [])), lead.get("last_action_date"), lead.get("sender_account_id", "primary")
                                     ))
                                 
                                 for log in campaign.get("logs", []):
@@ -361,13 +404,13 @@ class LeadManager:
                             conn.execute("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)", 
                                          (k, json.dumps(v)))
                         for u in self.state["users"]:
-                            conn.execute("INSERT OR REPLACE INTO users (id, name, email, password, role) VALUES (?, ?, ?, ?, ?)", 
-                                         (u["id"], u["name"], u["email"], u["password"], u["role"]))
+                            conn.execute("INSERT OR REPLACE INTO users (id, name, email, password, role, permissions) VALUES (?, ?, ?, ?, ?, ?)", 
+                                         (u["id"], u["name"], u["email"], u["password"], u["role"], json.dumps(u.get("permissions", []))))
                             
                         # Default campaign
                         campaign = self.state["campaigns"]["default"]
-                        conn.execute("INSERT OR REPLACE INTO campaigns (id, name, created_at, campaign_status) VALUES (?, ?, ?, ?)", 
-                                     ("default", campaign["name"], campaign["created_at"], json.dumps(campaign["campaign_status"])))
+                        conn.execute("INSERT OR REPLACE INTO campaigns (id, name, created_at, campaign_status, start_date) VALUES (?, ?, ?, ?, ?)", 
+                                     ("default", campaign["name"], campaign["created_at"], json.dumps(campaign["campaign_status"]), campaign.get("start_date")))
                         conn.commit()
                         
             # Finally, load everything from DB to memory
@@ -376,6 +419,26 @@ class LeadManager:
     def save_state(self):
         # State is written incrementally in mutators, so save_state is a no-op fallback
         pass
+
+    def add_user(self, user: dict):
+        with self.lock:
+            if "users" not in self.state:
+                self.state["users"] = []
+            self.state["users"] = [u for u in self.state["users"] if u["id"] != user["id"]]
+            self.state["users"].append(user)
+            with self._get_conn() as conn:
+                conn.execute("""
+                    INSERT OR REPLACE INTO users (id, name, email, password, role, permissions)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                """, (user["id"], user["name"], user["email"], user["password"], user["role"], json.dumps(user.get("permissions", []))))
+                conn.commit()
+
+    def delete_user(self, user_id: str):
+        with self.lock:
+            self.state["users"] = [u for u in self.state.get("users", []) if u["id"] != user_id]
+            with self._get_conn() as conn:
+                conn.execute("DELETE FROM users WHERE id = ?", (user_id,))
+                conn.commit()
 
     def add_log_unsafe(self, level: str, message: str, lead_id: Optional[str] = None, campaign_id: Optional[str] = None):
         if not campaign_id:
@@ -507,14 +570,15 @@ class LeadManager:
                 if not email:
                     continue
                 
-                duplicate = False
-                for existing in campaign.get("leads", []):
-                    if existing.get("email", "").strip().lower() == email:
-                        duplicate = True
-                        break
-                
-                if duplicate:
-                    continue
+                allow_duplicates = self.state["settings"].get("allow_duplicate_leads", True)
+                if not allow_duplicates:
+                    duplicate = False
+                    for existing in campaign.get("leads", []):
+                        if existing.get("email", "").strip().lower() == email:
+                            duplicate = True
+                            break
+                    if duplicate:
+                        continue
                 
                 new_lead = {
                     "id": str(uuid.uuid4()),
@@ -553,14 +617,14 @@ class LeadManager:
                         conn.execute("""
                             INSERT INTO leads (id, campaign_id, company, name, title, email, company_size, industry, location, branch, 
                                                notes, icp_tags, status, score, matched_segment, email_drafts, sequence_step, 
-                                               last_sent_time, is_approved, custom_agent_instructions, history, replies, last_action_date)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                               last_sent_time, is_approved, custom_agent_instructions, history, replies, last_action_date, sender_account_id)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                         """, (
                             lead["id"], campaign_id, lead["company"], lead["name"], lead["title"], lead["email"], 
                             lead["company_size"], lead["industry"], lead["location"], lead["branch"], lead["notes"], lead["icp_tags"], 
                             lead["status"], lead["score"], json.dumps(lead["matched_segment"]), json.dumps(lead["email_drafts"]), 
                             lead["sequence_step"], lead["last_sent_time"], int(lead["is_approved"]), lead["custom_agent_instructions"], 
-                            json.dumps(lead["history"]), json.dumps(lead["replies"]), lead.get("last_action_date")
+                            json.dumps(lead["history"]), json.dumps(lead["replies"]), lead.get("last_action_date"), lead.get("sender_account_id", "primary")
                         ))
                     conn.commit()
 
@@ -597,6 +661,37 @@ class LeadManager:
                             SET status = ?, history = ?, last_action_date = ? 
                             WHERE id = ?
                         """, (status, json.dumps(lead["history"]), lead["last_action_date"], lead_id))
+                        conn.commit()
+                    break
+            self.update_campaign_stats_unsafe(campaign_id)
+
+    def update_lead_sent_state(self, lead_id: str, status: str, last_sent_time: str, sequence_step: int, history: list, sender_account_id: Optional[str] = None, campaign_id: Optional[str] = None):
+        with self.lock:
+            if not campaign_id:
+                campaign_id = self.find_campaign_id_for_lead(lead_id)
+            if not campaign_id:
+                return
+            
+            campaign = self.state["campaigns"].get(campaign_id)
+            if not campaign:
+                return
+            
+            for lead in campaign.get("leads", []):
+                if lead["id"] == lead_id:
+                    lead["status"] = status
+                    lead["last_sent_time"] = last_sent_time
+                    lead["sequence_step"] = sequence_step
+                    lead["history"] = history
+                    lead["last_action_date"] = datetime.datetime.now().isoformat()
+                    if sender_account_id:
+                        lead["sender_account_id"] = sender_account_id
+                    
+                    with self._get_conn() as conn:
+                        conn.execute("""
+                            UPDATE leads 
+                            SET status = ?, last_sent_time = ?, sequence_step = ?, history = ?, last_action_date = ?, sender_account_id = ?
+                            WHERE id = ?
+                        """, (status, last_sent_time, sequence_step, json.dumps(history), lead["last_action_date"], lead.get("sender_account_id", "primary"), lead_id))
                         conn.commit()
                     break
             self.update_campaign_stats_unsafe(campaign_id)
@@ -678,6 +773,7 @@ class LeadManager:
             
             if campaign_id in self.state["campaigns"]:
                 campaign = self.state["campaigns"][campaign_id]
+                self.preserve_historical_sends_before_clear_unsafe([campaign])
                 campaign["leads"] = []
                 campaign["logs"] = []
                 campaign["campaign_status"] = {
@@ -745,7 +841,10 @@ class LeadManager:
         campaign = self.state["campaigns"][campaign_id]
         leads = campaign.get("leads", [])
         total = len(leads)
-        sent = sum(l.get("sequence_step", 0) for l in leads)
+        
+        # Recalculate sent emails count by counting actual "sent" history items
+        sent = sum(sum(1 for h in l.get("history", []) if "sent" in h.get("action", "").lower()) for l in leads)
+        
         replies = sum(1 for l in leads if l["status"] in ["Replied", "Interested", "Not_Interested", "OOO", "Wrong_Contact", "Sample_Approval"])
         interested = sum(1 for l in leads if l["status"] == "Interested")
         not_interested = sum(1 for l in leads if l["status"] == "Not_Interested")
@@ -793,7 +892,7 @@ class LeadManager:
             result.sort(key=lambda x: x["created_at"])
             return result
 
-    def create_campaign_unsafe(self, name: str, campaign_id: Optional[str] = None) -> str:
+    def create_campaign_unsafe(self, name: str, campaign_id: Optional[str] = None, start_date: Optional[str] = None) -> str:
         if not campaign_id:
             campaign_id = str(uuid.uuid4())
         
@@ -801,6 +900,7 @@ class LeadManager:
             "id": campaign_id,
             "name": name,
             "created_at": datetime.datetime.now().isoformat(),
+            "start_date": start_date,
             "leads": [],
             "logs": [],
             "campaign_status": {
@@ -817,18 +917,26 @@ class LeadManager:
         campaign = self.state["campaigns"][campaign_id]
         with self._get_conn() as conn:
             conn.execute("""
-                INSERT INTO campaigns (id, name, created_at, campaign_status)
-                VALUES (?, ?, ?, ?)
-            """, (campaign_id, name, campaign["created_at"], json.dumps(campaign["campaign_status"])))
+                INSERT INTO campaigns (id, name, created_at, campaign_status, start_date)
+                VALUES (?, ?, ?, ?, ?)
+            """, (campaign_id, name, campaign["created_at"], json.dumps(campaign["campaign_status"]), start_date))
             conn.commit()
 
         self.add_log_unsafe("INFO", f"Campaign session '{name}' created.", None, campaign_id)
         return campaign_id
 
-    def create_campaign(self, name: str) -> str:
+    def create_campaign(self, name: str, start_date: Optional[str] = None) -> str:
         with self.lock:
-            campaign_id = self.create_campaign_unsafe(name)
+            campaign_id = self.create_campaign_unsafe(name, start_date=start_date)
         return campaign_id
+
+    def set_campaign_start_date(self, campaign_id: str, start_date: Optional[str]):
+        with self.lock:
+            if campaign_id in self.state["campaigns"]:
+                self.state["campaigns"][campaign_id]["start_date"] = start_date
+                with self._get_conn() as conn:
+                    conn.execute("UPDATE campaigns SET start_date = ? WHERE id = ?", (start_date, campaign_id))
+                    conn.commit()
 
     def set_active_campaign(self, campaign_id: str):
         with self.lock:
@@ -847,7 +955,9 @@ class LeadManager:
     def delete_campaign(self, campaign_id: str):
         with self.lock:
             if campaign_id in self.state.get("campaigns", {}):
-                name = self.state["campaigns"][campaign_id].get("name", "Unnamed")
+                campaign = self.state["campaigns"][campaign_id]
+                self.preserve_historical_sends_before_clear_unsafe([campaign])
+                name = campaign.get("name", "Unnamed")
                 del self.state["campaigns"][campaign_id]
                 
                 if self.state.get("active_campaign_id") == campaign_id:
@@ -909,3 +1019,101 @@ class LeadManager:
                     break
             self.update_campaign_stats_unsafe(campaign_id)
         return lead_to_update
+
+    def preserve_historical_sends_before_clear_unsafe(self, campaigns_list: list):
+        import re
+        settings = self.state.get("settings", {})
+        historical_counts = settings.get("historical_send_counts", {})
+        
+        primary_email = (settings.get("sender_email") or settings.get("smtp_user") or "primary@example.com").lower().strip()
+        
+        for campaign in campaigns_list:
+            leads = campaign.get("leads", [])
+            for lead in leads:
+                history = lead.get("history", [])
+                for event in history:
+                    action = event.get("action", "")
+                    details = event.get("details", "")
+                    
+                    if "Email Sent" in action:
+                        match = re.search(r"\(Sender:\s*([^\s)]+)\)", details)
+                        if match:
+                            sender_email = match.group(1).strip().lower()
+                        else:
+                            acc_id = lead.get("sender_account_id")
+                            if acc_id == "primary":
+                                sender_email = primary_email
+                            elif acc_id:
+                                accounts = settings.get("sender_accounts", [])
+                                acc = next((a for a in accounts if a.get("id") == acc_id), None)
+                                if acc:
+                                    sender_email = (acc.get("email") or acc.get("smtp_user") or acc_id).lower().strip()
+                                else:
+                                    sender_email = acc_id.lower().strip()
+                            else:
+                                sender_email = primary_email
+                        
+                        if sender_email in {"primary@example.com", "rota@example.com", "rotb@example.com"}:
+                            continue
+                            
+                        historical_counts[sender_email] = historical_counts.get(sender_email, 0) + 1
+                        
+        settings["historical_send_counts"] = historical_counts
+        
+        # Save to database
+        with self._get_conn() as conn:
+            conn.execute("""
+                INSERT INTO settings (key, value)
+                VALUES ('historical_send_counts', ?)
+                ON CONFLICT(key) DO UPDATE SET value = excluded.value
+            """, (json.dumps(historical_counts),))
+            conn.commit()
+
+    def reset_warmup_stats(self):
+        with self.lock:
+            # 1. Clear historical_send_counts in memory and DB
+            settings = self.state.get("settings", {})
+            if "historical_send_counts" in settings:
+                settings["historical_send_counts"] = {}
+            with self._get_conn() as conn:
+                conn.execute("INSERT OR REPLACE INTO settings (key, value) VALUES ('historical_send_counts', '{}')")
+                
+                # 2. Reset all leads in all campaigns back to Pending
+                conn.execute("""
+                    UPDATE leads 
+                    SET status = 'Pending', 
+                        sequence_step = 0, 
+                        last_sent_time = NULL, 
+                        history = '[]', 
+                        replies = '[]', 
+                        last_action_date = NULL
+                """)
+                
+                # 3. Reset campaign status in DB
+                for c_id, campaign in self.state.get("campaigns", {}).items():
+                    campaign["campaign_status"] = {
+                        "is_running": False,
+                        "total_sent": 0,
+                        "total_replies": 0,
+                        "total_interested": 0,
+                        "total_not_interested": 0,
+                        "total_leads": len(campaign.get("leads", [])),
+                        "total_junk": 0
+                    }
+                    conn.execute("""
+                        UPDATE campaigns 
+                        SET campaign_status = ? 
+                        WHERE id = ?
+                    """, (json.dumps(campaign["campaign_status"]), c_id))
+                    
+                conn.commit()
+                
+            # 4. Reset campaigns in memory
+            for c_id, campaign in self.state.get("campaigns", {}).items():
+                for lead in campaign.get("leads", []):
+                    lead["status"] = "Pending"
+                    lead["sequence_step"] = 0
+                    lead["last_sent_time"] = None
+                    lead["history"] = []
+                    lead["replies"] = []
+                    lead["last_action_date"] = None

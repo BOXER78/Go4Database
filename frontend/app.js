@@ -330,11 +330,15 @@ function initCampaignSelector() {
     }
 }
 
-// Update settings values on screens
 function initSettings() {
     const btnSave = document.getElementById("btn-save-settings");
     
     btnSave.addEventListener("click", async () => {
+        const warmupSchedule = {};
+        document.querySelectorAll(".warmup-day-input").forEach(inp => {
+            warmupSchedule[inp.dataset.day] = parseInt(inp.value) || 0;
+        });
+
         const settings = {
             gemini_api_key: document.getElementById("settings-api-key").value.trim ? document.getElementById("settings-api-key").value.trim() : document.getElementById("settings-api-key").value,
             smtp_server: document.getElementById("settings-smtp-server").value,
@@ -347,9 +351,15 @@ function initSettings() {
             sender_email: document.getElementById("settings-sender-email").value,
             daily_limit: parseInt(document.getElementById("settings-limit").value) || 50,
             min_delay: parseInt(document.getElementById("settings-min-delay").value) || 5,
-            auto_followup_delay_days: parseFloat(document.getElementById("settings-followup-delay").value) || 24,
+            followup_delay_1_hours: parseFloat(document.getElementById("settings-followup-delay-1").value) || 48,
+            followup_delay_2_hours: parseFloat(document.getElementById("settings-followup-delay-2").value) || 48,
+            followup_delay_3_hours: parseFloat(document.getElementById("settings-followup-delay-3").value) || 48,
+            auto_followup_delay_days: parseFloat(document.getElementById("settings-followup-delay-1").value) || 48,
             automation_mode: document.getElementById("settings-auto-mode").checked,
-            sender_accounts: state.settings.sender_accounts || []
+            sender_accounts: state.settings.sender_accounts || [],
+            warmup_total_cap: parseInt(document.getElementById("settings-warmup-total-cap").value) || 50,
+            allow_duplicate_leads: document.getElementById("settings-allow-duplicate-leads").checked,
+            warmup_schedule: warmupSchedule
         };
         
         try {
@@ -414,8 +424,39 @@ function populateSettingsInputs() {
     document.getElementById("settings-sender-email").value = state.settings.sender_email || "";
     document.getElementById("settings-limit").value = state.settings.daily_limit || 50;
     document.getElementById("settings-min-delay").value = state.settings.min_delay || 5;
-    document.getElementById("settings-followup-delay").value = state.settings.auto_followup_delay_days || 24;
+    document.getElementById("settings-followup-delay-1").value = state.settings.followup_delay_1_hours || 48;
+    document.getElementById("settings-followup-delay-2").value = state.settings.followup_delay_2_hours || 48;
+    document.getElementById("settings-followup-delay-3").value = state.settings.followup_delay_3_hours || 48;
     document.getElementById("settings-auto-mode").checked = state.settings.automation_mode || false;
+    document.getElementById("settings-warmup-total-cap").value = state.settings.warmup_total_cap || 50;
+    document.getElementById("settings-allow-duplicate-leads").checked = state.settings.allow_duplicate_leads !== false;
+
+    const warmupTbody = document.getElementById("warmup-schedule-tbody");
+    if (warmupTbody) {
+        warmupTbody.innerHTML = "";
+        const schedule = state.settings.warmup_schedule || {
+            "1": 5, "2": 8, "3": 10, "4": 12, "5": 15, "6": 18, "7": 20,
+            "8": 25, "9": 30, "10": 35, "11": 40, "12": 45, "13": 50, "14": 50
+        };
+        for (let day = 1; day <= 14; day++) {
+            const tr = document.createElement("tr");
+            const dayCell = document.createElement("td");
+            dayCell.innerHTML = `<strong>Day ${day}</strong>`;
+            
+            const limitCell = document.createElement("td");
+            const input = document.createElement("input");
+            input.type = "number";
+            input.className = "form-control form-control-sm warmup-day-input";
+            input.style.width = "120px";
+            input.dataset.day = day;
+            input.value = schedule[day] || schedule[String(day)] || 50;
+            limitCell.appendChild(input);
+            
+            tr.appendChild(dayCell);
+            tr.appendChild(limitCell);
+            warmupTbody.appendChild(tr);
+        }
+    }
 
     renderRotationAccounts();
 }
@@ -657,10 +698,16 @@ function initUpload() {
         btnPaste.textContent = "Importing...";
         
         const campaignName = campaignNameInput ? campaignNameInput.value.trim() : "";
+        const startDateInput = document.getElementById("import-start-date");
+        const startDate = startDateInput ? startDateInput.value : "";
+        
         const formData = new FormData();
         formData.append("pasted_data", text);
         if (campaignName) {
             formData.append("campaign_name", campaignName);
+        }
+        if (startDate) {
+            formData.append("start_date", startDate);
         }
         
         try {
@@ -673,6 +720,7 @@ function initUpload() {
                 alert(`Successfully ingested ${data.added_count} leads!`);
                 pasteInput.value = "";
                 if (campaignNameInput) campaignNameInput.value = "";
+                if (startDateInput) startDateInput.value = "";
                 await fetchCampaigns();
                 document.getElementById("nav-leads").click();
             } else {
@@ -690,11 +738,16 @@ function initUpload() {
 async function uploadFile(file) {
     const campaignNameInput = document.getElementById("import-campaign-name");
     const campaignName = campaignNameInput ? campaignNameInput.value.trim() : "";
+    const startDateInput = document.getElementById("import-start-date");
+    const startDate = startDateInput ? startDateInput.value : "";
     
     const formData = new FormData();
     formData.append("file", file);
     if (campaignName) {
         formData.append("campaign_name", campaignName);
+    }
+    if (startDate) {
+        formData.append("start_date", startDate);
     }
     
     const banner = document.querySelector(".dropzone-text");
@@ -710,6 +763,7 @@ async function uploadFile(file) {
         if (res.ok) {
             alert(`File parsed successfully! Ingested ${data.added_count} leads.`);
             if (campaignNameInput) campaignNameInput.value = "";
+            if (startDateInput) startDateInput.value = "";
             await fetchCampaigns();
             document.getElementById("nav-leads").click();
         } else {
@@ -749,6 +803,25 @@ function initCampaignControls() {
             }
         }
     });
+
+    const btnResetWarmup = document.getElementById("btn-reset-warmup");
+    if (btnResetWarmup) {
+        btnResetWarmup.addEventListener("click", async () => {
+            if (confirm("Are you sure you want to reset all Warmup Progress (14 Days Track) and Warmup Sends (Today & Total Cap) back to Day 1 / 0 sends? This will also reset lead sending states back to Pending. Proceed?")) {
+                try {
+                    const res = await fetch("/api/campaign/reset-warmup", { method: "POST" });
+                    if (res.ok) {
+                        alert("Warmup stats and progress successfully reset to Day 1.");
+                        fetchState();
+                    } else {
+                        alert("Failed to reset warmup stats: " + (await res.text()));
+                    }
+                } catch (e) {
+                    alert("Error resetting warmup stats: " + e);
+                }
+            }
+        });
+    }
 
     const btnClearLogs = document.getElementById("btn-clear-logs");
     btnClearLogs.addEventListener("click", () => {
@@ -1815,6 +1888,7 @@ function initAuth() {
                 localStorage.removeItem("session_token");
                 state.currentUser = null;
                 showLogin();
+                throw new Error("Unauthorized");
             }
             return response;
         });
@@ -1875,52 +1949,68 @@ function showApp() {
 }
 
 function applyRoleRestrictions() {
-    const role = state.currentUser ? state.currentUser.role : "Sales Rep";
+    if (!state.currentUser) return;
+    const role = state.currentUser.role;
+    let permissions = state.currentUser.permissions || [];
     
-    const adminTabs = [
-        "nav-sessions",
-        "nav-overview",
-        "nav-import",
-        "nav-leads",
-        "nav-replies",
-        "nav-email-preview",
-        "nav-settings"
-    ];
+    if (role === "Admin" && permissions.length === 0) {
+        permissions = ["sessions", "overview", "import", "leads", "hot-leads", "replies", "agent-training", "hyper-agent", "email-preview", "warmup", "settings"];
+    }
     
-    if (role === "Sales Rep") {
-        adminTabs.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.style.display = "none";
-        });
-        
-        const btnReset = document.getElementById("btn-reset-campaign");
-        const btnPause = document.getElementById("btn-pause-campaign");
-        const btnStart = document.getElementById("btn-start-campaign");
+    const allTabsMap = {
+        "sessions": "nav-sessions",
+        "overview": "nav-overview",
+        "import": "nav-import",
+        "leads": "nav-leads",
+        "hot-leads": "nav-hot-leads",
+        "replies": "nav-replies",
+        "agent-training": "nav-agent-training",
+        "hyper-agent": "nav-hyper-agent",
+        "email-preview": "nav-email-preview",
+        "warmup": "nav-warmup",
+        "settings": "nav-settings"
+    };
+    
+    // Show or hide based on permissions
+    let firstVisibleTabEl = null;
+    let activeTabVisible = false;
+    
+    Object.keys(allTabsMap).forEach(key => {
+        const id = allTabsMap[key];
+        const el = document.getElementById(id);
+        if (el) {
+            if (permissions.includes(key)) {
+                el.style.display = "flex";
+                if (!firstVisibleTabEl) firstVisibleTabEl = el;
+                if (el.classList.contains("active")) {
+                    activeTabVisible = true;
+                }
+            } else {
+                el.style.display = "none";
+            }
+        }
+    });
+    
+    // If the active tab was hidden, navigate to the first visible one
+    if (!activeTabVisible && firstVisibleTabEl) {
+        firstVisibleTabEl.click();
+    }
+    
+    // Hide controls if not admin
+    const btnReset = document.getElementById("btn-reset-campaign");
+    const btnPause = document.getElementById("btn-pause-campaign");
+    const btnStart = document.getElementById("btn-start-campaign");
+    const roleCard = document.getElementById("settings-role-management");
+    
+    if (role !== "Admin") {
         if (btnReset) btnReset.style.display = "none";
         if (btnPause) btnPause.style.display = "none";
         if (btnStart) btnStart.style.display = "none";
-        
-        const roleCard = document.getElementById("settings-role-management");
         if (roleCard) roleCard.style.display = "none";
-        
-        const hotLeadsTab = document.getElementById("nav-hot-leads");
-        if (hotLeadsTab) {
-            hotLeadsTab.click();
-        }
     } else {
-        adminTabs.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.style.display = "flex";
-        });
-        
-        const btnReset = document.getElementById("btn-reset-campaign");
-        const btnPause = document.getElementById("btn-pause-campaign");
-        const btnStart = document.getElementById("btn-start-campaign");
         if (btnReset) btnReset.style.display = "block";
         if (btnPause) btnPause.style.display = "block";
         if (btnStart) btnStart.style.display = "block";
-        
-        const roleCard = document.getElementById("settings-role-management");
         if (roleCard) {
             roleCard.style.display = "block";
             renderTeamMembersTable();
@@ -2011,6 +2101,7 @@ function initTeamManagementUI() {
         const userVal = document.getElementById("team-email").value.trim();
         const passVal = document.getElementById("team-password").value;
         const roleVal = document.getElementById("team-role").value;
+        const checkedPerms = Array.from(document.querySelectorAll('input[name="team-permissions"]:checked')).map(el => el.value);
         
         if (!nameVal || !userVal || !passVal) {
             alert("All fields are required to add a team member.");
@@ -2025,7 +2116,8 @@ function initTeamManagementUI() {
                     name: nameVal,
                     email: userVal,
                     password: passVal,
-                    role: roleVal
+                    role: roleVal,
+                    permissions: checkedPerms
                 })
             });
             const data = await res.json();
@@ -2211,20 +2303,52 @@ async function renderWarmupReport() {
             `;
             tr.appendChild(progressCell);
             
-            // 5. Daily Limit (Sent/Cap)
+            // 5. Warmup Sends (Today & Total Cap)
             const thresholdCell = document.createElement("td");
-            const limit = state.settings.daily_limit || 50;
-            const pct = Math.min(Math.round((count / limit) * 100), 100);
-            let barColor = "var(--color-success)";
-            if (pct > 80) barColor = "var(--color-danger)";
-            else if (pct > 50) barColor = "var(--color-warning)";
+            const totalCap = state.settings.warmup_total_cap || 50;
+            const totalSent = progress.total_sent || 0;
+            
+            // Calculate today's warmup day & limit
+            const todayStr = new Date().toISOString().split('T')[0];
+            const hasSentToday = (progress.dates || []).includes(todayStr);
+            const day = hasSentToday ? progress.completed_days : (progress.completed_days + 1);
+            
+            const schedule = state.settings.warmup_schedule || {
+                "1": 5, "2": 8, "3": 10, "4": 12, "5": 15, "6": 18, "7": 20,
+                "8": 25, "9": 30, "10": 35, "11": 40, "12": 45, "13": 50, "14": 50
+            };
+            const dailyLimit = schedule[day] || schedule[String(day)] || 50;
+            const sentToday = progress.sent_today || 0;
+            
+            const pctToday = Math.min(Math.round((sentToday / dailyLimit) * 100), 100);
+            let todayBarColor = "var(--color-primary)";
+            if (pctToday >= 100) todayBarColor = "var(--color-danger)";
+            else if (pctToday > 50) todayBarColor = "var(--color-warning)";
+            
+            const pctTotal = Math.min(Math.round((totalSent / totalCap) * 100), 100);
+            let totalBarColor = "var(--color-success)";
+            if (totalSent >= totalCap) totalBarColor = "var(--color-info)";
             
             thresholdCell.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div style="flex-grow: 1; height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden;">
-                        <div style="width: ${pct}%; height: 100%; background: ${barColor};"></div>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div>
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 2px;">
+                            <span class="text-muted">Today (Day ${day} limit):</span>
+                            <strong>${sentToday}/${dailyLimit}</strong>
+                        </div>
+                        <div style="height: 6px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 3px; overflow: hidden;">
+                            <div style="width: ${pctToday}%; height: 100%; background: ${todayBarColor};"></div>
+                        </div>
                     </div>
-                    <span style="font-size: 11px; font-weight: 600; min-width: 50px; text-align: right;">${count}/${limit}</span>
+                    <div>
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 2px;">
+                            <span class="text-muted">Total Cap:</span>
+                            <strong>${totalSent}/${totalCap}</strong>
+                        </div>
+                        <div style="height: 6px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 3px; overflow: hidden;">
+                            <div style="width: ${pctTotal}%; height: 100%; background: ${totalBarColor};"></div>
+                        </div>
+                    </div>
                 </div>
             `;
             tr.appendChild(thresholdCell);

@@ -192,14 +192,23 @@ def analyze_and_draft_fallback(lead: Dict[str, Any]) -> Tuple[Dict[str, Any], Di
         f"[Sender Name]"
     )
 
-    # Draft Follow Up 2 (Soft break up)
-    fu2_subject = f"Closing the loop / {company}"
+    # Draft Follow Up 2 (Nudge / Question)
+    fu2_subject = f"Quick question re: {company} outreach"
     fu2_body = (
+        f"Hi {first_name},\n\n"
+        f"I wanted to follow up quickly to see if you had a chance to check the sample contacts I shared.\n\n"
+        f"At Go4Database, our goal is to help {company} connect with decision makers directly. Is this something you are actively looking to solve, or is your team fully focused on other growth channels right now?\n\n"
+        f"Best,\n"
+        f"[Sender Name]"
+    )
+
+    # Draft Follow Up 3 (Soft break up / Closing loop)
+    fu3_subject = f"Closing the loop / {company}"
+    fu3_body = (
         f"Hi {first_name},\n\n"
         f"I haven't heard back, so I'll assume that growing your database of prospects isn't a priority for {company} right now.\n\n"
         f"If things change, or if you'd like to browse our list directory at Go4Database down the road, "
         f"feel free to reach out anytime.\n\n"
-        f"If you aren't the right contact for B2B lists, I'd appreciate it if you could point me to who is. "
         f"Otherwise, this is the last email you'll receive from me.\n\n"
         f"Thanks,\n"
         f"[Sender Name]"
@@ -208,7 +217,8 @@ def analyze_and_draft_fallback(lead: Dict[str, Any]) -> Tuple[Dict[str, Any], Di
     drafts = {
         "initial_pitch": {"subject": initial_subject, "body": initial_body},
         "follow_up_1": {"subject": fu1_subject, "body": fu1_body},
-        "follow_up_2": {"subject": fu2_subject, "body": fu2_body}
+        "follow_up_2": {"subject": fu2_subject, "body": fu2_body},
+        "follow_up_3": {"subject": fu3_subject, "body": fu3_body}
     }
 
     return matched_segment, drafts, score
@@ -232,7 +242,7 @@ def analyze_and_draft(lead: Dict[str, Any], api_key: str = "") -> Tuple[Dict[str
 You are an expert AI sales outreach agent working for "Go4Database". 
 Go4Database is a B2B lead generation database provider with 350M+ records globally.
 
-Your task is to analyze the prospect's profile and match them to the single best Go4Database database list, enrichment, or use case. Then, generate a personalized, high-converting 3-step email sequence.
+Your task is to analyze the prospect's profile and match them to the single best Go4Database database list, enrichment, or use case. Then, generate a personalized, high-converting 4-step email sequence.
 
 Prospect Profile:
 - Name: {lead.get('name')}
@@ -247,6 +257,13 @@ Prospect Profile:
 Available Go4Database Offers:
 {offers_str}
 
+========================
+EMAIL PERSONALIZATION RULES
+========================
+- The emails must be highly personalized and specific to the prospect's company. Avoid generic templates, standard hooks, or repetitive pitches across different leads.
+- Weave in the company's industry, size, title, and lead notes to formulate a unique angle for how Go4Database's list helps them solve their specific department challenges.
+- End the initial pitch with a clear Call to Action (like offering a 20-lead sample list).
+
 Please generate the following in a JSON structure:
 1. "matched_segment":
    - "icp_fit": Short description of the prospect's business model/ICP
@@ -256,9 +273,10 @@ Please generate the following in a JSON structure:
    - "data_usecase": A highly specific use case explaining how the prospect can use the Go4Database list to grow their own revenue.
 2. "score": An outreach fit score between 0 and 100 based on company size, title, and relevance of the offer.
 3. "email_drafts":
-   - "initial_pitch": Subject and Body. This should be short (under 150 words), direct, personalized, professional, and end with a clear Call to Action (like offering a 20-lead sample list). Place [Sender Name] as a placeholder for the sender.
-   - "follow_up_1": Subject and Body. A gentle nudge sent 3 days later, adding value (e.g., offering to show a customized sample data structure of their target audience).
-   - "follow_up_2": Subject and Body. A final soft close sent 7 days later to close the loop politely.
+   - "initial_pitch": Subject and Body. This should be short (under 150 words), direct, personalized, professional, and end with a clear Call to Action. Place [Sender Name] as a placeholder for the sender.
+   - "follow_up_1": Subject and Body. A gentle nudge sent 2 days after the initial pitch (on Day 3).
+   - "follow_up_2": Subject and Body. A short check-in question sent 2 days after follow_up_1 (on Day 5).
+   - "follow_up_3": Subject and Body. A final soft close breakup email sent 2 days after follow_up_2 (on Day 7) to close the loop politely.
 
 Your response must be ONLY valid JSON, with no other text, markdown blocks or preambles.
 JSON Structure:
@@ -274,7 +292,8 @@ JSON Structure:
   "email_drafts": {{
      "initial_pitch": {{ "subject": "string", "body": "string" }},
      "follow_up_1": {{ "subject": "string", "body": "string" }},
-     "follow_up_2": {{ "subject": "string", "body": "string" }}
+     "follow_up_2": {{ "subject": "string", "body": "string" }},
+     "follow_up_3": {{ "subject": "string", "body": "string" }}
   }}
 }}
 """

@@ -366,8 +366,14 @@
             },
 
             subdirectories: {
-                email: "/AI-email-automation-agent/frontend/index.html",
-                blog: "/AI-blog-agent/frontend/static/index.html"
+                email: "AI-email-automation-agent/frontend/index.html",
+                blog: "AI-blog-agent/frontend/static/index.html"
+            },
+
+            // Local development server configurations
+            local: {
+                email: "http://127.0.0.1:8000",
+                blog: "http://127.0.0.1:8001"
             }
         };
 
@@ -385,17 +391,37 @@
 
             let targetUrl = null;
 
+            // Check if running on localhost / 127.0.0.1 or direct file protocol
+            const isLocal = window.location.hostname === "localhost" || 
+                            window.location.hostname === "127.0.0.1" || 
+                            window.location.protocol === "file:";
+
             // Validate credentials
             if (usernameInput === REDIRECT_CONFIG.credentials.email.username && 
                 passwordInput === REDIRECT_CONFIG.credentials.email.password) {
-                targetUrl = REDIRECT_CONFIG.mode === "subdomain" 
-                    ? REDIRECT_CONFIG.subdomains.email 
-                    : REDIRECT_CONFIG.subdirectories.email;
+                
+                if (isLocal) {
+                    targetUrl = window.location.protocol === "file:"
+                        ? REDIRECT_CONFIG.subdirectories.email 
+                        : REDIRECT_CONFIG.local.email;
+                } else {
+                    targetUrl = REDIRECT_CONFIG.mode === "subdomain" 
+                        ? REDIRECT_CONFIG.subdomains.email 
+                        : REDIRECT_CONFIG.subdirectories.email;
+                }
+                
             } else if (usernameInput === REDIRECT_CONFIG.credentials.blog.username && 
                        passwordInput === REDIRECT_CONFIG.credentials.blog.password) {
-                targetUrl = REDIRECT_CONFIG.mode === "subdomain" 
-                    ? REDIRECT_CONFIG.subdomains.blog 
-                    : REDIRECT_CONFIG.subdirectories.blog;
+                
+                if (isLocal) {
+                    targetUrl = window.location.protocol === "file:"
+                        ? REDIRECT_CONFIG.subdirectories.blog 
+                        : REDIRECT_CONFIG.local.blog;
+                } else {
+                    targetUrl = REDIRECT_CONFIG.mode === "subdomain" 
+                        ? REDIRECT_CONFIG.subdomains.blog 
+                        : REDIRECT_CONFIG.subdirectories.blog;
+                }
             }
 
             if (targetUrl) {

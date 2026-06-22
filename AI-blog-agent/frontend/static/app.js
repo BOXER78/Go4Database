@@ -36,10 +36,19 @@ document.addEventListener("DOMContentLoaded", () => {
     // Initialize Lucide Icons
     lucide.createIcons();
 
+    // Determine the API base URL dynamically
+    const getApiUrl = (endpoint) => {
+        // If we are in subdirectory mode on the main domain
+        if (window.location.pathname.includes("/Go4Database/")) {
+            return `/blog-api/${endpoint}`;
+        }
+        return `/api/${endpoint}`;
+    };
+
     // Fetch Sitemap
     async function loadSitemapInfo() {
         try {
-            const res = await fetch("/api/sitemap");
+            const res = await fetch(getApiUrl("sitemap"));
             const data = await res.json();
             sitemapUrlsCount = data.count || 0;
             sitemapCountEl.innerText = `Sitemap: ${sitemapUrlsCount} URLs parsed`;
@@ -52,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Fetch Authors
     async function loadAuthors() {
         try {
-            const res = await fetch("/api/authors");
+            const res = await fetch(getApiUrl("authors"));
             authorsList = await res.json();
             
             authorGroup.innerHTML = "";
@@ -171,7 +180,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 300);
 
         try {
-            const response = await fetch("/api/generate", {
+            const response = await fetch(getApiUrl("generate"), {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

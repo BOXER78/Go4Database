@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Blog Writer Agent Dashboard</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="glow-container">
+        <div class="glow glow-1"></div>
+        <div class="glow glow-2"></div>
+    </div>
+
+    <header class="app-header">
+        <div class="header-logo">
+            <i data-lucide="bot" class="logo-icon animate-pulse"></i>
+            <div>
+                <h1>Antigravity Blog Agent</h1>
+                <p>Email Marketing Blog Engine for <span class="brand-highlight">go4database.com</span></p>
+            </div>
+        </div>
+        <div class="header-actions">
+            <div class="status-badge" id="sitemap-status">
+                <i data-lucide="link-2"></i>
+                <span id="sitemap-count">Sitemap: Loading...</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="dashboard-grid">
+        <!-- Sidebar Controls -->
+        <section class="control-panel glass-card">
+            <div class="panel-header">
+                <i data-lucide="sliders"></i>
+                <h2>Generator Configurations</h2>
+            </div>
+            
+            <form id="generator-form">
+                <div class="form-group">
+                    <label for="topic">Blog Topic / Title Intent</label>
+                    <input type="text" id="topic" name="topic" placeholder="e.g., Top Email Marketing Benchmarks for Restaurants in 2026" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="primary_keyword">Primary Keyword</label>
+                    <input type="text" id="primary_keyword" name="primary_keyword" placeholder="e.g., email marketing benchmarks" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Select Author Persona</label>
+                    <div class="author-grid" id="author-select-group">
+                        <!-- Loaded dynamically -->
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group half-width">
+                        <label for="target_word_count">Word Count</label>
+                        <input type="number" id="target_word_count" name="target_word_count" value="2000" min="600" max="4000">
+                    </div>
+                    <div class="form-group half-width">
+                        <label for="sitemap-url">Sitemap source</label>
+                        <input type="text" id="sitemap-url" value="go4database.com" disabled>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group half-width">
+                        <label for="intent">Search Intent</label>
+                        <select id="intent" name="intent">
+                            <option value="Commercial">Commercial</option>
+                            <option value="Informational" selected>Informational</option>
+                        </select>
+                    </div>
+                    <div class="form-group half-width">
+                        <label for="faq_count">FAQ Count</label>
+                        <input type="number" id="faq_count" name="faq_count" value="4" min="3" max="6">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group half-width">
+                        <label for="case_study_required">Case Study Required</label>
+                        <select id="case_study_required" name="case_study_required">
+                            <option value="Yes">Yes</option>
+                            <option value="No" selected>No</option>
+                        </select>
+                    </div>
+                    <div class="form-group half-width">
+                        <label for="expert_opinion_required">Expert Opinion</label>
+                        <select id="expert_opinion_required" name="expert_opinion_required">
+                            <option value="Yes">Yes</option>
+                            <option value="No" selected>No</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="custom_guidelines">Additional Instructions (Optional)</label>
+                    <textarea id="custom_guidelines" name="custom_guidelines" placeholder="e.g., Focus heavily on conversion rates and database hygiene. Mention restaurant lists specifically."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="generate-btn">
+                    <i data-lucide="sparkles"></i>
+                    <span>Generate Blog Post</span>
+                </button>
+            </form>
+        </section>
+
+        <!-- Main Workspace -->
+        <section class="workspace-panel">
+            <!-- Progress Tracker -->
+            <div class="progress-card glass-card hidden" id="progress-container">
+                <div class="progress-header">
+                    <div class="progress-title">
+                        <i data-lucide="loader" class="animate-spin icon-purple"></i>
+                        <span id="progress-status-text">Starting pipeline...</span>
+                    </div>
+                    <span id="progress-percentage">0%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progress-bar" style="width: 0%"></div>
+                </div>
+                <div class="pipeline-steps">
+                    <div class="step" id="step-1"><span class="step-num">1</span> Sitemap</div>
+                    <div class="step" id="step-2"><span class="step-num">2</span> Outline</div>
+                    <div class="step" id="step-3"><span class="step-num">3</span> Draft</div>
+                    <div class="step" id="step-4"><span class="step-num">4</span> Humanize</div>
+                    <div class="step" id="step-5"><span class="step-num">5</span> SEO Audit</div>
+                </div>
+            </div>
+
+            <!-- Dashboard Empty State -->
+            <div class="empty-state glass-card" id="empty-state">
+                <i data-lucide="pencil-ruler" class="empty-icon"></i>
+                <h3>Generate Your First SOP-Compliant Blog</h3>
+                <p>Configure parameters on the left and select one of the top email marketing authors to begin generation. The engine will ensure plagiarism-free content, perfect heading hierarchy, jump-linked TOC, custom CTAs, and a detailed SEO audit checklist.</p>
+            </div>
+
+            <!-- Generated Content Viewer (Hidden initially) -->
+            <div class="content-viewer-grid hidden" id="viewer-container">
+                <!-- Preview Tabs -->
+                <div class="tab-header glass-card">
+                    <div class="tabs">
+                        <button class="tab-btn active" data-tab="preview-tab">
+                            <i data-lucide="eye"></i>
+                            Google Doc Stylized Preview
+                        </button>
+                        <button class="tab-btn" data-tab="html-tab">
+                            <i data-lucide="code-2"></i>
+                            Raw HTML Output
+                        </button>
+                    </div>
+                    <div class="tab-actions" style="display:flex;gap:8px;align-items:center;">
+                        <button class="btn btn-secondary btn-sm" id="copy-btn">
+                            <i data-lucide="copy"></i>
+                            Copy Code
+                        </button>
+                        <button class="btn btn-secondary btn-sm" id="download-btn">
+                            <i data-lucide="download"></i>
+                            Download HTML
+                        </button>
+                        <a href="/static/generated_blog.docx" download class="btn btn-primary btn-sm" id="download-docx-btn" style="text-decoration:none;display:flex;align-items:center;gap:6px;">
+                            <i data-lucide="file-text"></i>
+                            Download Google Doc (DOCX)
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Preview Panel -->
+                <div class="workspace-columns">
+                    <!-- Left: Styled preview panel -->
+                    <div class="preview-panel-body glass-card">
+                        <!-- Tab Content: Google Doc Stylized -->
+                        <div id="preview-tab" class="tab-content google-doc-font">
+                            <!-- Injected dynamically -->
+                        </div>
+                        
+                        <!-- Tab Content: HTML -->
+                        <div id="html-tab" class="tab-content hidden">
+                            <pre><code id="raw-html-content"></code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Right: Compliance checklist panel -->
+                    <div class="checklist-panel glass-card">
+                        <div class="checklist-header">
+                            <i data-lucide="check-square" class="icon-green"></i>
+                            <div>
+                                <h3>SOP Compliance Audit</h3>
+                                <p id="compliance-ratio">0 of 0 rules met (0%)</p>
+                            </div>
+                        </div>
+
+                        <!-- Mini score meters -->
+                        <div class="score-meters">
+                            <div class="meter-card">
+                                <span class="meter-label">SEO Audit Score</span>
+                                <div class="meter-radial">
+                                    <svg viewBox="0 0 36 36" class="circular-chart green">
+                                        <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                        <path class="circle" id="seo-score-circle" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                        <text x="18" y="20.35" class="percentage" id="seo-score-text">0%</text>
+                                    </svg>
+                                </div>
+                            </div>
+                            
+                            <div class="meter-card">
+                                <span class="meter-label">Estimated AI Score</span>
+                                <div class="meter-radial">
+                                    <svg viewBox="0 0 36 36" class="circular-chart purple">
+                                        <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                        <path class="circle" id="ai-score-circle" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                        <text x="18" y="20.35" class="percentage" id="ai-score-text">0%</text>
+                                    </svg>
+                                </div>
+                                <span class="meter-subtext" id="ai-score-subtext">Target: &lt; 20%</span>
+                            </div>
+                        </div>
+
+                        <!-- Checklist list -->
+                        <ul class="checklist-items" id="seo-checklist-list">
+                            <!-- Injected dynamically -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="app-footer">
+        <p>AI Blog Writer Agent &bull; Powered by Gemini 3.5 & Antigravity</p>
+    </footer>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

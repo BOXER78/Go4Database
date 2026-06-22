@@ -27,6 +27,7 @@ class GenerateRequest(BaseModel):
 static_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "frontend", "static"))
 os.makedirs(static_dir, exist_ok=True)
 
+@app.get("/blog-api/sitemap")
 @app.get("/api/sitemap")
 def get_sitemap():
     """
@@ -38,6 +39,7 @@ def get_sitemap():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/blog-api/authors")
 @app.get("/api/authors")
 def get_authors():
     """
@@ -45,6 +47,7 @@ def get_authors():
     """
     return AUTHOR_PERSONAS
    
+@app.post("/blog-api/generate")
 @app.post("/api/generate")
 def generate_blog(payload: GenerateRequest):
     """

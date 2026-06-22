@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Go4Database - Portal Gateway</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-base: #090d16;
+            --bg-surface: rgba(17, 24, 39, 0.6);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --color-primary: #8b5cf6; /* Purple */
+            --color-secondary: #06b6d4; /* Cyan */
+            --color-error: #f43f5e; /* Rose */
+            --font-main: 'Inter', sans-serif;
+            --font-heading: 'Outfit', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: var(--font-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Ambient Glowing Background Backgrounds */
+        .glow-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .glow-sphere {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(140px);
+            opacity: 0.15;
+            mix-blend-mode: screen;
+            animation: drift 20s infinite alternate ease-in-out;
+        }
+
+        .glow-1 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, var(--color-primary) 0%, transparent 70%);
+            top: -10%;
+            left: -10%;
+        }
+
+        .glow-2 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--color-secondary) 0%, transparent 70%);
+            bottom: -20%;
+            right: -10%;
+            animation-delay: -5s;
+        }
+
+        @keyframes drift {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+            100% {
+                transform: translate(80px, 50px) scale(1.2);
+            }
+        }
+
+        /* Portal Card Container */
+        .portal-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 440px;
+            padding: 20px;
+            animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .glass-card {
+            background: var(--bg-surface);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 40px 32px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .glass-card.shake {
+            animation: shake 0.4s ease-in-out;
+        }
+
+        .glass-card.success-fade {
+            animation: fadeOutDown 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Header Style */
+        .portal-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .logo-wrapper {
+            margin-bottom: 16px;
+            display: inline-block;
+            position: relative;
+        }
+
+        .logo-icon {
+            width: 56px;
+            height: 56px;
+            stroke: var(--color-primary);
+            fill: none;
+            stroke-width: 1.5;
+            transition: stroke 0.3s ease;
+        }
+
+        .portal-header h1 {
+            font-family: var(--font-heading);
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #ffffff 30%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 6px;
+        }
+
+        .portal-header p {
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 400;
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .form-input {
+            width: 100%;
+            background: rgba(10, 15, 30, 0.5);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 14px 16px;
+            font-family: var(--font-main);
+            font-size: 15px;
+            color: #ffffff;
+            outline: none;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .form-input:focus {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+            background: rgba(10, 15, 30, 0.7);
+        }
+
+        /* Submit Button */
+        .btn-submit {
+            width: 100%;
+            background: linear-gradient(135deg, var(--color-primary) 0%, #7c3aed 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 14px;
+            font-family: var(--font-heading);
+            font-size: 16px;
+            font-weight: 700;
+            color: #ffffff;
+            cursor: pointer;
+            outline: none;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+            background: linear-gradient(135deg, #9333ea 0%, #6d28d9 100%);
+        }
+
+        .btn-submit:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+        }
+
+        /* Error/Status Alerts */
+        .alert-box {
+            background: rgba(244, 63, 94, 0.1);
+            border: 1px solid rgba(244, 63, 94, 0.2);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 20px;
+            color: var(--color-error);
+            font-size: 13px;
+            text-align: center;
+            display: none;
+            animation: slideDown 0.3s ease forwards;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeOutDown {
+            from {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+
+        /* Portal Footer */
+        .portal-footer {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 11px;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient background glows -->
+    <div class="glow-bg">
+        <div class="glow-sphere glow-1"></div>
+        <div class="glow-sphere glow-2"></div>
+    </div>
+
+    <!-- Main Card Container -->
+    <div class="portal-container">
+        <div class="glass-card" id="login-card">
+            
+            <div class="portal-header">
+                <div class="logo-wrapper">
+                    <!-- Premium Portal Icon -->
+                    <svg class="logo-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke-linejoin="round" />
+                        <path d="M2 17L12 22L22 17" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M2 12L12 17L22 12" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </div>
+                <h1>Go4Database</h1>
+                <p>AI Automation Agent Portal</p>
+            </div>
+
+            <!-- Error Banner -->
+            <div class="alert-box" id="error-alert">
+                Invalid credentials. Please try again.
+            </div>
+
+            <!-- Login Form -->
+            <form id="portal-form" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="username" class="form-input" placeholder="Enter username" required autofocus autocomplete="username">
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 24px;">
+                    <label for="password">Password</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="password" class="form-input" placeholder="Enter password" required autocomplete="current-password">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit" id="submit-btn">
+                    Access Console
+                </button>
+            </form>
+
+        </div>
+        
+        <div class="portal-footer">
+            Powered by Antigravity &bull; Go4Database &copy; 2026
+        </div>
+    </div>
+
+    <script>
+        // Redirect Configuration Definition
+        const REDIRECT_CONFIG = {
+            // Mode defines where to route the user:
+            // "subdirectory": uses folders on same domain (e.g. go4database.in/AI-email-automation-agent/...)
+            // "subdomain": uses subdomains (e.g. email.go4database.in)
+            mode: "subdomain",
+
+            credentials: {
+                email: { username: "admin", password: "admin123" },
+                blog: { username: "blog", password: "blog123" }
+            },
+
+            subdomains: {
+                email: "https://email.go4database.in",
+                blog: "https://blog.go4database.in"
+            },
+
+            subdirectories: {
+                email: "/AI-email-automation-agent/frontend/index.html",
+                blog: "/AI-blog-agent/frontend/static/index.html"
+            }
+        };
+
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const usernameInput = document.getElementById('username').value.trim();
+            const passwordInput = document.getElementById('password').value;
+            const card = document.getElementById('login-card');
+            const alertBox = document.getElementById('error-alert');
+            const submitBtn = document.getElementById('submit-btn');
+
+            // Hide alert
+            alertBox.style.display = 'none';
+
+            let targetUrl = null;
+
+            // Validate credentials
+            if (usernameInput === REDIRECT_CONFIG.credentials.email.username && 
+                passwordInput === REDIRECT_CONFIG.credentials.email.password) {
+                targetUrl = REDIRECT_CONFIG.mode === "subdomain" 
+                    ? REDIRECT_CONFIG.subdomains.email 
+                    : REDIRECT_CONFIG.subdirectories.email;
+            } else if (usernameInput === REDIRECT_CONFIG.credentials.blog.username && 
+                       passwordInput === REDIRECT_CONFIG.credentials.blog.password) {
+                targetUrl = REDIRECT_CONFIG.mode === "subdomain" 
+                    ? REDIRECT_CONFIG.subdomains.blog 
+                    : REDIRECT_CONFIG.subdirectories.blog;
+            }
+
+            if (targetUrl) {
+                // Success animation & redirect
+                submitBtn.innerText = "Connecting...";
+                submitBtn.disabled = true;
+                card.classList.add('success-fade');
+                
+                setTimeout(() => {
+                    window.location.href = targetUrl;
+                }, 500);
+            } else {
+                // Failure feedback
+                card.classList.add('shake');
+                alertBox.style.display = 'block';
+                
+                // Reset shake after animation completes
+                setTimeout(() => {
+                    card.classList.remove('shake');
+                }, 400);
+            }
+        }
+    </script>
+</body>
+</html>

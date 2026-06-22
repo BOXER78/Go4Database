@@ -353,7 +353,7 @@
             // Mode defines where to route the user:
             // "subdirectory": uses folders on same domain (e.g. go4database.in/AI-email-automation-agent/...)
             // "subdomain": uses subdomains (e.g. email.go4database.in)
-            mode: "subdomain",
+            mode: "subdirectory",
 
             credentials: {
                 email: { username: "admin", password: "admin123" },
@@ -366,8 +366,8 @@
             },
 
             subdirectories: {
-                email: "AI-email-automation-agent/frontend/index.html",
-                blog: "AI-blog-agent/frontend/static/index.html"
+                email: "Go4Database/AI-email-automation-agent/frontend/index.html",
+                blog: "Go4Database/AI-blog-agent/frontend/static/index.html"
             },
 
             // Local development server configurations

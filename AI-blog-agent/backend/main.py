@@ -82,6 +82,22 @@ app.mount("/static", StaticFiles(directory=static_dir), name="static")
 def serve_index():
     return FileResponse(os.path.join(static_dir, "index.html"))
 
+@app.get("/style.css")
+def serve_style():
+    return FileResponse(os.path.join(static_dir, "style.css"))
+
+@app.get("/app.js")
+def serve_js():
+    return FileResponse(os.path.join(static_dir, "app.js"))
+
+@app.get("/generated_blog.docx")
+def serve_docx():
+    return FileResponse(os.path.join(static_dir, "generated_blog.docx"))
+
+@app.get("/generated_blog.html")
+def serve_html():
+    return FileResponse(os.path.join(static_dir, "generated_blog.html"))
+
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8000))
     host = os.getenv("HOST", "127.0.0.1")

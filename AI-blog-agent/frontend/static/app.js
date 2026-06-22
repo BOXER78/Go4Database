@@ -242,7 +242,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Update the DOCX link to avoid caching
         const docxBtn = document.getElementById("download-docx-btn");
         if (docxBtn) {
-            docxBtn.setAttribute("href", `/static/generated_blog.docx?t=${new Date().getTime()}`);
+            docxBtn.setAttribute("href", `generated_blog.docx?t=${new Date().getTime()}`);
         }
 
         // Render code preview

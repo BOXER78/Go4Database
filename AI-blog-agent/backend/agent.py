@@ -23,7 +23,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
 
-def generate_content_with_retry(model, prompt, max_retries=2, initial_delay=13):
+def generate_content_with_retry(model, prompt, max_retries=3, initial_delay=12):
     fallback_models = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-2.5-pro", "gemini-2.5-flash-lite", "gemini-2.0-flash-lite"]
     current_name = model.model_name.replace("models/", "")
     if current_name in fallback_models:
@@ -32,7 +32,6 @@ def generate_content_with_retry(model, prompt, max_retries=2, initial_delay=13):
     
     last_err = None
     for model_name in model_list:
-        delay = initial_delay
         logger.info(f"Attempting generation with model: {model_name}...")
         print(f"[*] Attempting generation with model: {model_name}...")
         for attempt in range(max_retries + 1):
@@ -44,16 +43,25 @@ def generate_content_with_retry(model, prompt, max_retries=2, initial_delay=13):
                 last_err = e
                 # Check for rate limit / quota exhaustion
                 if "429" in err_str or "quota" in err_str.lower() or "exhausted" in err_str.lower() or "resource" in err_str.lower():
-                    # If it's a daily limit (e.g. limit 20 or day limit) or retry limits exceeded, swap model
-                    if "limit: 20" in err_str or "limit: 50" in err_str or "day" in err_str.lower() or attempt == max_retries:
-                        logger.warning(f"Daily quota or retry limit hit for {model_name}. Swapping to fallback model...")
-                        print(f"[*] Daily quota / retry limit hit for {model_name}. Swapping model...")
+                    # If we ran out of retries, swap model
+                    if attempt == max_retries:
+                        logger.warning(f"Retry limit ({max_retries}) hit for {model_name}. Swapping to fallback model...")
+                        print(f"[*] Retry limit ({max_retries}) hit for {model_name}. Swapping model...")
                         break
-                        
-                    logger.warning(f"Gemini API rate limit hit for {model_name}. Retrying in {delay} seconds... (Attempt {attempt+1}/{max_retries})")
-                    print(f"[*] Rate limit hit for {model_name}. Retrying in {delay} seconds...")
-                    time.sleep(delay)
-                    delay += 10
+                    
+                    # Parse dynamic retry delay if provided (e.g. "retry_delay { seconds: 38 }")
+                    sleep_time = initial_delay + (attempt * 10)
+                    match = re.search(r'retry_delay\s*\{\s*seconds:\s*(\d+)\s*\}', err_str)
+                    if match:
+                        sleep_time = int(match.group(1)) + 2 # Add safety buffer
+                    elif "seconds:" in err_str:
+                        sec_match = re.search(r'seconds:\s*(\d+)', err_str)
+                        if sec_match:
+                            sleep_time = int(sec_match.group(1)) + 2
+                            
+                    logger.warning(f"Gemini API rate limit hit for {model_name}. Retrying in {sleep_time} seconds... (Attempt {attempt+1}/{max_retries})")
+                    print(f"[*] Rate limit hit for {model_name}. Retrying in {sleep_time} seconds...")
+                    time.sleep(sleep_time)
                 else:
                     raise e
     if last_err:

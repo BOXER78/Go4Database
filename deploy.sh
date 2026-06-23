@@ -16,7 +16,7 @@ nohup /home/go4database.in/backend/venv/bin/uvicorn \
 main:app \
 --host 127.0.0.1 \
 --port 8080 \
---app-dir backend \
+--app-dir AI-email-automation-agent/backend \
 > /home/go4database.in/logs/app.log 2>&1 &
 
 # 2. Restart the AI Blog Writer Agent (Port 8001)

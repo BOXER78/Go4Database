@@ -520,22 +520,69 @@ class BlogGenerationPipeline:
             expert_outline_inst = "6. Include dedicated locations for blockquotes containing quotes from B2B industry experts."
 
         outline_prompt = f"""
-        You are an elite SEO strategist. Create a comprehensive, extremely detailed blog outline for the topic: "{topic}".
+        You are an elite B2B SaaS SEO strategist. Create a comprehensive, extremely detailed blog outline for the topic: "{topic}".
         Primary Keyword: "{primary_keyword}"
         Target length: {target_word_count} words.
         Search Intent: {intent} (Commercial focus on purchasing/ROI comparison vs Informational focus on guides/tutorials)
         
-        Ensure the outline incorporates these specific requirements:
-        1. A clear structure with H1 -> H2 -> H3 -> H4 headings.
-        2. At least 2 question-based subheadings (H2 or H3) for People Also Ask snippets (using What, Why, How, Which, etc.).
-        3. Location for a Table of Contents (TOC) with jump links.
-        4. Location for a Snippet optimization block (40-60 words definition paragraph in the first 100 words).
-        {case_study_outline_inst}
-        {expert_outline_inst}
-        7. Placement of a comparison table comparing features/benefits vs competitors (to be placed after the first 2 paragraphs).
-        8. A dedicated FAQ section at the end with exactly {faq_count} questions.
-        9. Points where internal links can be contextually inserted.
-        10. Locations for 4 Call-to-Action (CTA) sections pointing to app login.
+        You MUST structure the outline exactly following this layout:
+        
+        # H1: [SEO Guide Title, e.g. "The Ultimate Guide to {primary_keyword.title()} for Business Growth"]
+        
+        ## Meta Title
+        [Target Title tag with {primary_keyword}]
+        
+        ## Meta Description
+        [Target Meta description with {primary_keyword}]
+        
+        ## Primary Keyword
+        {primary_keyword}
+        
+        ## Secondary Keywords
+        [List of related secondary keywords]
+        
+        ## Introduction
+        [A hook-based story about a B2B company that invested in paid advertising but struggled with conversion until implementing a {primary_keyword} strategy. Note: Outline points to write this in short, punchy 1-3 line paragraphs.]
+        
+        ## H2: What Is {primary_keyword.title()} and Why Does It Matter for Businesses?
+        - Definition paragraph (40-60 words containing the primary keyword and indicators like "is a digital marketing strategy" or "refers to").
+        - Explanations of why it matters (direct ownership of audience communication, etc.).
+        - Bullet list: Why it matters (Build stronger relationships, Reduce costs, etc.).
+        - TL;DR paragraph summarizing the section.
+        
+        ## H2: How {primary_keyword.title()} Helps Businesses Generate More Leads and Sales
+        - Paragraph explaining conversion funnel.
+        - Bullets of what B2B companies can send (educational content, customer success, etc.).
+        - Funnel stages (Awareness, Consideration, Decision).
+        
+        ## H2: What Are the Best {primary_keyword.title()} Strategies for Higher Engagement?
+        - 1. Audience Segmentation
+        - 2. Personalised Content
+        - 3. Strong Subject Lines
+        - 4. Clear Call-To-Action
+        - TL;DR paragraph summarizing the section.
+        
+        ## H2: How to Build a Successful {primary_keyword.title()} Campaign Step-by-Step
+        - Step 1: Define Your Goal
+        - Step 2: Understand Your Audience
+        - Step 3: Create Valuable Content
+        - Step 4: Test and Improve
+        
+        ## H2: Bulk {primary_keyword.title()}: How Businesses Reach Thousands of Customers Faster
+        - Discussion of sender reputation, list hygiene.
+        - H3: How to Choose the Right Bulk {primary_keyword.title()} Service?
+          - Key parameters (Deliverability, Automation, Analytics, Scalability).
+          - Comparison Table with columns: Brand | Best For | Advantage (Mailchimp, HubSpot, Brevo, ActiveCampaign).
+        - H3: Cheapest {primary_keyword.title()} Solutions: What Should Businesses Look For?
+        
+        ## H2: Why Businesses Choose Go4Database for {primary_keyword.title()} Campaigns
+        - Discussion of list accuracy, database solutions, and integration with go4database.com.
+        
+        ## H2: FAQ
+        - Exactly {faq_count} FAQs as H3 headings with short, conversational answers under 22 words.
+        
+        ## H2: Conclusion
+        - Summary paragraphs wrapping up the strategy.
         
         Format the outline in Markdown with brief descriptions of each section. The outline must be highly detailed and exhaustive to support writing a very long, high-depth article.
         """
@@ -555,7 +602,7 @@ class BlogGenerationPipeline:
         expert_draft_inst = ""
         if expert_opinion_required == "Yes":
             expert_draft_inst = "- Include at least one or two expert quotes styled inside `<blockquote>` tags (e.g., `<blockquote>\"Quote text\" - Name, Role at Company</blockquote>`). Make the quote sound highly authoritative and human."
-
+ 
         draft_prompt = f"""
         You are {author['name']} ({author['title']}). 
         Bio: {author['description']}
@@ -569,26 +616,26 @@ class BlogGenerationPipeline:
         Topic: "{topic}"
         Primary Keyword: "{primary_keyword}"
         Target length: {target_word_count} words.
-        Search Intent: {intent} (Focus on buyer intent/transactional comparisons/ROI if Commercial; focus on definitions/tutorials/explanations if Informational)
+        Search Intent: {intent}
         
         SOP Benchmarks you MUST follow:
         1. Write the blog in HTML format (using <h1>, <h2>, <h3>, <h4>, <p>, <ul>, <ol>, <li>, <strong>, <table>, <thead>, <tbody>, <tr>, <th>, <td>, <a>, <img>).
-        2. First 100 words MUST contain a snippet-definition style paragraph (40-60 words) that clearly defines the topic using terms like 'refers to', 'is a', or 'is the process of'.
-        3. Create a Table of Contents (TOC) after the definition paragraph. The TOC must consist of jump links (e.g. `<a href="#heading-id">Section Title</a>`) linking to matching `id` attributes on the H2 and H3 tags.
-        4. Insert a comparison table (comparing benefits/features vs competitors) directly after the second paragraph.
-        5. Integrate at least 8 external authority outbound links (to sites like HubSpot, Statista, Campaign Monitor, W3C) with natural anchors (e.g. `<a href="https://example.com" target="_blank" rel="noopener">authority link text</a>`).
-        6. Include exactly 4 Call-to-Action (CTA) blocks distributed throughout the article. Each CTA must be value-driven and use this exact URL:
-           `https://app.go4database.com/login?utm_source=BlogPage&utm_medium=Internal&utm_campaign=app_login`
-        7. Place a banner image at the top (directly under the H1) using this HTML code exactly: 
+        2. First 100 words of the body (after H1 and before first H2) MUST be a hook-based introduction. It should start with a B2B company story ("I spoke with a B2B company...") written in very short paragraphs (1-3 lines max per paragraph) to build reader interest.
+        3. Under the H2 "What Is {primary_keyword.title()} and Why Does It Matter for Businesses?", you MUST write a definition paragraph (40-60 words) that clearly defines the topic using terms like 'refers to', 'is a', or 'is the process of'.
+        4. Place a banner image at the top (directly under the H1) using this HTML code exactly: 
            `<img src="https://images.unsplash.com/photo-1557200134-90327ee9fafa" alt="{primary_keyword} for go4database.com blog" class="blog-banner">`
-        8. Conclude with a 'TL;DR' summary block that explicitly contains the phrase 'TL;DR' and mentions the brand name 'go4database.com' (e.g., 'TL;DR: go4database.com provides clean email lists...').
+        5. Create a Table of Contents (TOC) with jump links (e.g. `<a href="#heading-id">Section Title</a>`) linking to matching `id` attributes on the H2 and H3 tags. Place it directly under the introduction or first H2 definition.
+        6. Under the H3 "How to Choose the Right Bulk {primary_keyword.title()} Service?", insert a comparison table comparing features/benefits vs competitors (e.g. columns: Brand | Best For | Advantage; rows: Mailchimp, HubSpot, Brevo, ActiveCampaign).
+        7. Integrate at least 8 external authority outbound links (to sites like HubSpot, Statista, Campaign Monitor, W3C) with natural anchors (e.g. `<a href="https://example.com" target="_blank" rel="noopener">authority link text</a>`).
+        8. For each H2/H3 section where specified in the outline, end with a 'TL;DR' summary block that explicitly contains the phrase 'TL;DR' and summarizes that section.
         9. Place exactly {faq_count} FAQs at the end. The questions must end with a question mark. Each answer MUST be conversational and strictly under 22 words.
         10. Bold key terms and keywords naturally using `<strong>`.
         
         CRITICAL CONTENT DEPTH, TONE & STRUCTURE RULES:
         - The content must be highly detailed, exhaustive, and cover every aspect of the outline in rich depth (write at least 1500 to 2200 words). Do not summarize or gloss over technical nuances.
-        - Write EXCLUSIVELY in the ACTIVE VOICE. Do not use passive voice patterns like "is optimized by", "are parsed by", "be achieved", or "was selected". Instead, use active verbs: "teams optimize", "the server parses", "succeed", or "we selected".
+        - Write EXCLUSIVELY in the ACTIVE VOICE. Do not use passive voice patterns. Instead, use active verbs.
         - Vary your sentence lengths significantly: mix short, punchy sentences (3-6 words) with longer, descriptive sentences (20-30 words) to create natural flow.
+        - Write in short paragraphs (mostly 1 to 3 lines) to match the highly readable user format.
         {case_study_draft_inst}
         {expert_draft_inst}
         
@@ -935,49 +982,56 @@ def post_process_blog_html_and_metadata(html, metadata, primary_keyword, interna
     
     insert_html(faq_header.parent, faq_header.parent.index(faq_header) + 1, faq_items_html)
 
-    # 4. Safeguard definition paragraph (first <p>) dynamically
+    # 4. Safeguard definition paragraph dynamically (ensure it exists in first 5 paragraphs)
     paragraphs = soup.find_all("p")
-    first_p = paragraphs[0] if paragraphs else None
     target_cta_url = "https://app.go4database.com/login?utm_source=BlogPage&utm_medium=Internal&utm_campaign=app_login"
-    if first_p:
-        img = first_p.find("img")
-        if img:
-            img_extracted = img.extract()
-            first_p.insert_after(img_extracted)
+    
+    def_p = None
+    for p in paragraphs[:5]:
+        p_text = p.get_text().strip()
+        w_cnt = len(p_text.split())
+        is_def = any(indicator in p_text.lower() for indicator in ["is a", "refers to", "defined as", "is the process of", "means", "is a digital marketing", "is a digital strategy"])
+        has_kw = primary_keyword.lower() in p_text.lower()
+        if is_def and 30 <= w_cnt <= 65 and has_kw:
+            def_p = p
+            break
             
-        p_text = first_p.get_text().strip()
+    if not def_p:
+        first_h2 = soup.find("h2")
+        if first_h2:
+            sibling = first_h2.find_next_sibling()
+            while sibling and sibling.name != "p":
+                sibling = sibling.find_next_sibling()
+            if sibling and sibling.name == "p":
+                def_p = sibling
+            else:
+                def_p = soup.new_tag("p")
+                first_h2.insert_after(def_p)
+        else:
+            def_p = paragraphs[0] if paragraphs else None
+            
+    if def_p:
+        p_text = def_p.get_text().strip()
         word_count = len(p_text.split())
-        is_definition = any(indicator in p_text.lower() for indicator in ["is a", "refers to", "defined as", "is the process of", "means"])
+        is_definition = any(indicator in p_text.lower() for indicator in ["is a", "refers to", "defined as", "is the process of", "means", "is a digital marketing", "is a digital strategy"])
         has_kw = primary_keyword.lower() in p_text.lower()
         
-        if not (40 <= word_count <= 65 and is_definition and has_kw):
+        if not (30 <= word_count <= 65 and is_definition and has_kw):
             topic_clean = topic.replace("?", "").strip()
             def_content = (
-                f"<strong>{primary_keyword.title()}</strong> refers to the critical framework of metrics and "
-                f"strategies used to plan, execute, and analyze successful marketing outreach campaigns. "
-                f"By analyzing {primary_keyword.lower()} in the context of {topic_clean.lower()}, businesses "
-                f"can evaluate subscriber engagement, refine targeting precision, and drive higher campaign ROI "
-                f"using premium B2B contact lists from go4database.com."
+                f"<strong>{primary_keyword.title()}</strong> is a digital marketing strategy that allows "
+                f"businesses to communicate directly with prospects and customers through targeted email campaigns. "
+                f"By executing {primary_keyword.lower()} campaigns in the context of {topic_clean.lower()}, companies "
+                f"can build direct customer relationships, nurture leads, increase conversions, and optimize "
+                f"B2B revenue using premium contact databases from go4database.com."
             )
-            replace_with_html(first_p, def_content)
-            
-        # Clean any existing snippet summary box to prevent duplicates
+            replace_with_html(def_p, def_content)
+
+        # Decompose any old featured summary boxes
         for div in soup.find_all("div"):
             style_str = div.get("style", "")
             if "snippet-summary-box" in div.get("class", []) or "border-left: 4px solid #0b57d0" in style_str:
                 div.decompose()
-                
-        snippet_summary_html = (
-            f'<div class="snippet-summary-box" style="background: #f8f9fa; border-left: 4px solid #0b57d0; padding: 15px; margin: 20px 0; border-radius: 0 8px 8px 0; font-family: Arial, sans-serif;">'
-            f'<strong style="color: #0b57d0; font-size: 16px; display: block; margin-bottom: 8px;">Quick Campaign Takeaways (Featured Snippet Summary)</strong>'
-            f'<ul style="margin: 0; padding-left: 20px; font-size: 14px; color: #333; line-height: 1.5;">'
-            f'<li>Analyze campaigns against verified sector benchmarks to identify deliverability gaps.</li>'
-            f'<li>Enhance inbox placement and bounce reduction via continuous email list validation.</li>'
-            f'<li>Utilize premium B2B target databases from <a href="{target_cta_url}">go4database.com</a> to capture high-intent qualified leads.</li>'
-            f'</ul>'
-            f'</div>'
-        )
-        insert_html(first_p.parent, first_p.parent.index(first_p) + 1, snippet_summary_html)
 
     paragraphs = soup.find_all("p")
 
@@ -1110,14 +1164,14 @@ def post_process_blog_html_and_metadata(html, metadata, primary_keyword, interna
             ref_html = f" For further reading, consult the <a href=\"{auth_url}\" target=\"_blank\" rel=\"noopener\">{auth_text}</a>."
             append_html(p, ref_html)
 
-    # 10. Safeguard CTAs (exactly 4 styled button blocks with title, text, and button url)
+    # 10. Safeguard CTAs (exactly 4 styled button blocks with title, text, and button url grouped at the end)
     target_cta_url = "https://app.go4database.com/login?utm_source=BlogPage&utm_medium=Internal&utm_campaign=app_login"
     
     # Decompose any existing CTA links or container boxes to avoid duplicates
     all_links = soup.find_all("a", href=True)
     for l in all_links:
         if l.get("href") == target_cta_url:
-            parent_div = l.find_parent("div", style=lambda s: s and ("cta-container" in s or "text-align: center" in s))
+            parent_div = l.find_parent("div", style=lambda s: s and ("cta-container" in s or "text-align: center" in s or "cta-card" in s or "ctas-grid" in s))
             if parent_div:
                 parent_div.decompose()
             else:
@@ -1125,51 +1179,36 @@ def post_process_blog_html_and_metadata(html, metadata, primary_keyword, interna
 
     def make_cta_block(index):
         cta_titles = [
-            "Ready to Optimize Campaign Deliverability?",
-            "Start Sourcing Verified B2B Leads Today",
-            "Lower Bounce Rates and Maximize ROI",
-            "Accelerate Your Sales Pipeline Now"
+            "Build a Targeted Prospect Database",
+            "Improve Your Email Campaign ROI",
+            "Generate More Qualified Leads",
+            "Scale Your Email Marketing Strategy"
         ]
-        cta_texts = [
-            "Cleanse your contact lists and connect with premium prospects instantly.",
-            "Gain access to verified databases curated for high conversion rates.",
-            "Verify B2B contacts with go4database.com's industry-leading lookup tool.",
-            "Access database segments mapped directly to decision-maker accounts."
+        cta_val_props = [
+            "Reach the right business decision-makers with accurate data and improve your email campaign efficiency.",
+            "Create personalized campaigns using reliable audience insights to increase engagement and sales opportunities.",
+            "Build a stronger sales pipeline with targeted B2B data designed for effective email outreach.",
+            "Support business growth with accurate contact data and scalable outreach solutions."
         ]
         cta_button_texts = [
-            "Get Started with go4database.com",
-            "Access Verified B2B Database",
-            "Start Free Database Audit",
-            "Sign Up for go4database.com"
+            "Get Targeted Business Data",
+            "Improve Campaign Performance",
+            "Explore Lead Generation Solutions",
+            "Start Growing Your Outreach"
         ]
         title = cta_titles[index % len(cta_titles)]
-        text = cta_texts[index % len(cta_texts)]
+        val_prop = cta_val_props[index % len(cta_val_props)]
         btn_text = cta_button_texts[index % len(cta_button_texts)]
         
         return (
-            f'<div class="cta-container" style="text-align: center; margin: 30px auto; padding: 20px; background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; max-width: 600px;">'
-            f'<h4 style="margin: 0 0 10px 0; color: #1a1f36; font-family: Arial, sans-serif; font-size: 18px; font-weight: bold;">{title}</h4>'
-            f'<p style="margin: 0 0 15px 0; font-size: 14px; color: #4f566b; font-family: Arial, sans-serif;">{text}</p>'
-            f'<a href="{target_cta_url}" class="cta-button" style="display: inline-block; background: #0b57d0; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold; font-family: Arial, sans-serif; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">'
+            f'<div class="cta-card" style="background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 12px; padding: 20px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">'
+            f'<h3 style="margin: 0 0 10px 0; color: #1a1f36; font-family: Arial, sans-serif; font-size: 16px; font-weight: bold;">{title}</h3>'
+            f'<p style="margin: 0 0 15px 0; font-size: 13px; color: #4f566b; font-family: Arial, sans-serif; line-height: 1.5; flex-grow: 1;">{val_prop}</p>'
+            f'<a href="{target_cta_url}" class="cta-button" style="display: inline-block; background: #0b57d0; color: #ffffff; padding: 10px 18px; border-radius: 6px; text-decoration: none; font-weight: bold; font-family: Arial, sans-serif; font-size: 13px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: background 0.2s;">'
             f'{btn_text}'
             f'</a>'
             f'</div>'
         )
-
-    # Distribute 4 CTAs evenly among body paragraphs
-    body_paras = [p for p in soup.find_all("p") if not is_faq_p(p) and "tl;dr" not in p.get_text().lower() and "snippet-summary-box" not in p.get_text().lower()]
-    
-    if len(body_paras) >= 4:
-        interval = len(body_paras) // 4
-        for idx in range(4):
-            insert_idx = min((idx + 1) * interval - 1, len(body_paras) - 1)
-            target_para = body_paras[insert_idx]
-            cta_html = make_cta_block(idx)
-            insert_html(target_para.parent, target_para.parent.index(target_para) + 1, cta_html)
-    else:
-        for idx in range(4):
-            cta_html = make_cta_block(idx)
-            append_html(soup, cta_html)
 
     # 11. Safeguard TL;DR Section dynamically
     tldr_exists = False
@@ -1201,7 +1240,6 @@ def post_process_blog_html_and_metadata(html, metadata, primary_keyword, interna
         p_text = p.get_text().strip()
         words = p_text.split()
         if len(words) > 70 and "tl;dr" not in p_text.lower():
-            # Choose a context-specific B2B/marketing takeaway based on paragraph content
             takeaway = "Sourcing clean contact data maximizes campaign performance."
             p_text_lower = p_text.lower()
             if "deliver" in p_text_lower or "bounce" in p_text_lower or "spam" in p_text_lower:
@@ -1260,6 +1298,20 @@ def post_process_blog_html_and_metadata(html, metadata, primary_keyword, interna
                 if std_dev >= 12.0:
                     break
             pass_count += 1
+
+    # Group the 4 CTA cards at the very end of the content
+    ctas_html = (
+        f'<h2 id="ctas-value-propositions" style="margin-top: 35px; border-bottom: 2px solid #e9ecef; padding-bottom: 8px;">4 Strong CTA With Value Proposition</h2>'
+        f'<div class="ctas-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin: 25px 0;">'
+    )
+    for idx in range(4):
+        ctas_html += make_cta_block(idx)
+    ctas_html += '</div>'
+    
+    if soup.body:
+        append_html(soup.body, ctas_html)
+    else:
+        append_html(soup, ctas_html)
 
     # 13. Insert Top Link Container
     open_link_html = (

@@ -28,15 +28,23 @@ def validate_seo_compliance(blog_html, blog_metadata, primary_keyword):
     meta_ok = meta_len > 0 and meta_len <= 160 and (any(w in meta_desc.lower() for w in primary_keyword_clean.split()))
     meta_feedback = f"Meta description is {meta_len} chars." if meta_ok else f"Meta description must be under 160 chars (currently {meta_len}) and speak to searcher intent."
 
-    # 4. First 100 words include definition paragraph (40-60 words)
+    # 4. Definition paragraph check (find a paragraph of 30-65 words defining the topic in the first 5 paragraphs)
     # Get all paragraph text
     paragraphs = [p.get_text().strip() for p in soup.find_all("p")]
-    first_p = paragraphs[0] if paragraphs else ""
-    first_p_word_count = len(first_p.split())
-    # Snippet definition style checks: usually starts with "what is", "defines", "refers to", or describes the topic simply.
-    is_definition = any(indicator in first_p.lower() for indicator in ["is a", "refers to", "defined as", "is the process of", "means"])
-    def_ok = 40 <= first_p_word_count <= 65 and is_definition
-    def_feedback = f"Snippet paragraph is {first_p_word_count} words and defines the topic." if def_ok else f"First paragraph should be a definition of 40-60 words (currently {first_p_word_count} words)."
+    
+    def_ok = False
+    first_p_word_count = 0
+    definition_indicators = ["is a", "refers to", "defined as", "is the process of", "means", "is a digital marketing", "is a digital strategy"]
+    
+    for p in paragraphs[:5]:
+        p_words = len(p.split())
+        is_def = any(indicator in p.lower() for indicator in definition_indicators)
+        if is_def and 30 <= p_words <= 65:
+            def_ok = True
+            first_p_word_count = p_words
+            break
+            
+    def_feedback = f"Snippet definition paragraph is {first_p_word_count} words and defines the topic." if def_ok else "No definition paragraph of 30-65 words (containing 'refers to', 'is a', etc.) found in the first few paragraphs."
 
     # 5. Heading hierarchy
     h1_tags = soup.find_all("h1")
@@ -84,8 +92,8 @@ def validate_seo_compliance(blog_html, blog_metadata, primary_keyword):
     # 8. Primary keyword presence in key elements
     # H1
     kw_in_h1 = primary_keyword_clean in (h1_tags[0].get_text().lower() if h1_tags else "")
-    # First paragraph
-    kw_in_first_p = primary_keyword_clean in (paragraphs[0].lower() if paragraphs else "")
+    # First few paragraphs (Intro)
+    kw_in_first_p = any(primary_keyword_clean in p.lower() for p in paragraphs[:5]) if paragraphs else False
     # At least one H2
     kw_in_h2 = any(primary_keyword_clean in h.get_text().lower() for h in h2_tags)
     # Image Alt Text

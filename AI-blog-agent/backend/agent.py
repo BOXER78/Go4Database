@@ -17,11 +17,57 @@ import io
 
 logger = logging.getLogger(__name__)
 
-# Load config
+# Load config from multiple potential locations
 load_dotenv()
+base_dir = os.path.dirname(os.path.abspath(__file__))
+# Check backend/
+load_dotenv(os.path.join(base_dir, ".env"))
+# Check AI-email-automation-agent/backend/.env
+load_dotenv(os.path.join(base_dir, "..", "..", "AI-email-automation-agent", "backend", ".env"))
+# Check root .env
+load_dotenv(os.path.join(base_dir, "..", "..", ".env"))
+
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
+
+def generate_content_openai(prompt, model_name="gpt-4o"):
+    api_key = os.getenv("OPENAI_API_KEY", "")
+    if not api_key:
+        raise ValueError("OPENAI_API_KEY is not configured in your environment or .env file.")
+    
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    data = {
+        "model": model_name,
+        "messages": [
+            {"role": "system", "content": "You are an elite B2B SaaS SEO content writer. Always output clean, valid, professional content without markdown wrappers (like ```html)."},
+            {"role": "user", "content": prompt}
+        ],
+        "temperature": 0.7
+    }
+    
+    logger.info(f"Sending request to OpenAI using model {model_name}...")
+    print(f"[*] Sending request to OpenAI using model {model_name}...")
+    
+    try:
+        response = requests.post(
+            "https://api.openai.com/v1/chat/completions",
+            headers=headers,
+            json=data,
+            timeout=120
+        )
+        if response.status_code != 200:
+            raise Exception(f"OpenAI API error ({response.status_code}): {response.text}")
+            
+        res_json = response.json()
+        return res_json["choices"][0]["message"]["content"]
+    except Exception as e:
+        logger.error(f"OpenAI request failed: {e}")
+        raise e
+
 
 def generate_content_with_retry(model, prompt, max_retries=3, initial_delay=12):
     fallback_models = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-2.5-pro", "gemini-2.5-flash-lite", "gemini-2.0-flash-lite"]
@@ -494,6 +540,38 @@ class BlogGenerationPipeline:
             genai.configure(api_key=self.api_key)
         self.model_name = "gemini-2.5-flash"
         
+    def generate_content(self, prompt):
+        # Auto-detect LLM provider
+        provider = os.getenv("LLM_PROVIDER", "").lower()
+        if not provider:
+            if os.getenv("OPENAI_API_KEY"):
+                provider = "openai"
+            else:
+                provider = "gemini"
+                
+        if provider == "openai":
+            # Map Gemini model names to OpenAI equivalents
+            openai_model = os.getenv("OPENAI_MODEL", "")
+            if not openai_model:
+                if "pro" in self.model_name:
+                    openai_model = "gpt-4o"
+                else:
+                    openai_model = "gpt-4o-mini"
+                    
+            content = generate_content_openai(prompt, openai_model)
+            
+            class MockResponse:
+                def __init__(self, text):
+                    self.text = text
+            return MockResponse(content)
+        else:
+            # Check Gemini API Key
+            if not self.api_key:
+                raise ValueError("Gemini API key is not configured. Please check your .env file or define OPENAI_API_KEY.")
+            model = genai.GenerativeModel(self.model_name)
+            response, self.model_name = generate_content_with_retry(model, prompt)
+            return response
+
     def generate_blog(self, topic, primary_keyword, author_key="samantha_bansil", target_word_count=2000, custom_guidelines="", progress_callback=None, intent="Informational", faq_count=4, case_study_required="No", expert_opinion_required="No"):
         """
         Executes the multi-stage blog generation and refinement pipeline.
@@ -504,8 +582,17 @@ class BlogGenerationPipeline:
         4. Humanize writing & reduce AI score (tone correction pass).
         5. SEO verification & targeted edits.
         """
-        if not self.api_key:
+        provider = os.getenv("LLM_PROVIDER", "").lower()
+        if not provider:
+            if os.getenv("OPENAI_API_KEY"):
+                provider = "openai"
+            else:
+                provider = "gemini"
+
+        if provider == "gemini" and not self.api_key:
             raise ValueError("Gemini API key is not configured. Please check your .env file.")
+        elif provider == "openai" and not os.getenv("OPENAI_API_KEY"):
+            raise ValueError("OpenAI API key is not configured. Please define OPENAI_API_KEY in your .env file.")
             
         author = AUTHOR_PERSONAS.get(author_key, AUTHOR_PERSONAS["samantha_bansil"])
         
@@ -595,8 +682,7 @@ class BlogGenerationPipeline:
         Format the outline in Markdown with brief descriptions of each section. The outline must be highly detailed and exhaustive to support writing a very long, high-depth article.
         """
         
-        model = genai.GenerativeModel(self.model_name)
-        outline_response, self.model_name = generate_content_with_retry(model, outline_prompt)
+        outline_response = self.generate_content(outline_prompt)
         outline = outline_response.text
         
         # --- Stage 3: Initial Draft ---
@@ -650,8 +736,7 @@ class BlogGenerationPipeline:
         Ensure your content sounds like a human wrote it—using your unique persona. Do NOT output markdown code blocks wrapper, output raw HTML directly.
         """
         
-        model = genai.GenerativeModel(self.model_name)
-        draft_response, self.model_name = generate_content_with_retry(model, draft_prompt)
+        draft_response = self.generate_content(draft_prompt)
         draft_content = draft_response.text
         # Clean potential markdown wraps if Gemini wraps in ```html
         draft_content = clean_html_wrappers(draft_content)
@@ -690,8 +775,7 @@ class BlogGenerationPipeline:
         Output only the updated raw HTML code. Do NOT wrap in markdown code blocks.
         """
         
-        model = genai.GenerativeModel(self.model_name)
-        humanize_response, self.model_name = generate_content_with_retry(model, humanize_prompt)
+        humanize_response = self.generate_content(humanize_prompt)
         humanized_content = clean_html_wrappers(humanize_response.text)
         
         # --- Stage 5: Final Check & Corrections ---
@@ -708,8 +792,7 @@ class BlogGenerationPipeline:
         }}
         """
         import json
-        model = genai.GenerativeModel(self.model_name)
-        meta_response, self.model_name = generate_content_with_retry(model, meta_prompt)
+        meta_response = self.generate_content(meta_prompt)
         try:
             # Try parsing metadata json
             meta_text = re.search(r'\{.*\}', meta_response.text, re.DOTALL)
@@ -758,8 +841,7 @@ class BlogGenerationPipeline:
             
             Output the corrected raw HTML code. Do NOT wrap in markdown block.
             """
-            model = genai.GenerativeModel(self.model_name)
-            patch_response, self.model_name = generate_content_with_retry(model, patch_prompt)
+            patch_response = self.generate_content(patch_prompt)
             humanized_content = clean_html_wrappers(patch_response.text)
             
             # Re-evaluate

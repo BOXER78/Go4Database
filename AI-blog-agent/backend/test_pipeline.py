@@ -11,11 +11,11 @@ from backend.sitemap_parser import fetch_sitemap_urls, get_contextual_internal_l
 def main():
     print("--- Loading Environment Config ---")
     load_dotenv()
-    api_key = os.getenv("GEMINI_API_KEY")
+    api_key = os.getenv("GEMINI_API_KEY") or os.getenv("OPENAI_API_KEY")
     if not api_key:
-        print("Error: GEMINI_API_KEY not found in .env")
+        print("Error: Neither GEMINI_API_KEY nor OPENAI_API_KEY found in .env")
         sys.exit(1)
-    print("Gemini API Key: Found")
+    print("API Key Found")
 
     print("\n--- Testing Sitemap Parser ---")
     sitemap_urls = fetch_sitemap_urls()

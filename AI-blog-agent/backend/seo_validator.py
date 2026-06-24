@@ -2,7 +2,7 @@ import re
 import math
 from bs4 import BeautifulSoup
 
-def validate_seo_compliance(blog_html, blog_metadata, primary_keyword):
+def validate_seo_compliance(blog_html, blog_metadata, primary_keyword, secondary_keywords=""):
     """
     Validates a generated blog HTML against the On-Page Blog Submission SOP benchmark.
     Returns a dictionary of check results, score, and constructive feedback.
@@ -240,6 +240,20 @@ def validate_seo_compliance(blog_html, blog_metadata, primary_keyword):
     ai_ok = ai_score < 20.0
     ai_feedback = f"Estimated AI Score is {ai_score:.1f}% (Checks passed)." if ai_ok else f"Estimated AI Score is {ai_score:.1f}% (Needs humanization. Buzzword density: {ai_analysis['buzzword_count']} words, sentence variation score: {ai_analysis['variance']:.1f})."
 
+    # 18. Secondary Keywords Check
+    secondary_ok = True
+    missing_secondaries = []
+    secondary_list = [k.strip().lower() for k in secondary_keywords.split(",") if k.strip()]
+    if secondary_list:
+        blog_html_lower = blog_html.lower()
+        for kw in secondary_list:
+            if kw not in blog_html_lower:
+                secondary_ok = False
+                missing_secondaries.append(kw)
+        secondary_feedback = f"All {len(secondary_list)} secondary keywords are present in the blog." if secondary_ok else f"Missing secondary keywords: {', '.join(missing_secondaries)}."
+    else:
+        secondary_feedback = "No secondary keywords specified for validation."
+
     # Compute overall score (percentage of checks passed)
     checks = {
         "url_slug": (url_ok, url_feedback),
@@ -259,7 +273,8 @@ def validate_seo_compliance(blog_html, blog_metadata, primary_keyword):
         "external_links": (external_ok, external_feedback),
         "cta_count": (cta_ok, cta_feedback),
         "banner_image": (banner_ok, banner_feedback),
-        "ai_score_check": (ai_ok, ai_feedback)
+        "ai_score_check": (ai_ok, ai_feedback),
+        "secondary_keywords_check": (secondary_ok, secondary_feedback)
     }
     
     passed_count = sum(1 for name, status in checks.items() if status[0])

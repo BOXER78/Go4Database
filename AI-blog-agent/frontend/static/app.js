@@ -118,6 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
         
         const topic = document.getElementById("topic").value;
         const primaryKeyword = document.getElementById("primary_keyword").value;
+        const secondaryKeywords = document.getElementById("secondary_keywords").value;
         const targetWordCount = parseInt(document.getElementById("target_word_count").value) || 1200;
         const customGuidelines = document.getElementById("custom_guidelines").value;
         const intent = document.getElementById("intent").value;
@@ -188,6 +189,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 body: JSON.stringify({
                     topic,
                     primary_keyword: primaryKeyword,
+                    secondary_keywords: secondaryKeywords,
                     author: selectedAuthorKey,
                     target_word_count: targetWordCount,
                     custom_guidelines: customGuidelines,
@@ -323,7 +325,8 @@ document.addEventListener("DOMContentLoaded", () => {
             "external_links": "Min 8 Authority outbound links",
             "cta_count": "Exactly 4 B2B CTA links",
             "banner_image": "Banner image with Alt text",
-            "ai_score_check": "Humanized tone AI score check"
+            "ai_score_check": "Humanized tone AI score check",
+            "secondary_keywords_check": "Secondary Keywords inclusion"
         };
 
         Object.keys(report.checks).forEach(key => {

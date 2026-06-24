@@ -15,6 +15,7 @@ app = FastAPI(title="AI Blog Writer Agent", description="SEO Blog writer for go4
 class GenerateRequest(BaseModel):
     topic: str
     primary_keyword: str
+    secondary_keywords: Optional[str] = ""
     author: str  # samantha_bansil, chad_white, kath_pay, jordie_van_rijn, val_geisler
     target_word_count: Optional[int] = 2000
     custom_guidelines: Optional[str] = ""
@@ -70,7 +71,8 @@ def generate_blog(payload: GenerateRequest):
             intent=payload.intent,
             faq_count=payload.faq_count,
             case_study_required=payload.case_study_required,
-            expert_opinion_required=payload.expert_opinion_required
+            expert_opinion_required=payload.expert_opinion_required,
+            secondary_keywords=payload.secondary_keywords
         )
         return result
     except Exception as e:

@@ -572,7 +572,7 @@ class BlogGenerationPipeline:
             response, self.model_name = generate_content_with_retry(model, prompt)
             return response
 
-    def generate_blog(self, topic, primary_keyword, author_key="samantha_bansil", target_word_count=2000, custom_guidelines="", progress_callback=None, intent="Informational", faq_count=4, case_study_required="No", expert_opinion_required="No"):
+    def generate_blog(self, topic, primary_keyword, author_key="samantha_bansil", target_word_count=2000, custom_guidelines="", progress_callback=None, intent="Informational", faq_count=4, case_study_required="No", expert_opinion_required="No", secondary_keywords=""):
         """
         Executes the multi-stage blog generation and refinement pipeline.
         Stages:
@@ -617,8 +617,11 @@ class BlogGenerationPipeline:
         outline_prompt = f"""
         You are an elite B2B SaaS SEO strategist. Create a comprehensive, extremely detailed blog outline for the topic: "{topic}".
         Primary Keyword: "{primary_keyword}"
+        Secondary Keywords to integrate: "{secondary_keywords}"
         Target length: {target_word_count} words.
         Search Intent: {intent} (Commercial focus on purchasing/ROI comparison vs Informational focus on guides/tutorials)
+        
+        You MUST integrate all the provided secondary keywords: "{secondary_keywords}" naturally throughout the blog outline structure.
         
         You MUST structure the outline exactly following this layout:
         
@@ -634,7 +637,7 @@ class BlogGenerationPipeline:
         {primary_keyword}
         
         ## Secondary Keywords
-        [List of related secondary keywords]
+        {secondary_keywords if secondary_keywords else "[List of related secondary keywords]"}
         
         ## Introduction
         [A hook-based story about a B2B company that invested in paid advertising but struggled with conversion until implementing a {primary_keyword} strategy. Note: Outline points to write this in short, punchy 1-3 line paragraphs.]
@@ -709,10 +712,12 @@ class BlogGenerationPipeline:
         
         Topic: "{topic}"
         Primary Keyword: "{primary_keyword}"
+        Secondary Keywords (YOU MUST NATURALLY INTEGRATE ALL OF THEM): "{secondary_keywords}"
         Target length: {target_word_count} words.
         Search Intent: {intent}
         
         SOP Benchmarks you MUST follow:
+        - You MUST naturally integrate all of the secondary keywords: "{secondary_keywords}" into the article body text.
         1. Write the blog in HTML format (using <h1>, <h2>, <h3>, <h4>, <p>, <ul>, <ol>, <li>, <strong>, <table>, <thead>, <tbody>, <tr>, <th>, <td>, <a>, <img>).
         2. First 100 words of the body (after H1 and before first H2) MUST be a hook-based introduction. It should start with a B2B company story ("I spoke with a B2B company...") written in very short paragraphs (1-3 lines max per paragraph) to build reader interest.
         3. Under the H2 "What Is {primary_keyword.title()} and Why Does It Matter for Businesses?", you MUST write a definition paragraph (40-60 words) that clearly defines the topic using terms like 'refers to', 'is a', or 'is the process of'.
@@ -758,6 +763,7 @@ class BlogGenerationPipeline:
         ---
         
         CRITICAL INSTRUCTIONS for Refinement:
+        - Ensure that all secondary keywords: "{secondary_keywords}" are kept intact and integrated naturally in the final output.
         1. Sentence Length Variance (Burstiness): Mix short, punchy sentences (3-5 words) with longer, descriptive sentences. Avoid uniform sentence lengths. Use sentence fragments (e.g., "Think about it.", "Why?", "Because it works.") to break the robotic flow.
         2. Strict Buzzword Ban: Completely eliminate and replace all overused AI vocabulary and transitional phrases:
            - No 'delve', 'tapestry', 'moreover', 'furthermore', 'in conclusion', 'testament', 'it is important to note', 'beacon', 'realm', 'treasure trove'.
@@ -814,7 +820,7 @@ class BlogGenerationPipeline:
             }
             
         # Validate HTML
-        report = validate_seo_compliance(humanized_content, metadata, primary_keyword)
+        report = validate_seo_compliance(humanized_content, metadata, primary_keyword, secondary_keywords)
         
         # If score is lower than 85%, run a targeted patch phase
         if report["score_percentage"] < 85:
@@ -837,6 +843,7 @@ class BlogGenerationPipeline:
             - Ensure at least 8 external authority outbound links.
             - Ensure TL;DR explicitly mentions the brand name "go4database.com".
             - Ensure exactly {faq_count} FAQs answers are conversational and strictly under 25 words.
+            - Ensure all secondary keywords are present in the text: "{secondary_keywords}".
             - Keep the language human-like and conversational.
             
             Output the corrected raw HTML code. Do NOT wrap in markdown block.
@@ -845,14 +852,14 @@ class BlogGenerationPipeline:
             humanized_content = clean_html_wrappers(patch_response.text)
             
             # Re-evaluate
-            report = validate_seo_compliance(humanized_content, metadata, primary_keyword)
+            report = validate_seo_compliance(humanized_content, metadata, primary_keyword, secondary_keywords)
             
         # Post-process to guarantee compliance
         humanized_content, metadata = post_process_blog_html_and_metadata(
             humanized_content, metadata, primary_keyword, internal_links, topic,
             intent=intent, faq_count=faq_count, case_study_required=case_study_required, expert_opinion_required=expert_opinion_required
         )
-        report = validate_seo_compliance(humanized_content, metadata, primary_keyword)
+        report = validate_seo_compliance(humanized_content, metadata, primary_keyword, secondary_keywords)
         
         # Save HTML and DOCX to static directory so they are served
         static_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "frontend", "static"))

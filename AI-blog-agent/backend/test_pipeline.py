@@ -48,7 +48,8 @@ def main():
             intent="Commercial",
             faq_count=5,
             case_study_required="Yes",
-            expert_opinion_required="Yes"
+            expert_opinion_required="Yes",
+            secondary_keywords="hospitality leads, B2B contact lists, CRM enrichment"
         )
         
         print("\n--- Generation Success! ---")

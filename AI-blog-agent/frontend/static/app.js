@@ -181,7 +181,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 300);
 
         try {
-            const response = await fetch(getApiUrl("generate"), {
+            const startResponse = await fetch(getApiUrl("generate"), {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -200,26 +200,70 @@ document.addEventListener("DOMContentLoaded", () => {
                 })
             });
 
-            if (!response.ok) {
-                throw new Error("Generation pipeline failed. Please check backend logs.");
+            if (!startResponse.ok) {
+                throw new Error("Failed to start generation pipeline. Please check backend logs.");
             }
 
-            const data = await response.json();
-            generatedData = data;
-            
-            // Finish progress
-            clearInterval(progressTimer);
-            progressBar.style.width = "100%";
-            progressPercentage.innerText = "100%";
-            progressStatusText.innerText = "Completed successfully!";
-            document.querySelectorAll(".pipeline-steps .step").forEach(s => s.classList.add("completed"));
+            const { job_id } = await startResponse.json();
+            clearInterval(progressTimer); // Clear fake progress timer
 
-            setTimeout(() => {
-                progressContainer.classList.add("hidden");
-                viewerContainer.classList.remove("hidden");
-                generateBtn.disabled = false;
-                renderOutput();
-            }, 600);
+            // Polling function
+            const pollJob = async () => {
+                try {
+                    const statusResponse = await fetch(`${getApiUrl("status")}/${job_id}`);
+                    if (!statusResponse.ok) {
+                        throw new Error("Failed to fetch job status.");
+                    }
+                    const job = await statusResponse.json();
+
+                    if (job.status === "processing") {
+                        const progressVal = job.percentage || 0;
+                        progressBar.style.width = `${progressVal}%`;
+                        progressPercentage.innerText = `${progressVal}%`;
+                        progressStatusText.innerText = job.message || "Generating...";
+
+                        // Map actual values to step statuses in UI
+                        let activeStep = 1;
+                        if (progressVal < 15) activeStep = 1;
+                        else if (progressVal >= 15 && progressVal < 40) activeStep = 2;
+                        else if (progressVal >= 40 && progressVal < 70) activeStep = 3;
+                        else if (progressVal >= 70 && progressVal < 88) activeStep = 4;
+                        else activeStep = 5;
+
+                        document.querySelectorAll(".pipeline-steps .step").forEach((step, idx) => {
+                            step.classList.remove("active", "completed");
+                            if (idx + 1 < activeStep) {
+                                step.classList.add("completed");
+                            } else if (idx + 1 === activeStep) {
+                                step.classList.add("active");
+                            }
+                        });
+
+                        setTimeout(pollJob, 2000);
+                    } else if (job.status === "completed") {
+                        generatedData = job.result;
+                        progressBar.style.width = "100%";
+                        progressPercentage.innerText = "100%";
+                        progressStatusText.innerText = "Completed successfully!";
+                        document.querySelectorAll(".pipeline-steps .step").forEach(s => s.classList.add("completed"));
+
+                        setTimeout(() => {
+                            progressContainer.classList.add("hidden");
+                            viewerContainer.classList.remove("hidden");
+                            generateBtn.disabled = false;
+                            renderOutput();
+                        }, 600);
+                    } else if (job.status === "failed") {
+                        throw new Error(job.error || "Generation pipeline failed.");
+                    }
+                } catch (pollErr) {
+                    progressContainer.classList.add("hidden");
+                    generateBtn.disabled = false;
+                    alert(pollErr.message);
+                }
+            };
+
+            setTimeout(pollJob, 1000);
 
         } catch (err) {
             clearInterval(progressTimer);

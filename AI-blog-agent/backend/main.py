@@ -1,15 +1,19 @@
 import os
 import uvicorn
-from fastapi import FastAPI, HTTPException, Body
+import uuid
+from fastapi import FastAPI, HTTPException, Body, BackgroundTasks
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 
 from .sitemap_parser import fetch_sitemap_urls
 from .agent import BlogGenerationPipeline, AUTHOR_PERSONAS
 
 app = FastAPI(title="AI Blog Writer Agent", description="SEO Blog writer for go4database.com")
+
+# Simple in-memory storage for background jobs
+jobs: Dict[str, Dict[str, Any]] = {}
 
 # Define request schemas
 class GenerateRequest(BaseModel):
@@ -48,18 +52,14 @@ def get_authors():
     """
     return AUTHOR_PERSONAS
    
-@app.post("/blog-api/generate")
-@app.post("/api/generate")
-def generate_blog(payload: GenerateRequest):
-    """
-    Triggers the blog generation pipeline
-    """
+def run_pipeline_task(job_id: str, payload: GenerateRequest):
     try:
         pipeline = BlogGenerationPipeline()
         
-        # Simple local progress reporter (logs to console)
         def progress_log(percentage, message):
             print(f"[{percentage}%] {message}")
+            jobs[job_id]["percentage"] = percentage
+            jobs[job_id]["message"] = message
             
         result = pipeline.generate_blog(
             topic=payload.topic,
@@ -74,11 +74,37 @@ def generate_blog(payload: GenerateRequest):
             expert_opinion_required=payload.expert_opinion_required,
             secondary_keywords=payload.secondary_keywords
         )
-        return result
+        jobs[job_id]["status"] = "completed"
+        jobs[job_id]["result"] = result
     except Exception as e:
         import traceback
         traceback.print_exc()
-        raise HTTPException(status_code=500, detail=str(e))
+        jobs[job_id]["status"] = "failed"
+        jobs[job_id]["error"] = str(e)
+
+@app.post("/blog-api/generate")
+@app.post("/api/generate")
+def generate_blog(payload: GenerateRequest, background_tasks: BackgroundTasks):
+    """
+    Triggers the blog generation pipeline in the background
+    """
+    job_id = str(uuid.uuid4())
+    jobs[job_id] = {
+        "status": "processing",
+        "percentage": 0,
+        "message": "Starting...",
+        "result": None,
+        "error": None
+    }
+    background_tasks.add_task(run_pipeline_task, job_id, payload)
+    return {"job_id": job_id, "status": "processing"}
+
+@app.get("/blog-api/status/{job_id}")
+@app.get("/api/status/{job_id}")
+def get_job_status(job_id: str):
+    if job_id not in jobs:
+        raise HTTPException(status_code=404, detail="Job not found")
+    return jobs[job_id]
 
 # Mount static files at /
 app.mount("/static", StaticFiles(directory=static_dir), name="static")

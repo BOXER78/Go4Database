@@ -1354,6 +1354,9 @@ async def upload_leads(
             # Normalize headers
             df.columns = [c.strip().lower().replace(' ', '_').replace('/', '_') for c in df.columns]
             
+            # Replace NaN values with empty string to prevent float conversion crashes
+            df = df.fillna("")
+            
             # Map columns to lead format
             leads_list = df.to_dict('records')
             
@@ -1394,17 +1397,38 @@ async def upload_leads(
     # Standardize lead dictionary keys for ingestion
     standardized_leads = []
     for raw in leads_list:
+        # Avoid float NaN issues by checking type and casting
+        def clean_val(val):
+            if val is None:
+                return ""
+            if isinstance(val, float):
+                import math
+                if math.isnan(val):
+                    return ""
+                # Keep float as string, strip .0 if it represents integer
+                val_str = str(val)
+                if val_str.endswith(".0"):
+                    return val_str[:-2]
+                return val_str
+            return str(val).strip()
+
+        # Extract names safely
+        first_name = clean_val(raw.get("first_name"))
+        last_name = clean_val(raw.get("last_name"))
+        combined_name = f"{first_name} {last_name}".strip()
+        name_val = clean_val(raw.get("full_name") or raw.get("person_name") or raw.get("name") or raw.get("contact") or raw.get("contact_name")) or combined_name
+
         std = {
-            "company": raw.get("company_name") or raw.get("company") or raw.get("organization") or "",
-            "name": raw.get("full_name") or raw.get("person_name") or raw.get("name") or raw.get("contact") or raw.get("contact_name") or f"{raw.get('first_name', '')} {raw.get('last_name', '')}".strip() or "",
-            "title": raw.get("job_title") or raw.get("title") or raw.get("position") or raw.get("role") or raw.get("headline") or "",
-            "email": raw.get("email") or raw.get("email_address") or raw.get("personal_email") or "",
-            "company_size": str(raw.get("company_size") or raw.get("size") or ""),
-            "industry": raw.get("industry") or raw.get("icp_industry") or raw.get("sector") or "",
-            "location": raw.get("location") or raw.get("city") or raw.get("state") or raw.get("country") or "",
-            "branch": raw.get("branch") or raw.get("department") or "",
-            "notes": raw.get("notes") or raw.get("description") or "",
-            "icp_tags": raw.get("icp_tags") or raw.get("tags") or ""
+            "company": clean_val(raw.get("company_name") or raw.get("company") or raw.get("organization")),
+            "name": name_val,
+            "title": clean_val(raw.get("job_title") or raw.get("title") or raw.get("position") or raw.get("role") or raw.get("headline")),
+            "email": clean_val(raw.get("email") or raw.get("email_address") or raw.get("personal_email")).lower(),
+            "company_size": clean_val(raw.get("company_size") or raw.get("size")),
+            "industry": clean_val(raw.get("industry") or raw.get("icp_industry") or raw.get("sector")),
+            "location": clean_val(raw.get("location") or raw.get("city") or raw.get("state") or raw.get("country")),
+            "branch": clean_val(raw.get("branch") or raw.get("department")),
+            "notes": clean_val(raw.get("notes") or raw.get("description")),
+            "icp_tags": clean_val(raw.get("icp_tags") or raw.get("tags"))
         }
         if std["email"]:
             standardized_leads.append(std)

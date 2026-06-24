@@ -12,7 +12,7 @@ git pull origin main
 
 # 1. Restart the AI Email Outreach Agent (Port 8080)
 pkill -f "uvicorn main:app"
-nohup /home/go4database.in/backend/venv/bin/uvicorn \
+PYTHONUNBUFFERED=1 nohup /home/go4database.in/backend/venv/bin/uvicorn \
 main:app \
 --host 127.0.0.1 \
 --port 8080 \
@@ -22,7 +22,7 @@ main:app \
 # 2. Restart the AI Blog Writer Agent (Port 8001)
 fuser -k 8001/tcp
 cd AI-blog-agent
-PORT=8001 HOST=127.0.0.1 nohup /home/go4database.in/backend/venv/bin/python -m backend.main > backend.log 2>&1 &
+PORT=8001 HOST=127.0.0.1 PYTHONUNBUFFERED=1 nohup /home/go4database.in/backend/venv/bin/python -m backend.main > backend.log 2>&1 &
 
 # 3. Restart LiteSpeed Web Server to refresh everything
 systemctl restart lsws

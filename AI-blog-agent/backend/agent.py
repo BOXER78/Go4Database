@@ -83,7 +83,7 @@ def generate_content_with_retry(model, prompt, max_retries=3, initial_delay=12):
         for attempt in range(max_retries + 1):
             try:
                 active_model = genai.GenerativeModel(model_name)
-                return active_model.generate_content(prompt), model_name
+                return active_model.generate_content(prompt, request_options={"timeout": 300}), model_name
             except Exception as e:
                 err_str = str(e)
                 last_err = e

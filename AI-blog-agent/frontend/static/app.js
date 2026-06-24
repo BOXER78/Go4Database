@@ -207,6 +207,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const { job_id } = await startResponse.json();
             clearInterval(progressTimer); // Clear fake progress timer
 
+            const startTime = Date.now();
+
             // Polling function
             const pollJob = async () => {
                 try {
@@ -220,7 +222,8 @@ document.addEventListener("DOMContentLoaded", () => {
                         const progressVal = job.percentage || 0;
                         progressBar.style.width = `${progressVal}%`;
                         progressPercentage.innerText = `${progressVal}%`;
-                        progressStatusText.innerText = job.message || "Generating...";
+                        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                        progressStatusText.innerText = `${job.message || "Generating..."} (${elapsed}s elapsed)`;
 
                         // Map actual values to step statuses in UI
                         let activeStep = 1;

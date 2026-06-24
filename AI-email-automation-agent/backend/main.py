@@ -1927,6 +1927,20 @@ if not os.path.isdir(FRONTEND_DIR):
         # If still not found, create a dummy directory to avoid uvicorn start crash
         os.makedirs(FRONTEND_DIR, exist_ok=True)
 
+@app.get("/api/debug/logs")
+def get_debug_logs(secret: Optional[str] = None):
+    if secret != "debug123":
+        raise HTTPException(status_code=403, detail="Forbidden")
+    try:
+        log_path = "/home/go4database.in/logs/app.log"
+        if os.path.exists(log_path):
+            with open(log_path, "r", encoding="utf-8", errors="ignore") as f:
+                content = f.read()
+                return {"status": "success", "logs": content[-20000:]}
+        return {"status": "error", "message": f"Log file not found at {log_path}"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
 @app.get("/")
 def read_root():
     index_path = os.path.join(FRONTEND_DIR, "index.html")

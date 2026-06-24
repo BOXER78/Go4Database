@@ -595,6 +595,7 @@ class BlogGenerationPipeline:
             raise ValueError("OpenAI API key is not configured. Please define OPENAI_API_KEY in your .env file.")
             
         author = AUTHOR_PERSONAS.get(author_key, AUTHOR_PERSONAS["samantha_bansil"])
+        secondary_keywords = secondary_keywords or ""
         
         # --- Stage 1: Sitemap Fetch & Link selection ---
         if progress_callback:

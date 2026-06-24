@@ -243,7 +243,8 @@ def validate_seo_compliance(blog_html, blog_metadata, primary_keyword, secondary
     # 18. Secondary Keywords Check
     secondary_ok = True
     missing_secondaries = []
-    secondary_list = [k.strip().lower() for k in secondary_keywords.split(",") if k.strip()]
+    secondary_keywords_str = secondary_keywords or ""
+    secondary_list = [k.strip().lower() for k in secondary_keywords_str.split(",") if k.strip()]
     if secondary_list:
         blog_html_lower = blog_html.lower()
         for kw in secondary_list:

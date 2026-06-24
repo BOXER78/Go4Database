@@ -81,6 +81,22 @@ def generate_blog(payload: GenerateRequest):
 # Mount static files at /
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
+@app.get("/blog-api/debug/logs")
+@app.get("/api/debug/logs-blog")
+def get_debug_logs_blog(secret: Optional[str] = None):
+    if secret != "debug123":
+        raise HTTPException(status_code=403, detail="Forbidden")
+    try:
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        log_path = os.path.join(base_dir, "backend.log")
+        if os.path.exists(log_path):
+            with open(log_path, "r", encoding="utf-8", errors="ignore") as f:
+                content = f.read()
+                return {"status": "success", "logs": content[-20000:]}
+        return {"status": "error", "message": f"Log file not found at {log_path}"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
 @app.get("/")
 def serve_index():
     return FileResponse(os.path.join(static_dir, "index.html"))

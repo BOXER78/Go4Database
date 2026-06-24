@@ -149,7 +149,11 @@ def get_all_enabled_sender_accounts(settings: dict) -> list:
 def get_active_sender_accounts(settings: dict) -> list:
     accounts = get_all_enabled_sender_accounts(settings)
     
-    # Filter out accounts that have completed warmup (either 14 days or total cap)
+    # By default, do not exclude accounts that have completed warmup so that outreach continues.
+    # Exclude them only if 'pause_on_warmup_complete' is explicitly set to True in settings.
+    if not settings.get("pause_on_warmup_complete", False):
+        return accounts
+        
     try:
         warmup_progress = calculate_warmup_progress(lead_manager.state)
         filtered_accounts = []

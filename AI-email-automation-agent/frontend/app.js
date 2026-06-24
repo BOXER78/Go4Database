@@ -359,6 +359,7 @@ function initSettings() {
             sender_accounts: state.settings.sender_accounts || [],
             warmup_total_cap: parseInt(document.getElementById("settings-warmup-total-cap").value) || 50,
             allow_duplicate_leads: document.getElementById("settings-allow-duplicate-leads").checked,
+            pause_on_warmup_complete: document.getElementById("settings-pause-on-warmup-complete").checked,
             warmup_schedule: warmupSchedule
         };
         
@@ -430,6 +431,7 @@ function populateSettingsInputs() {
     document.getElementById("settings-auto-mode").checked = state.settings.automation_mode || false;
     document.getElementById("settings-warmup-total-cap").value = state.settings.warmup_total_cap || 50;
     document.getElementById("settings-allow-duplicate-leads").checked = state.settings.allow_duplicate_leads !== false;
+    document.getElementById("settings-pause-on-warmup-complete").checked = state.settings.pause_on_warmup_complete === true;
 
     const warmupTbody = document.getElementById("warmup-schedule-tbody");
     if (warmupTbody) {

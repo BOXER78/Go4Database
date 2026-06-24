@@ -46,6 +46,7 @@ class LeadManager:
                 "automation_mode": False,
                 "warmup_total_cap": 50,
                 "allow_duplicate_leads": True,
+                "pause_on_warmup_complete": False,
                 "warmup_schedule": {
                     "1": 5, "2": 8, "3": 10, "4": 12, "5": 15, "6": 18, "7": 20,
                     "8": 25, "9": 30, "10": 35, "11": 40, "12": 45, "13": 50, "14": 50

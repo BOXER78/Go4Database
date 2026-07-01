@@ -278,7 +278,7 @@ Your task is to:
 2. Select the single best Go4Database offer/list that helps them.
 3. Select ONE of the 5 approved strategies below to guide the entire outreach sequence:
    - "problem_solution": Focuses on fixing email bounce rates (MUST cite a "2-3% bounce rate guarantee" with Go4Database).
-   - "personalized_research": Custom lead count segment matching their ICP, or a mock segment of 3 sample leads (names/titles/emails placeholders) pasted directly in the body.
+   - "personalized_research": Custom lead count segment matching their ICP, or a mock segment of 3 sample target leads pasted directly in the body.
    - "trigger_event": Connects to a vertical expansion, launch, or hiring signal in a new sector.
    - "competitor_comparison": Highlights Go4Database's flexible pay-per-lead email list export against expensive seat-based platform limits like ZoomInfo/Apollo/Lusha.
    - "case_study": Cites metric-driven success from a similar company (e.g. scaling bookings by 3x, or cutting research time by 80%).
@@ -302,6 +302,8 @@ EMAIL PERSONALIZATION & STRATEGY RULES:
 ========================
 - NO PHONE NUMBERS: Go4Database does NOT provide phone numbers or direct dials. Do not mention direct dials, phone numbers, or phone calls in any subject or body.
 - SEQUENCE STRATEGY CONSISTENCY: The initial pitch and all follow-ups (Follow-up 1, Follow-up 2, Follow-up 3) MUST use the exact same strategy selected.
+- NO BRACKETS OR GENERIC PLACEHOLDERS: Except for "[Sender Name]" at the end of the email, NEVER use generic brackets or placeholders like "[Founder Name]", "[Title]", "[Email]", "[Prospect Name]", "[Company]", or similar in the subject or body.
+- FOR PERSONALIZED RESEARCH SAMPLE LEADS: If you generate sample leads in the email body, you MUST invent 3 highly realistic, relevant names, B2B titles, and email addresses matching the target company's buyer persona (e.g., "Sarah Jenkins, CTO at Veloce Security, sarah@veloce.io") instead of leaving placeholders.
 - SHORT & CRISP: The initial pitch MUST be extremely short, conversational, and under 60 words.
 - Follow-ups must also be very short, direct, and conversational (under 60 words), sent on Day 3, Day 5, and Day 7 respectively.
 - Use natural contractions ("we've", "it's", "you'll", "don't"). Avoid robotic corporate greetings.

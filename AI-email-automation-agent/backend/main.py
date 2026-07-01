@@ -575,6 +575,8 @@ def campaign_worker_loop():
                     continue
 
                 campaign_id = c["id"]
+                campaign_type = c.get("campaign_type", "warmup")
+                is_real_campaign = (campaign_type == "real" or "real" in c.get("name", "").lower() or "outreach" in c.get("name", "").lower())
                 leads = lead_manager.get_leads(campaign_id=campaign_id)
                 now = datetime.datetime.now()
                 
@@ -603,7 +605,11 @@ def campaign_worker_loop():
                             is_eligible_initial = True
                     
                     if is_eligible_initial:
-                        active_accounts = get_active_sender_accounts(settings)
+                        if is_real_campaign:
+                            active_accounts = get_all_enabled_sender_accounts(settings)
+                        else:
+                            active_accounts = get_active_sender_accounts(settings)
+                            
                         has_configured_accounts = bool(settings.get("smtp_user") or settings.get("sender_accounts"))
                         
                         if not active_accounts and has_configured_accounts:
@@ -631,13 +637,13 @@ def campaign_worker_loop():
                         # Check Global Limit
                         global_limit = int(settings.get("daily_limit", 50))
                         sent_today_global = sum(1 for c_temp in campaigns for l in lead_manager.get_leads(campaign_id=c_temp["id"]) 
-                                                for h in l.get("history", []) if h.get("action", "").startswith("Email Sent") 
-                                                and datetime.datetime.fromisoformat(h.get("timestamp", "2000-01-01")).date() == now.date())
+                                                 for h in l.get("history", []) if h.get("action", "").startswith("Email Sent") 
+                                                 and datetime.datetime.fromisoformat(h.get("timestamp", "2000-01-01")).date() == now.date())
                         if sent_today_global >= global_limit:
                              lead_manager.add_log("SYSTEM", f"Reached global daily email limit of {global_limit}. Pausing campaign.", None, campaign_id)
                              lead_manager.set_campaign_running(False, campaign_id=campaign_id)
                              break
-
+ 
                         # Select rotation account that is not capped
                         selected_account = None
                         default_schedule = {
@@ -645,7 +651,7 @@ def campaign_worker_loop():
                             "8": 25, "9": 30, "10": 35, "11": 40, "12": 45, "13": 50, "14": 50
                         }
                         warmup_schedule = settings.get("warmup_schedule", default_schedule)
-                        warmup_total_cap = int(settings.get("warmup_total_cap", 50))
+                        warmup_total_cap = 999999 if is_real_campaign else int(settings.get("warmup_total_cap", 50))
                         warmup_progress = calculate_warmup_progress(lead_manager.state)
                         
                         rot_idx = settings.get("rotation_index", 0)
@@ -672,9 +678,9 @@ def campaign_worker_loop():
                             else:
                                 day = len(sent_dates) + 1
                                 
-                            limit = int(warmup_schedule.get(str(day)) or warmup_schedule.get(day) or 50)
+                            limit = 50 if is_real_campaign else int(warmup_schedule.get(str(day)) or warmup_schedule.get(day) or 50)
                             sent_today = prog.get("sent_today", 0)
-                            total_sent = prog.get("total_sent", 0)
+                            total_sent = 0 if is_real_campaign else prog.get("total_sent", 0)
                             
                             if sent_today < limit and total_sent < warmup_total_cap:
                                 selected_account = acc
@@ -684,7 +690,8 @@ def campaign_worker_loop():
                                 break
                                 
                         if not selected_account and has_configured_accounts:
-                            lead_manager.add_log("SYSTEM", "All active sender accounts have reached their daily warmup limit today. Outreach paused.", None, campaign_id)
+                            limit_type = "outreach (50 emails/day)" if is_real_campaign else "warmup"
+                            lead_manager.add_log("SYSTEM", f"All active sender accounts have reached their daily {limit_type} limit today. Outreach paused.", None, campaign_id)
                             lead_manager.set_campaign_running(False, campaign_id=campaign_id)
                             break
                         
@@ -745,7 +752,7 @@ def campaign_worker_loop():
                     # 2. Process Auto Follow-up 1
                     if lead["status"] == "Sent" and lead.get("sequence_step") == 1:
                         last_sent = datetime.datetime.fromisoformat(lead["last_sent_time"])
-                        delay_hours = float(settings.get("followup_delay_1_hours", 48))
+                        delay_hours = 48.0 if is_real_campaign else float(settings.get("followup_delay_1_hours", 48))
                         delay_seconds = int(delay_hours * 3600)
                         
                         if (now - last_sent).total_seconds() >= delay_seconds:
@@ -755,50 +762,55 @@ def campaign_worker_loop():
                             # Check Global Limit
                             global_limit = int(settings.get("daily_limit", 50))
                             sent_today_global = sum(1 for c_temp in campaigns for l in lead_manager.get_leads(campaign_id=c_temp["id"]) 
-                                                    for h in l.get("history", []) if h.get("action", "").startswith("Email Sent") 
-                                                    and datetime.datetime.fromisoformat(h.get("timestamp", "2000-01-01")).date() == now.date())
+                                                     for h in l.get("history", []) if h.get("action", "").startswith("Email Sent") 
+                                                     and datetime.datetime.fromisoformat(h.get("timestamp", "2000-01-01")).date() == now.date())
                             if sent_today_global >= global_limit:
                                  lead_manager.add_log("SYSTEM", f"Reached global daily email limit of {global_limit}. Pausing campaign.", None, campaign_id)
                                  lead_manager.set_campaign_running(False, campaign_id=campaign_id)
                                  break
 
-                            # Check per-mailbox warmup & cap limits
+                            # Check per-mailbox limits
                             email = selected_account.get("email", "").lower().strip()
                             if email != "simulated@example.com":
                                 warmup_progress = calculate_warmup_progress(lead_manager.state)
                                 prog = warmup_progress.get(email, {})
                                 
-                                # Check total cap
-                                total_sent = prog.get("total_sent", 0)
-                                warmup_total_cap = int(settings.get("warmup_total_cap", 50))
-                                if total_sent >= warmup_total_cap:
-                                    lead_manager.add_log("SYSTEM", f"Skipping follow-up 1 for {lead['name']}: sender {email} completed warmup (reached total cap of {warmup_total_cap}).", lead["id"], campaign_id)
-                                    continue
-                                
-                                # Check warmup days cap (14 days)
-                                sent_dates = prog.get("dates", [])
-                                if len(sent_dates) >= 14:
-                                    lead_manager.add_log("SYSTEM", f"Skipping follow-up 1 for {lead['name']}: sender {email} completed 14-day warmup.", lead["id"], campaign_id)
-                                    continue
-                                
-                                # Check daily warmup limit
-                                today_str = datetime.date.today().isoformat()
-                                if today_str in sent_dates:
-                                    day = len(sent_dates)
+                                if is_real_campaign:
+                                    sent_today = prog.get("sent_today", 0)
+                                    if sent_today >= 50:
+                                        # Mailbox hit daily limit for outreach
+                                        continue
                                 else:
-                                    day = len(sent_dates) + 1
+                                    # Check total cap
+                                    total_sent = prog.get("total_sent", 0)
+                                    warmup_total_cap = int(settings.get("warmup_total_cap", 50))
+                                    if total_sent >= warmup_total_cap:
+                                        lead_manager.add_log("SYSTEM", f"Skipping follow-up 1 for {lead['name']}: sender {email} completed warmup (reached total cap of {warmup_total_cap}).", lead["id"], campaign_id)
+                                        continue
                                     
-                                default_schedule = {
-                                    "1": 5, "2": 8, "3": 10, "4": 12, "5": 15, "6": 18, "7": 20,
-                                    "8": 25, "9": 30, "10": 35, "11": 40, "12": 45, "13": 50, "14": 50
-                                }
-                                warmup_schedule = settings.get("warmup_schedule", default_schedule)
-                                daily_limit = int(warmup_schedule.get(str(day)) or warmup_schedule.get(day) or 50)
-                                sent_today = prog.get("sent_today", 0)
-                                
-                                if sent_today >= daily_limit:
-                                    # Mailbox hit daily limit, skip this follow-up for today
-                                    continue
+                                    # Check warmup days cap (14 days)
+                                    sent_dates = prog.get("dates", [])
+                                    if len(sent_dates) >= 14:
+                                        lead_manager.add_log("SYSTEM", f"Skipping follow-up 1 for {lead['name']}: sender {email} completed 14-day warmup.", lead["id"], campaign_id)
+                                        continue
+                                    
+                                    # Check daily warmup limit
+                                    today_str = datetime.date.today().isoformat()
+                                    if today_str in sent_dates:
+                                        day = len(sent_dates)
+                                    else:
+                                        day = len(sent_dates) + 1
+                                        
+                                    default_schedule = {
+                                        "1": 5, "2": 8, "3": 10, "4": 12, "5": 15, "6": 18, "7": 20,
+                                        "8": 25, "9": 30, "10": 35, "11": 40, "12": 45, "13": 50, "14": 50
+                                    }
+                                    warmup_schedule = settings.get("warmup_schedule", default_schedule)
+                                    daily_limit = int(warmup_schedule.get(str(day)) or warmup_schedule.get(day) or 50)
+                                    sent_today = prog.get("sent_today", 0)
+                                    
+                                    if sent_today >= daily_limit:
+                                        continue
 
                             lead_manager.update_lead_status(
                                 lead["id"], "Sending", "Sending Follow-up 1", 
@@ -852,7 +864,7 @@ def campaign_worker_loop():
                     # 3. Process Auto Follow-up 2
                     if lead["status"] == "Follow_Up_1_Sent" and lead.get("sequence_step") == 2:
                         last_sent = datetime.datetime.fromisoformat(lead["last_sent_time"])
-                        delay_hours = float(settings.get("followup_delay_2_hours", 48))
+                        delay_hours = 48.0 if is_real_campaign else float(settings.get("followup_delay_2_hours", 48))
                         delay_seconds = int(delay_hours * 3600)
                         
                         if (now - last_sent).total_seconds() >= delay_seconds:
@@ -862,50 +874,55 @@ def campaign_worker_loop():
                             # Check Global Limit
                             global_limit = int(settings.get("daily_limit", 50))
                             sent_today_global = sum(1 for c_temp in campaigns for l in lead_manager.get_leads(campaign_id=c_temp["id"]) 
-                                                    for h in l.get("history", []) if h.get("action", "").startswith("Email Sent") 
-                                                    and datetime.datetime.fromisoformat(h.get("timestamp", "2000-01-01")).date() == now.date())
+                                                     for h in l.get("history", []) if h.get("action", "").startswith("Email Sent") 
+                                                     and datetime.datetime.fromisoformat(h.get("timestamp", "2000-01-01")).date() == now.date())
                             if sent_today_global >= global_limit:
                                  lead_manager.add_log("SYSTEM", f"Reached global daily email limit of {global_limit}. Pausing campaign.", None, campaign_id)
                                  lead_manager.set_campaign_running(False, campaign_id=campaign_id)
                                  break
 
-                            # Check per-mailbox warmup & cap limits
+                            # Check per-mailbox limits
                             email = selected_account.get("email", "").lower().strip()
                             if email != "simulated@example.com":
                                 warmup_progress = calculate_warmup_progress(lead_manager.state)
                                 prog = warmup_progress.get(email, {})
                                 
-                                # Check total cap
-                                total_sent = prog.get("total_sent", 0)
-                                warmup_total_cap = int(settings.get("warmup_total_cap", 50))
-                                if total_sent >= warmup_total_cap:
-                                    lead_manager.add_log("SYSTEM", f"Skipping follow-up 2 for {lead['name']}: sender {email} completed warmup (reached total cap of {warmup_total_cap}).", lead["id"], campaign_id)
-                                    continue
-                                
-                                # Check warmup days cap (14 days)
-                                sent_dates = prog.get("dates", [])
-                                if len(sent_dates) >= 14:
-                                    lead_manager.add_log("SYSTEM", f"Skipping follow-up 2 for {lead['name']}: sender {email} completed 14-day warmup.", lead["id"], campaign_id)
-                                    continue
-                                
-                                # Check daily warmup limit
-                                today_str = datetime.date.today().isoformat()
-                                if today_str in sent_dates:
-                                    day = len(sent_dates)
+                                if is_real_campaign:
+                                    sent_today = prog.get("sent_today", 0)
+                                    if sent_today >= 50:
+                                        # Mailbox hit daily limit for outreach
+                                        continue
                                 else:
-                                    day = len(sent_dates) + 1
+                                    # Check total cap
+                                    total_sent = prog.get("total_sent", 0)
+                                    warmup_total_cap = int(settings.get("warmup_total_cap", 50))
+                                    if total_sent >= warmup_total_cap:
+                                        lead_manager.add_log("SYSTEM", f"Skipping follow-up 2 for {lead['name']}: sender {email} completed warmup (reached total cap of {warmup_total_cap}).", lead["id"], campaign_id)
+                                        continue
                                     
-                                default_schedule = {
-                                    "1": 5, "2": 8, "3": 10, "4": 12, "5": 15, "6": 18, "7": 20,
-                                    "8": 25, "9": 30, "10": 35, "11": 40, "12": 45, "13": 50, "14": 50
-                                }
-                                warmup_schedule = settings.get("warmup_schedule", default_schedule)
-                                daily_limit = int(warmup_schedule.get(str(day)) or warmup_schedule.get(day) or 50)
-                                sent_today = prog.get("sent_today", 0)
-                                
-                                if sent_today >= daily_limit:
-                                    # Mailbox hit daily limit, skip this follow-up for today
-                                    continue
+                                    # Check warmup days cap (14 days)
+                                    sent_dates = prog.get("dates", [])
+                                    if len(sent_dates) >= 14:
+                                        lead_manager.add_log("SYSTEM", f"Skipping follow-up 2 for {lead['name']}: sender {email} completed 14-day warmup.", lead["id"], campaign_id)
+                                        continue
+                                    
+                                    # Check daily warmup limit
+                                    today_str = datetime.date.today().isoformat()
+                                    if today_str in sent_dates:
+                                        day = len(sent_dates)
+                                    else:
+                                        day = len(sent_dates) + 1
+                                        
+                                    default_schedule = {
+                                        "1": 5, "2": 8, "3": 10, "4": 12, "5": 15, "6": 18, "7": 20,
+                                        "8": 25, "9": 30, "10": 35, "11": 40, "12": 45, "13": 50, "14": 50
+                                    }
+                                    warmup_schedule = settings.get("warmup_schedule", default_schedule)
+                                    daily_limit = int(warmup_schedule.get(str(day)) or warmup_schedule.get(day) or 50)
+                                    sent_today = prog.get("sent_today", 0)
+                                    
+                                    if sent_today >= daily_limit:
+                                        continue
 
                             lead_manager.update_lead_status(
                                 lead["id"], "Sending", "Sending Follow-up 2", 
@@ -959,7 +976,7 @@ def campaign_worker_loop():
                     # 4. Process Auto Follow-up 3
                     if lead["status"] == "Follow_Up_2_Sent" and lead.get("sequence_step") == 3:
                         last_sent = datetime.datetime.fromisoformat(lead["last_sent_time"])
-                        delay_hours = float(settings.get("followup_delay_3_hours", 48))
+                        delay_hours = 48.0 if is_real_campaign else float(settings.get("followup_delay_3_hours", 48))
                         delay_seconds = int(delay_hours * 3600)
                         
                         if (now - last_sent).total_seconds() >= delay_seconds:
@@ -969,50 +986,55 @@ def campaign_worker_loop():
                             # Check Global Limit
                             global_limit = int(settings.get("daily_limit", 50))
                             sent_today_global = sum(1 for c_temp in campaigns for l in lead_manager.get_leads(campaign_id=c_temp["id"]) 
-                                                    for h in l.get("history", []) if h.get("action", "").startswith("Email Sent") 
-                                                    and datetime.datetime.fromisoformat(h.get("timestamp", "2000-01-01")).date() == now.date())
+                                                     for h in l.get("history", []) if h.get("action", "").startswith("Email Sent") 
+                                                     and datetime.datetime.fromisoformat(h.get("timestamp", "2000-01-01")).date() == now.date())
                             if sent_today_global >= global_limit:
                                  lead_manager.add_log("SYSTEM", f"Reached global daily email limit of {global_limit}. Pausing campaign.", None, campaign_id)
                                  lead_manager.set_campaign_running(False, campaign_id=campaign_id)
                                  break
 
-                            # Check per-mailbox warmup & cap limits
+                            # Check per-mailbox limits
                             email = selected_account.get("email", "").lower().strip()
                             if email != "simulated@example.com":
                                 warmup_progress = calculate_warmup_progress(lead_manager.state)
                                 prog = warmup_progress.get(email, {})
                                 
-                                # Check total cap
-                                total_sent = prog.get("total_sent", 0)
-                                warmup_total_cap = int(settings.get("warmup_total_cap", 50))
-                                if total_sent >= warmup_total_cap:
-                                    lead_manager.add_log("SYSTEM", f"Skipping follow-up 3 for {lead['name']}: sender {email} completed warmup (reached total cap of {warmup_total_cap}).", lead["id"], campaign_id)
-                                    continue
-                                
-                                # Check warmup days cap (14 days)
-                                sent_dates = prog.get("dates", [])
-                                if len(sent_dates) >= 14:
-                                    lead_manager.add_log("SYSTEM", f"Skipping follow-up 3 for {lead['name']}: sender {email} completed 14-day warmup.", lead["id"], campaign_id)
-                                    continue
-                                
-                                # Check daily warmup limit
-                                today_str = datetime.date.today().isoformat()
-                                if today_str in sent_dates:
-                                    day = len(sent_dates)
+                                if is_real_campaign:
+                                    sent_today = prog.get("sent_today", 0)
+                                    if sent_today >= 50:
+                                        # Mailbox hit daily limit for outreach
+                                        continue
                                 else:
-                                    day = len(sent_dates) + 1
+                                    # Check total cap
+                                    total_sent = prog.get("total_sent", 0)
+                                    warmup_total_cap = int(settings.get("warmup_total_cap", 50))
+                                    if total_sent >= warmup_total_cap:
+                                        lead_manager.add_log("SYSTEM", f"Skipping follow-up 3 for {lead['name']}: sender {email} completed warmup (reached total cap of {warmup_total_cap}).", lead["id"], campaign_id)
+                                        continue
                                     
-                                default_schedule = {
-                                    "1": 5, "2": 8, "3": 10, "4": 12, "5": 15, "6": 18, "7": 20,
-                                    "8": 25, "9": 30, "10": 35, "11": 40, "12": 45, "13": 50, "14": 50
-                                }
-                                warmup_schedule = settings.get("warmup_schedule", default_schedule)
-                                daily_limit = int(warmup_schedule.get(str(day)) or warmup_schedule.get(day) or 50)
-                                sent_today = prog.get("sent_today", 0)
-                                
-                                if sent_today >= daily_limit:
-                                    # Mailbox hit daily limit, skip this follow-up for today
-                                    continue
+                                    # Check warmup days cap (14 days)
+                                    sent_dates = prog.get("dates", [])
+                                    if len(sent_dates) >= 14:
+                                        lead_manager.add_log("SYSTEM", f"Skipping follow-up 3 for {lead['name']}: sender {email} completed 14-day warmup.", lead["id"], campaign_id)
+                                        continue
+                                    
+                                    # Check daily warmup limit
+                                    today_str = datetime.date.today().isoformat()
+                                    if today_str in sent_dates:
+                                        day = len(sent_dates)
+                                    else:
+                                        day = len(sent_dates) + 1
+                                        
+                                    default_schedule = {
+                                        "1": 5, "2": 8, "3": 10, "4": 12, "5": 15, "6": 18, "7": 20,
+                                        "8": 25, "9": 30, "10": 35, "11": 40, "12": 45, "13": 50, "14": 50
+                                    }
+                                    warmup_schedule = settings.get("warmup_schedule", default_schedule)
+                                    daily_limit = int(warmup_schedule.get(str(day)) or warmup_schedule.get(day) or 50)
+                                    sent_today = prog.get("sent_today", 0)
+                                    
+                                    if sent_today >= daily_limit:
+                                        continue
 
                             lead_manager.update_lead_status(
                                 lead["id"], "Sending", "Sending Follow-up 3", 
@@ -1326,6 +1348,7 @@ async def upload_leads(
     pasted_data: str = Form(None),
     campaign_name: str = Form(None),
     start_date: Optional[str] = Form(None),
+    campaign_type: Optional[str] = Form("warmup"),
     user: dict = Depends(verify_admin)
 ):
     if not campaign_name:
@@ -1337,7 +1360,7 @@ async def upload_leads(
             campaign_name = "New Campaign"
 
     actual_start = start_date.strip() if start_date and start_date.strip() else None
-    campaign_id = lead_manager.create_campaign(campaign_name, start_date=actual_start)
+    campaign_id = lead_manager.create_campaign(campaign_name, start_date=actual_start, campaign_type=campaign_type)
     lead_manager.set_active_campaign(campaign_id)
     
     leads_list = []

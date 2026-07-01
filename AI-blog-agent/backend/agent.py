@@ -572,6 +572,49 @@ class BlogGenerationPipeline:
             response, self.model_name = generate_content_with_retry(model, prompt)
             return response
 
+    def humanize_paragraphs_batched(self, paragraphs_html_list, primary_keyword, author_persona):
+        # Formats a list of paragraphs as a numbered list of HTML strings
+        formatted_input = "\n\n".join(f"Paragraph {i+1}:\n{p_html}" for i, p_html in enumerate(paragraphs_html_list))
+        
+        prompt = f"""
+        You are {author_persona['name']}, a professional B2B writer known for a highly engaging, human, and conversational style.
+        Bio: {author_persona['description']}
+        Writing Style: {author_persona['writing_style']}
+        
+        Rewrite each of the following HTML paragraphs to sound completely human-written. Your rewrites MUST bypass advanced AI detectors (like Originality.ai and GPTZero).
+        
+        Input Paragraphs:
+        {formatted_input}
+        
+        CRITICAL HUMANIZATION RULES:
+        1. EXTREME BURSTINESS: Vary sentence lengths aggressively. Use a mix of short sentences (2-5 words) and longer sentences. Use sentence fragments naturally (e.g. "Think about it.", "Why?", "Here is the catch.", "Not quite.").
+        2. FORCE CONTRACTIONS: Use contractions (e.g., don't, it's, we've, can't, you'll, shouldn't, there's) naturally throughout the text.
+        3. ACTIVE VOICE: Write in the active voice. Use strong, direct verbs.
+        4. NO AI TRANSITIONS: Do not start sentences with transitional signposts (e.g., "Moreover,", "Furthermore,", "Additionally,", "Crucially,", "Indeed,").
+        5. KEEP HTML TAGS: You MUST keep all HTML tags (like `<a>`, `<strong>`) intact and surrounding the correct terms. Do not modify the link URLs (`href`).
+        6. Maintain the original meaning and keywords of the paragraphs, but make them sound authentic and engaging.
+        
+        Output ONLY the rewritten paragraphs inside JSON format matching this schema:
+        {{
+            "rewritten_paragraphs": [
+                "Rewritten Paragraph 1 HTML",
+                "Rewritten Paragraph 2 HTML",
+                ...
+            ]
+        }}
+        Do NOT output any markdown wrappers. Just return raw JSON.
+        """
+        response = self.generate_content(prompt)
+        try:
+            # Parse JSON
+            import json
+            json_text = re.search(r'\{.*\}', response.text, re.DOTALL)
+            data = json.loads(json_text.group(0)) if json_text else {}
+            return data.get("rewritten_paragraphs", [])
+        except Exception:
+            # Fallback to returning original if parsing fails
+            return paragraphs_html_list
+
     def generate_blog(self, topic, primary_keyword, author_key="samantha_bansil", target_word_count=2000, custom_guidelines="", progress_callback=None, intent="Informational", faq_count=4, case_study_required="No", expert_opinion_required="No", secondary_keywords=""):
         """
         Executes the multi-stage blog generation and refinement pipeline.
@@ -616,7 +659,7 @@ class BlogGenerationPipeline:
             expert_outline_inst = "6. Include dedicated locations for blockquotes containing quotes from B2B industry experts."
 
         outline_prompt = f"""
-        You are an elite B2B SaaS SEO strategist. Create a comprehensive, extremely detailed blog outline for the topic: "{topic}".
+        You are an elite B2B SaaS SEO strategist for go4database.com. Create a comprehensive, extremely detailed blog outline for the topic: "{topic}".
         Primary Keyword: "{primary_keyword}"
         Secondary Keywords to integrate: "{secondary_keywords}"
         Target length: {target_word_count} words.
@@ -641,18 +684,18 @@ class BlogGenerationPipeline:
         {secondary_keywords if secondary_keywords else "[List of related secondary keywords]"}
         
         ## Introduction
-        [A hook-based story about a B2B company that invested in paid advertising but struggled with conversion until implementing a {primary_keyword} strategy. Note: Outline points to write this in short, punchy 1-3 line paragraphs.]
+        [An authentic introduction hook written in the selected author's unique voice and professional style, starting directly with their personal/professional experiences, observations, or strong opinions on {primary_keyword} instead of a generic company story template. Note: Outline points to write this in short, punchy 1-3 line paragraphs.]
         
         ## H2: What Is {primary_keyword.title()} and Why Does It Matter for Businesses?
-        - Definition paragraph (40-60 words containing the primary keyword and indicators like "is a digital marketing strategy" or "refers to").
+        - Definition paragraph (40-60 words containing the primary keyword and indicators like "is a digital marketing strategy" or "refers to"). Mention accessing verified contacts from go4database.com using our application (app.go4database.com) instead of manual scraping.
         - Explanations of why it matters (direct ownership of audience communication, etc.).
-        - Bullet list: Why it matters (Build stronger relationships, Reduce costs, etc.).
+        - Detailed explanation paragraph: Why it matters (Build stronger relationships, Reduce costs, etc.). Write this as narrative paragraphs instead of bullet lists.
         - TL;DR paragraph summarizing the section.
         
         ## H2: How {primary_keyword.title()} Helps Businesses Generate More Leads and Sales
         - Paragraph explaining conversion funnel.
-        - Bullets of what B2B companies can send (educational content, customer success, etc.).
-        - Funnel stages (Awareness, Consideration, Decision).
+        - Explanations of what B2B companies can send (educational content, customer success, etc.).
+        - Funnel stages (Awareness, Consideration, Decision) explained in narrative paragraphs.
         
         ## H2: What Are the Best {primary_keyword.title()} Strategies for Higher Engagement?
         - 1. Audience Segmentation
@@ -674,14 +717,20 @@ class BlogGenerationPipeline:
           - Comparison Table with columns: Brand | Best For | Advantage (Mailchimp, HubSpot, Brevo, ActiveCampaign).
         - H3: Cheapest {primary_keyword.title()} Solutions: What Should Businesses Look For?
         
-        ## H2: Why Businesses Choose Go4Database for {primary_keyword.title()} Campaigns
-        - Discussion of list accuracy, database solutions, and integration with go4database.com.
+        ## H2: Why Businesses Choose go4database.com for {primary_keyword.title()} Campaigns
+        - Discussion of accessing verified contacts from go4database.com using our application (app.go4database.com) to search, download, and target key decision-makers instead of manual scraping.
         
         ## H2: FAQ
         - Exactly {faq_count} FAQs as H3 headings with short, conversational answers under 22 words.
         
         ## H2: Conclusion
         - Summary paragraphs wrapping up the strategy.
+        
+        CRITICAL FORMATTING RULES:
+        - Avoid using excessive or lazy bulleted lists to explain concepts (this structure is a clear indicator of standard AI-generated content). Instead, explain concepts in detailed, natural narrative paragraphs. Limit lists to clear, sequential step-by-step processes or structured lists only where necessary.
+        - Do NOT use em-dashes (—) or en-dashes (–) to insert inline clauses or parenthetical remarks. Use standard punctuation (such as commas or parentheses) or restructure sentences.
+        - Follow Google's E-E-A-T (Experience, Expertise, Authoritativeness, Trustworthiness) standards. Showcase first-hand industry experience, incorporate specific real-world examples, quote industry benchmarks, and address actual operational details. The content must feel highly researched, authoritative, and fresh.
+        - Ensure all brand references use "go4database.com" (never just "go4database"). Since this is on-page blog content for go4database.com, write from an internal perspective that guides/transfers users to the go4database.com web application (app.go4database.com) to search, download, and utilize data, rather than talking about the platform as an external third-party service.
         
         Format the outline in Markdown with brief descriptions of each section. The outline must be highly detailed and exhaustive to support writing a very long, high-depth article.
         """
@@ -720,22 +769,30 @@ class BlogGenerationPipeline:
         SOP Benchmarks you MUST follow:
         - You MUST naturally integrate all of the secondary keywords: "{secondary_keywords}" into the article body text.
         1. Write the blog in HTML format (using <h1>, <h2>, <h3>, <h4>, <p>, <ul>, <ol>, <li>, <strong>, <table>, <thead>, <tbody>, <tr>, <th>, <td>, <a>, <img>).
-        2. First 100 words of the body (after H1 and before first H2) MUST be a hook-based introduction. It should start with a B2B company story ("I spoke with a B2B company...") written in very short paragraphs (1-3 lines max per paragraph) to build reader interest.
+        2. First 100 words of the body (after H1 and before first H2) MUST be a hook-based introduction written in your specific author persona's authentic voice. Start directly with a personal reflection, professional observation, or industry lesson from your experience to build reader interest and trust immediately. Avoid formulaic template stories like "I spoke with a B2B company..." or standard AI greetings. Write in short paragraphs (1-3 lines max per paragraph).
         3. Under the H2 "What Is {primary_keyword.title()} and Why Does It Matter for Businesses?", you MUST write a definition paragraph (40-60 words) that clearly defines the topic using terms like 'refers to', 'is a', or 'is the process of'.
         4. Place a banner image at the top (directly under the H1) using this HTML code exactly: 
            `<img src="https://images.unsplash.com/photo-1557200134-90327ee9fafa" alt="{primary_keyword} for go4database.com blog" class="blog-banner">`
         5. Create a Table of Contents (TOC) with jump links (e.g. `<a href="#heading-id">Section Title</a>`) linking to matching `id` attributes on the H2 and H3 tags. Place it directly under the introduction or first H2 definition.
         6. Under the H3 "How to Choose the Right Bulk {primary_keyword.title()} Service?", insert a comparison table comparing features/benefits vs competitors (e.g. columns: Brand | Best For | Advantage; rows: Mailchimp, HubSpot, Brevo, ActiveCampaign).
         7. Integrate at least 8 external authority outbound links (to sites like HubSpot, Statista, Campaign Monitor, W3C) with natural anchors (e.g. `<a href="https://example.com" target="_blank" rel="noopener">authority link text</a>`).
-        8. For each H2/H3 section where specified in the outline, end with a 'TL;DR' summary block that explicitly contains the phrase 'TL;DR' and summarizes that section.
+        8. For each H2/H3 section where specified in the outline, end with a 'TL;DR' summary block that explicitly contains the phrase 'TL;DR' and summarizes that section. Make sure the TL;DR is concise and accurately reflects how verified contacts from go4database.com can be leveraged.
         9. Place exactly {faq_count} FAQs at the end. The questions must end with a question mark. Each answer MUST be conversational and strictly under 22 words.
         10. Bold key terms and keywords naturally using `<strong>`.
         
-        CRITICAL CONTENT DEPTH, TONE & STRUCTURE RULES:
+        CRITICAL CONTENT DEPTH, TONE & STRUCTURE RULES (AI DETECTION BYPASS DIRECTIVES):
         - The content must be highly detailed, exhaustive, and cover every aspect of the outline in rich depth (write at least 1500 to 2200 words). Do not summarize or gloss over technical nuances.
         - Write EXCLUSIVELY in the ACTIVE VOICE. Do not use passive voice patterns. Instead, use active verbs.
-        - Vary your sentence lengths significantly: mix short, punchy sentences (3-6 words) with longer, descriptive sentences (20-30 words) to create natural flow.
-        - Write in short paragraphs (mostly 1 to 3 lines) to match the highly readable user format.
+        - ENFORCE HIGH BURSTINESS: Vary your sentence lengths significantly. Mix short, punchy sentences (2-5 words) with longer, descriptive sentences (25-35 words) to create natural flow. Inject short conversational statements (e.g. "Think about it.", "Why?", "Here is the catch.", "Not quite.", "Let's be honest.").
+        - ENFORCE HIGH PERPLEXITY: Avoid standard, predictable word combinations. Write using B2B-specific, contextual details and strong verbs rather than generic filler words.
+        - MANDATE CONTRACTIONS: Use contractions throughout the text naturally (e.g., don't, it's, we've, can't, you'll, shouldn't). Avoid writing in overly formal, uncontracted academic English.
+        - USE COORDINATING CONJUNCTIONS: Start sentences with "But", "And", "So", "Or", "Yet" naturally to flow like conversational human speech.
+        - BAN ROBOTIC TRANSITIONS: Never start a paragraph with "Additionally,", "Furthermore,", "Crucially,", "Indeed,", "Importantly,", "In conclusion,", "Ultimately,".
+        - ASYMMETRIC SHAPES: Do not write symmetric paragraphs. Make some paragraphs 1 sentence, others 2, 3, or 4.
+        - Avoid relying on excessive bulleted lists to explain concepts (this is a key indicator of AI-generated content). Instead, explain concepts in detailed, natural narrative paragraphs. Limit lists to clear, sequential step-by-step processes or structured lists only where necessary.
+        - Do NOT use em-dashes (—) or en-dashes (–) to insert inline clauses or parenthetical remarks. Use standard punctuation (such as commas or parentheses) or rewrite the sentence to maintain natural flow.
+        - Follow Google's E-E-A-T (Experience, Expertise, Authoritativeness, Trustworthiness) standards. Showcase first-hand industry experience, incorporate specific real-world examples, quote industry benchmarks, and address actual operational details. The content must feel highly researched, authoritative, and fresh.
+        - Ensure all brand references use "go4database.com" (never just "go4database"). Since this is on-page blog content for go4database.com, write from an internal perspective that guides/transfers users to the go4database.com web application (app.go4database.com) to search, download, and utilize data, rather than talking about the platform as an external third-party service.
         {case_study_draft_inst}
         {expert_draft_inst}
         
@@ -756,16 +813,16 @@ class BlogGenerationPipeline:
         Bio: {author['description']}
         Writing Style: {author['writing_style']}
         
-        Review and rewrite the text below. Ensure it sounds exactly like your signature persona—whether that means talking casually like we're having a coffee, advising warmly, or providing direct consulting. It must sound 100% human and easily pass AI detection filters (aiming for an AI score under 10%).
+        Review and rewrite the text below. Ensure it sounds exactly like your signature persona—whether that means talking casually like we're having a coffee, advising warmly, or providing direct consulting. It must sound 100% human and easily pass AI detection filters (aiming for an AI score under 10% on external sites like Originality.ai, GPTZero, CopyLeaks).
         
         Here is the draft HTML content:
         ---
         {draft_content}
         ---
         
-        CRITICAL INSTRUCTIONS for Refinement:
+        CRITICAL INSTRUCTIONS for Refinement (AI Detection Bypass Directives):
         - Ensure that all secondary keywords: "{secondary_keywords}" are kept intact and integrated naturally in the final output.
-        1. Sentence Length Variance (Burstiness): Mix short, punchy sentences (3-5 words) with longer, descriptive sentences. Avoid uniform sentence lengths. Use sentence fragments (e.g., "Think about it.", "Why?", "Because it works.") to break the robotic flow.
+        1. Sentence Length Variance (Burstiness): Mix short, punchy sentences (2-5 words) with longer, descriptive sentences. Avoid uniform sentence lengths. Use sentence fragments (e.g., "Think about it.", "Why?", "Because it works.", "Here is the catch.", "But it doesn't stop there.") to break the robotic flow.
         2. Strict Buzzword Ban: Completely eliminate and replace all overused AI vocabulary and transitional phrases:
            - No 'delve', 'tapestry', 'moreover', 'furthermore', 'in conclusion', 'testament', 'it is important to note', 'beacon', 'realm', 'treasure trove'.
            - No 'elevate', 'unlock', 'transform', 'foster', 'optimize', 'comprehensive', 'key takeaways', 'look no further', 'let's dive in', 'it's worth noting', 'rapidly changing', 'ultimately', 'vital', 'crucial'.
@@ -778,12 +835,68 @@ class BlogGenerationPipeline:
         5. Do NOT damage the HTML markup, heading IDs, jump links, table structures, CTAs, external links, FAQ lengths, or TL;DR. Keep all SEO structures intact.
         6. Ensure the first paragraph is a clear definition of the topic (between 40 and 60 words) that includes the keyword "{primary_keyword}" and a defining term (e.g. "refers to", "is a", "defined as").
         7. Ensure there are exactly {faq_count} FAQs at the end with short, conversational answers (each strictly under 25 words).
+        8. Avoid relying on excessive or lazy bulleted lists to explain concepts (this structure is a clear indicator of standard AI-generated content). Instead, explain concepts in detailed, natural narrative paragraphs. Limit lists to clear, sequential step-by-step processes or structured lists only where necessary.
+        9. Do NOT use em-dashes (—) or en-dashes (–) to insert inline clauses or parenthetical remarks. Use standard punctuation (such as commas or parentheses) or rewrite the sentence to maintain natural flow.
+        10. Follow Google's E-E-A-T (Experience, Expertise, Authoritativeness, Trustworthiness) standards. Showcase first-hand industry experience, incorporate specific real-world examples, quote industry benchmarks, and address actual operational details. The content must feel highly researched, authoritative, and fresh.
+        11. Ensure all brand references use "go4database.com" (never just "go4database"). Since this is on-page blog content for go4database.com, write from an internal perspective that guides/transfers users to the go4database.com web application (app.go4database.com) to search, download, and utilize data, rather than talking about the platform as an external third-party service.
+        12. MANDATE CONTRACTIONS: Use contractions throughout the text (e.g., don't, it's, we've, can't, you'll, shouldn't).
+        13. CONJUNCTIONS SENTENCE OPENERS: Start sentences with "But", "And", "So", "Or", "Yet" naturally to flow like conversational human speech.
+        14. BAN ROBOTIC TRANSITIONS: Never start a paragraph with "Additionally,", "Furthermore,", "Crucially,", "Indeed,", "Importantly,", "In conclusion,", "Ultimately,".
+        15. ASYMMETRIC PARAGRAPHS: Do not write symmetric paragraphs. Make some paragraphs 1 sentence, others 2, 3, or 4.
         
         Output only the updated raw HTML code. Do NOT wrap in markdown code blocks.
         """
         
         humanize_response = self.generate_content(humanize_prompt)
         humanized_content = clean_html_wrappers(humanize_response.text)
+        
+        # --- Stage 4b: Micro-prose Batched Humanizer ---
+        if progress_callback:
+            progress_callback(80, "Performing paragraph-level humanization and styling refinement...")
+            
+        soup_batch = BeautifulSoup(humanized_content, "html.parser")
+        paragraphs = soup_batch.find_all("p")
+        
+        def is_faq_p_local(p):
+            prev = p.find_previous()
+            while prev:
+                if prev.name == "h2" and "faq" in prev.get_text().lower():
+                    return True
+                prev = prev.parent
+            return False
+            
+        body_paragraphs = []
+        for idx, p in enumerate(paragraphs):
+            if idx <= 4:
+                continue
+            if is_faq_p_local(p):
+                continue
+            if "tl;dr" in p.get_text().lower():
+                continue
+            body_paragraphs.append(p)
+            
+        # Batch humanize in groups of 5
+        batch_size = 5
+        for start_idx in range(0, len(body_paragraphs), batch_size):
+            batch = body_paragraphs[start_idx:start_idx + batch_size]
+            batch_html = [str(p) for p in batch]
+            
+            rewritten_batch = self.humanize_paragraphs_batched(batch_html, primary_keyword, author)
+            
+            for p, rewritten_p_html in zip(batch, rewritten_batch):
+                if rewritten_p_html:
+                    frag = BeautifulSoup(rewritten_p_html, "html.parser")
+                    p_tag = frag.find("p")
+                    if p_tag:
+                        p.clear()
+                        for child in list(p_tag.children):
+                            p.append(child)
+                    else:
+                        p.clear()
+                        for child in list(frag.children):
+                            p.append(child)
+                            
+        humanized_content = str(soup_batch)
         
         # --- Stage 5: Final Check & Corrections ---
         if progress_callback:
@@ -846,6 +959,14 @@ class BlogGenerationPipeline:
             - Ensure exactly {faq_count} FAQs answers are conversational and strictly under 25 words.
             - Ensure all secondary keywords are present in the text: "{secondary_keywords}".
             - Keep the language human-like and conversational.
+            - Avoid relying on excessive or lazy bulleted lists to explain concepts. Explain concepts in detailed, natural narrative paragraphs. Limit lists to clear, sequential step-by-step processes or structured lists only where necessary.
+            - Do NOT use em-dashes (—) or en-dashes (–) to insert inline clauses or parenthetical remarks. Use standard punctuation (such as commas or parentheses) or rewrite the sentence to maintain natural flow.
+            - Follow Google's E-E-A-T (Experience, Expertise, Authoritativeness, Trustworthiness) standards. Showcase first-hand industry experience, incorporate specific real-world examples, quote industry benchmarks, and address actual operational details. The content must feel highly researched, authoritative, and fresh.
+            - Ensure all brand references use "go4database.com" (never just "go4database"). Since this is on-page blog content for go4database.com, write from an internal perspective that guides/transfers users to the go4database.com web application (app.go4database.com) to search, download, and utilize data, rather than talking about the platform as an external third-party service.
+            - MANDATE CONTRACTIONS: Use contractions throughout the text (e.g., don't, it's, we've, can't, you'll, shouldn't).
+            - CONJUNCTIONS SENTENCE OPENERS: Start sentences with "But", "And", "So", "Or", "Yet" naturally to flow like conversational human speech.
+            - BAN ROBOTIC TRANSITIONS: Never start a paragraph with "Additionally,", "Furthermore,", "Crucially,", "Indeed,", "Importantly,", "In conclusion,", "Ultimately,".
+            - ASYMMETRIC PARAGRAPHS: Do not write symmetric paragraphs. Make some paragraphs 1 sentence, others 2, 3, or 4.
             
             Output the corrected raw HTML code. Do NOT wrap in markdown block.
             """
@@ -853,6 +974,7 @@ class BlogGenerationPipeline:
             humanized_content = clean_html_wrappers(patch_response.text)
             
             # Re-evaluate
+
             report = validate_seo_compliance(humanized_content, metadata, primary_keyword, secondary_keywords)
             
         # Post-process to guarantee compliance
@@ -923,7 +1045,43 @@ def replace_with_html(parent, html_str):
     parent.clear()
     append_html(parent, html_str)
 
+def wrap_unwrapped_paragraphs(soup):
+    block_tags = {"h1", "h2", "h3", "h4", "ul", "ol", "table", "blockquote", "div", "img", "p"}
+    container = soup.body if soup.body else soup
+    children = list(container.children)
+    
+    current_group = []
+    
+    def commit_group():
+        nonlocal current_group
+        if not current_group:
+            return
+        group_text = "".join(
+            (c if isinstance(c, str) else c.get_text()) for c in current_group
+        ).strip()
+        if len(group_text) > 10:
+            p_tag = soup.new_tag("p")
+            first_el = current_group[0]
+            first_el.insert_before(p_tag)
+            for el in current_group:
+                p_tag.append(el)
+        current_group = []
+
+    for child in children:
+        if child.name in block_tags:
+            commit_group()
+        else:
+            if isinstance(child, str) and child.strip() == "":
+                continue
+            current_group.append(child)
+            
+    commit_group()
+
 def post_process_blog_html_and_metadata(html, metadata, primary_keyword, internal_links, topic, intent="Informational", faq_count=4, case_study_required="No", expert_opinion_required="No"):
+    # 2. Parse HTML
+    soup = BeautifulSoup(html, "html.parser")
+    wrap_unwrapped_paragraphs(soup)
+
     # 1. Safeguard title_tag
     if "title_tag" in metadata:
         title = metadata["title_tag"]
@@ -938,8 +1096,7 @@ def post_process_blog_html_and_metadata(html, metadata, primary_keyword, interna
                 title = title[:57] + "..."
         metadata["title_tag"] = title
 
-    # 2. Parse HTML
-    soup = BeautifulSoup(html, "html.parser")
+
 
     # Ensure the banner image is the first image in the document and has correct alt text
     first_img = soup.find("img")
@@ -1063,13 +1220,13 @@ def post_process_blog_html_and_metadata(html, metadata, primary_keyword, interna
         (f"<h3>Why should businesses track {primary_keyword}?</h3>",
          f"<p>Monitoring these metrics helps identify delivery hurdles, reduce bounce rates, and align messaging with verified contacts from go4database.com.</p>"),
         (f"<h3>How can you optimize {primary_keyword} outcomes?</h3>",
-         f"<p>Organizations improve results by segmenting contact lists, customizing subject lines, and sourcing fresh B2B data from go4database.com.</p>"),
+         f"<p>Organizations improve results by segmenting contact lists, customizing subject lines, and using the go4database.com application to search for verified prospects.</p>"),
         (f"<h3>How does list hygiene impact lead generation success?</h3>",
-         f"<p>Acquiring clean B2B lists from go4database.com ensures high inbox placement, prevents spam filter flags, and accelerates your sales pipeline.</p>"),
+         f"<p>Using the go4database.com application to access clean B2B lists ensures high inbox placement, prevents spam filter flags, and accelerates your sales pipeline.</p>"),
         (f"<h3>What is the best way to scale B2B campaigns?</h3>",
-         f"<p>Use verified database segments from go4database.com to personalize outreach, lower bounce rates, and connect with qualified decision-makers quickly.</p>"),
+         f"<p>Log in to the go4database.com application to search verified database segments, personalize outreach, and connect with qualified decision-makers quickly.</p>"),
         (f"<h3>Why is contact validation crucial for B2B marketers?</h3>",
-         f"<p>Verification prevents spam complaints, protects sender reputation, and ensures marketing budgets target active, high-intent professionals.</p>")
+         f"<p>Validation prevents spam complaints, protects sender reputation, and ensures marketing campaigns target active, verified contacts from go4database.com.</p>")
     ]
     
     faq_items = []
@@ -1121,7 +1278,7 @@ def post_process_blog_html_and_metadata(html, metadata, primary_keyword, interna
                 f"businesses to communicate directly with prospects and customers through targeted email campaigns. "
                 f"By executing {primary_keyword.lower()} campaigns in the context of {topic_clean.lower()}, companies "
                 f"can build direct customer relationships, nurture leads, increase conversions, and optimize "
-                f"B2B revenue using premium contact databases from go4database.com."
+                f"B2B revenue using premium verified contacts from go4database.com accessed via our application."
             )
             replace_with_html(def_p, def_content)
 
@@ -1277,22 +1434,22 @@ def post_process_blog_html_and_metadata(html, metadata, primary_keyword, interna
 
     def make_cta_block(index):
         cta_titles = [
-            "Build a Targeted Prospect Database",
-            "Improve Your Email Campaign ROI",
-            "Generate More Qualified Leads",
-            "Scale Your Email Marketing Strategy"
+            "Access the go4database.com App",
+            "Search Verified Contacts Instantly",
+            "Enrich Your Outdated B2B Lists",
+            "Scale Outbound Campaigns Today"
         ]
         cta_val_props = [
-            "Reach the right business decision-makers with accurate data and improve your email campaign efficiency.",
-            "Create personalized campaigns using reliable audience insights to increase engagement and sales opportunities.",
-            "Build a stronger sales pipeline with targeted B2B data designed for effective email outreach.",
-            "Support business growth with accurate contact data and scalable outreach solutions."
+            "Log in to the go4database.com web application to search and export millions of verified B2B contacts.",
+            "Use our application to find decision-makers, direct dials, and verified emails matching your ICP.",
+            "Upload your list to the go4database.com app portal and automatically enrich outdated CRM records.",
+            "Start targeting high-intent prospects by launching campaigns with verified data from the app."
         ]
         cta_button_texts = [
-            "Get Targeted Business Data",
-            "Improve Campaign Performance",
-            "Explore Lead Generation Solutions",
-            "Start Growing Your Outreach"
+            "Go to go4database.com Application",
+            "Search Contacts on the App",
+            "Start List Enrichment",
+            "Access Verified Contacts"
         ]
         title = cta_titles[index % len(cta_titles)]
         val_prop = cta_val_props[index % len(cta_val_props)]
@@ -1320,44 +1477,16 @@ def post_process_blog_html_and_metadata(html, metadata, primary_keyword, interna
         for p in list(soup.find_all("p")):
             if "tl;dr" in p.get_text().lower():
                 p.decompose()
-        tldr_html = f"<p><strong>TL;DR:</strong> go4database.com helps businesses track and optimize their <strong>{primary_keyword}</strong> campaigns by providing clean B2B contact lists and lead generation databases for higher marketing ROI.</p>"
+        tldr_html = f"<p><strong>TL;DR:</strong> go4database.com provides high-accuracy B2B lead databases and custom contact enrichment, helping businesses access verified emails, phone numbers, and social profiles of key decision-makers to scale their outbound sales and marketing outreach.</p>"
         append_html(soup, tldr_html)
 
-    # 11b. Safeguard long paragraphs with a bolded TL;DR summary at the end
-    body_paragraphs = []
-    for idx, p in enumerate(soup.find_all("p")):
-        if idx == 0:
-            continue
-        if is_faq_p(p):
-            continue
-        if "tl;dr" in p.get_text().lower():
-            continue
-        body_paragraphs.append(p)
+    # NOTE: 11b. Safeguard long paragraphs with a bolded TL;DR summary at the end was REMOVED to prevent repetitive content.
 
-    for p in body_paragraphs:
-        p_text = p.get_text().strip()
-        words = p_text.split()
-        if len(words) > 70 and "tl;dr" not in p_text.lower():
-            takeaway = "Sourcing clean contact data maximizes campaign performance."
-            p_text_lower = p_text.lower()
-            if "deliver" in p_text_lower or "bounce" in p_text_lower or "spam" in p_text_lower:
-                takeaway = "Clean contact lists prevent bounce rates and spam flags."
-            elif "segment" in p_text_lower or "target" in p_text_lower:
-                takeaway = "Precise audience segmentation drives higher conversion rates."
-            elif "benchmark" in p_text_lower or "metrics" in p_text_lower or "roi" in p_text_lower:
-                takeaway = "Comparing performance metrics aligns campaigns with sector benchmarks."
-            elif "autom" in p_text_lower or "scale" in p_text_lower:
-                takeaway = "Automating outreach flows accelerates your sales pipeline."
-            elif "lead" in p_text_lower or "b2b" in p_text_lower:
-                takeaway = "High-quality B2B contact lists scale lead generation."
-            
-            append_html(p, f" <strong>TL;DR:</strong> {takeaway}")
-
-    # 12. Safeguard sentence variance to lower AI score (guarantees std_dev >= 12.0)
+    # 12. Safeguard sentence variance to lower AI score (guarantees std_dev >= 12.0 without repeating sentences)
     paragraphs = soup.find_all("p")
     body_paragraphs = []
     for idx, p in enumerate(paragraphs):
-        if idx == 0:
+        if idx <= 4:
             continue
         if is_faq_p(p):
             continue
@@ -1368,34 +1497,52 @@ def post_process_blog_html_and_metadata(html, metadata, primary_keyword, interna
     std_dev, _ = get_sentences_stats(soup.find_all("p"))
 
     if std_dev < 12.0:
-        short_sentences = [
-            "Think about it.", "Why?", "Because it works.", "Indeed.", "Absolutely.",
-            "Let's be clear.", "It's that simple.", "Let's face it.", "It works.",
-            "Naturally.", "Obviously.", "Without doubt.", "Perfectly."
+        short_pool = [
+            "Why?", "Indeed.", "Absolutely.", "Perfect.", "Clearly.", 
+            "Exactly.", "Precisely.", "Correct.", "Agree?", "Never.", 
+            "Always.", "Simple."
         ]
-        long_sentences = [
-            "By systematically auditing and scrubbing your B2B contacts with go4database.com's premium platform tools, you can ensure that every marketing dollar spent translates directly to high inbox placement rates.",
-            "Marketers who ignore the critical importance of regular contact list hygiene frequently watch their deliverability metrics plummet as spam filters flag their campaigns for high bounce rates.",
-            "A well-structured and properly segmented email database allows marketing automation platforms to personalize communications at scale, resulting in dramatically higher open and conversion rates across campaigns.",
-            "When organizations align their B2B messaging with precise subscriber personas, they build long-term trust that ultimately translates to higher customer lifetime value and consistent sales pipeline acceleration.",
-            "By establishing dynamic workflows that validate subscriber information in real-time, modern demand generation teams protect their domain reputation and drive significantly higher engagement metrics.",
-            "Integrating clean B2B databases into your marketing automation flows ensures that sales representatives prioritize high-value accounts, accelerating deal velocity and maximizing customer lifetime value."
+        long_pool = [
+            "By leveraging the go4database.com web application to search, filter, and export high-accuracy B2B lead databases, sales teams can easily bypass gatekeepers, connect with verified decision-makers directly, and accelerate their pipeline growth without wasting time on dead emails.",
+            "Using the go4database.com app to retrieve verified email contacts ensures maximum deliverability for outbound sales, protects your domain from spam filters, and enables marketing teams to scale campaigns with confidence that every message lands in a monitored inbox.",
+            "Outbound cold outreach campaigns succeed when business development representatives use the go4database.com platform tools to enrich existing lists, verify social profiles, and fetch active phone lines for decision-makers in targeted industries like hospitality, retail, or healthcare.",
+            "Conducting regular list hygiene and contact data validation through the go4database.com portal keeps your CRM clean, protects your email sender reputation from bounce flags, and guarantees that your marketing campaigns convert at a significantly higher rate.",
+            "Integrating clean, verified data segments from the go4database.com application enables marketing teams to hyper-personalize their outreach copy, build highly targeted custom audiences on paid social channels, and drive qualified leads directly to sales representatives.",
+            "Sourcing verified B2B contact lists guarantees that your outbound sales budget targets active professionals who possess the authority to sign contracts, the budget to fund new partnerships, and an immediate operational need for your software or services."
         ]
         
-        pass_count = 0
-        while std_dev < 12.0 and pass_count < 4:
-            for i, p in enumerate(body_paragraphs):
-                if i % 3 == 0:
-                    short_s = short_sentences[(i + pass_count) % len(short_sentences)]
+        short_idx = 0
+        long_idx = 0
+        for i, p in enumerate(body_paragraphs):
+            if std_dev >= 12.0:
+                break
+            p_text = p.get_text()
+            if i % 2 == 0:
+                short_s = short_pool[short_idx % len(short_pool)]
+                if short_s not in p_text:
                     append_html(p, f" {short_s}")
-                elif i % 3 == 1:
-                    long_s = long_sentences[(i + pass_count) % len(long_sentences)]
+                    short_idx += 1
+            else:
+                long_s = long_pool[long_idx % len(long_pool)]
+                if long_s not in p_text:
                     append_html(p, f" {long_s}")
-                
-                std_dev, _ = get_sentences_stats(soup.find_all("p"))
-                if std_dev >= 12.0:
-                    break
-            pass_count += 1
+                    long_idx += 1
+            
+            std_dev, _ = get_sentences_stats(soup.find_all("p"))
+
+    # Programmatic cleanup: remove em-dashes and en-dashes from text nodes
+    for text_node in soup.find_all(text=True):
+        if "—" in text_node or "–" in text_node:
+            new_text = text_node.replace("—", ", ").replace("–", ", ")
+            text_node.replace_with(new_text)
+
+    # Programmatic replacement of standalone "go4database" to "go4database.com"
+    for text_node in soup.find_all(text=True):
+        text_content = text_node
+        pattern = re.compile(r'\bgo4database\b(?!\.com)', re.IGNORECASE)
+        if pattern.search(text_content):
+            new_text = pattern.sub("go4database.com", text_content)
+            text_node.replace_with(new_text)
 
     # Group the 4 CTA cards at the very end of the content
     ctas_html = (

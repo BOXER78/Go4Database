@@ -105,7 +105,8 @@ class LeadManager:
                     name TEXT,
                     created_at TEXT,
                     campaign_status TEXT,
-                    start_date TEXT
+                    start_date TEXT,
+                    campaign_type TEXT DEFAULT 'warmup'
                 )
             """)
             cursor.execute("""
@@ -162,6 +163,8 @@ class LeadManager:
                 camp_cols = [col[1] for col in cursor.fetchall()]
                 if "start_date" not in camp_cols:
                     cursor.execute("ALTER TABLE campaigns ADD COLUMN start_date TEXT")
+                if "campaign_type" not in camp_cols:
+                    cursor.execute("ALTER TABLE campaigns ADD COLUMN campaign_type TEXT DEFAULT 'warmup'")
             except Exception as e:
                 print(f"Migration error (campaigns table): {e}")
 
@@ -216,15 +219,20 @@ class LeadManager:
                 })
                 
             # Load campaigns
-            cursor.execute("SELECT id, name, created_at, campaign_status, start_date FROM campaigns")
+            cursor.execute("SELECT id, name, created_at, campaign_status, start_date, campaign_type FROM campaigns")
             for r in cursor.fetchall():
                 c_id = r["id"]
+                try:
+                    c_type = r["campaign_type"] or "warmup"
+                except Exception:
+                    c_type = "warmup"
                 state["campaigns"][c_id] = {
                     "id": c_id,
                     "name": r["name"],
                     "created_at": r["created_at"],
                     "campaign_status": json.loads(r["campaign_status"]) if r["campaign_status"] else {},
                     "start_date": r["start_date"],
+                    "campaign_type": c_type,
                     "leads": [],
                     "logs": []
                 }
@@ -363,8 +371,8 @@ class LeadManager:
                                 
                             # 4. Save campaigns, leads, logs
                             for c_id, campaign in self.state["campaigns"].items():
-                                conn.execute("INSERT OR REPLACE INTO campaigns (id, name, created_at, campaign_status, start_date) VALUES (?, ?, ?, ?, ?)", 
-                                             (c_id, campaign["name"], campaign["created_at"], json.dumps(campaign.get("campaign_status", {})), campaign.get("start_date")))
+                                conn.execute("INSERT OR REPLACE INTO campaigns (id, name, created_at, campaign_status, start_date, campaign_type) VALUES (?, ?, ?, ?, ?, ?)", 
+                                             (c_id, campaign["name"], campaign["created_at"], json.dumps(campaign.get("campaign_status", {})), campaign.get("start_date"), campaign.get("campaign_type", "warmup")))
                                 
                                 for lead in campaign.get("leads", []):
                                     conn.execute("""
@@ -410,8 +418,8 @@ class LeadManager:
                             
                         # Default campaign
                         campaign = self.state["campaigns"]["default"]
-                        conn.execute("INSERT OR REPLACE INTO campaigns (id, name, created_at, campaign_status, start_date) VALUES (?, ?, ?, ?, ?)", 
-                                     ("default", campaign["name"], campaign["created_at"], json.dumps(campaign["campaign_status"]), campaign.get("start_date")))
+                        conn.execute("INSERT OR REPLACE INTO campaigns (id, name, created_at, campaign_status, start_date, campaign_type) VALUES (?, ?, ?, ?, ?, ?)", 
+                                     ("default", campaign["name"], campaign["created_at"], json.dumps(campaign["campaign_status"]), campaign.get("start_date"), campaign.get("campaign_type", "warmup")))
                         conn.commit()
                         
             # Finally, load everything from DB to memory
@@ -888,12 +896,13 @@ class LeadManager:
                     "total_replies": stats.get("total_replies", 0),
                     "total_interested": stats.get("total_interested", 0),
                     "total_not_interested": stats.get("total_not_interested", 0),
-                    "total_junk": stats.get("total_junk", 0)
+                    "total_junk": stats.get("total_junk", 0),
+                    "campaign_type": campaign.get("campaign_type", "warmup")
                 })
             result.sort(key=lambda x: x["created_at"])
             return result
 
-    def create_campaign_unsafe(self, name: str, campaign_id: Optional[str] = None, start_date: Optional[str] = None) -> str:
+    def create_campaign_unsafe(self, name: str, campaign_id: Optional[str] = None, start_date: Optional[str] = None, campaign_type: Optional[str] = "warmup") -> str:
         if not campaign_id:
             campaign_id = str(uuid.uuid4())
         
@@ -902,6 +911,7 @@ class LeadManager:
             "name": name,
             "created_at": datetime.datetime.now().isoformat(),
             "start_date": start_date,
+            "campaign_type": campaign_type or "warmup",
             "leads": [],
             "logs": [],
             "campaign_status": {
@@ -918,17 +928,17 @@ class LeadManager:
         campaign = self.state["campaigns"][campaign_id]
         with self._get_conn() as conn:
             conn.execute("""
-                INSERT INTO campaigns (id, name, created_at, campaign_status, start_date)
-                VALUES (?, ?, ?, ?, ?)
-            """, (campaign_id, name, campaign["created_at"], json.dumps(campaign["campaign_status"]), start_date))
+                INSERT INTO campaigns (id, name, created_at, campaign_status, start_date, campaign_type)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """, (campaign_id, name, campaign["created_at"], json.dumps(campaign["campaign_status"]), start_date, campaign_type or "warmup"))
             conn.commit()
 
-        self.add_log_unsafe("INFO", f"Campaign session '{name}' created.", None, campaign_id)
+        self.add_log_unsafe("INFO", f"Campaign session '{name}' created ({campaign_type or 'warmup'}).", None, campaign_id)
         return campaign_id
 
-    def create_campaign(self, name: str, start_date: Optional[str] = None) -> str:
+    def create_campaign(self, name: str, start_date: Optional[str] = None, campaign_type: Optional[str] = "warmup") -> str:
         with self.lock:
-            campaign_id = self.create_campaign_unsafe(name, start_date=start_date)
+            campaign_id = self.create_campaign_unsafe(name, start_date=start_date, campaign_type=campaign_type)
         return campaign_id
 
     def set_campaign_start_date(self, campaign_id: str, start_date: Optional[str]):

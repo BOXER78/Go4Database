@@ -7,37 +7,37 @@ import google.generativeai as genai
 # Predefined Go4Database Offer Lists and descriptions
 OFFERS = {
     "B2B Tech Buyers Contact List": {
-        "description": "A verified database of 50M+ B2B decision makers, IT managers, CTOs, and tech buyers in the US, Europe, and Asia. Includes verified emails, direct dials, and LinkedIn URLs.",
+        "description": "A verified database of 50M+ B2B decision makers, IT managers, CTOs, and tech buyers in the US, Europe, and Asia. Includes verified business emails and LinkedIn URLs.",
         "usecase": "To target IT leaders, software buyers, and technology decision makers directly without wasting ad spend.",
         "pain_points": ["Low outbound conversion rates", "Outdated business contacts", "Difficulty reaching technical decision makers"]
     },
     "US Real Estate Agent & Broker Database": {
-        "description": "Comprehensive list of 2.1M+ licensed real estate agents, brokers, and realtors across the US, complete with office emails, cell phone numbers, and license statuses.",
+        "description": "Comprehensive list of 2.1M+ licensed real estate agents, brokers, and realtors across the US, complete with verified business emails, LinkedIn profiles, and license statuses.",
         "usecase": "To market mortgage services, home improvement, property staging, or local marketing agencies to high-velocity agents.",
         "pain_points": ["Finding active local real estate leads", "High cost of Zillow/Redfin leads", "Reaching individual independent brokers"]
     },
     "Retail & E-commerce CXOs Directory": {
-        "description": "Direct contact database for founders, directors, and head-of-e-commerce professionals at 450,000+ online stores and physical retail brands globally.",
+        "description": "Direct contact email database for founders, directors, and head-of-e-commerce professionals at 450,000+ online stores and physical retail brands globally.",
         "usecase": "To offer logistics, shipping solutions, design services, or e-commerce software to scaling brands.",
         "pain_points": ["Bouncing marketing emails to e-commerce brands", "Unable to pitch logistics/warehousing partners", "Gatekeepers blocking brand founders"]
     },
     "VC-backed Startups & Founders List": {
-        "description": "Curated directory of 120,000+ VC-funded and high-growth startup founders, C-level executives, and their early team members.",
+        "description": "Curated email directory of 120,000+ VC-funded and high-growth startup founders, C-level executives, and their early team members.",
         "usecase": "To sell dev services, agency packages, SaaS, or financial/legal consulting directly to funded founders looking to scale rapidly.",
         "pain_points": ["Missing key windows of startup funding cycles", "Inability to reach founders before they hire", "Slow B2B growth loops"]
     },
     "Active Job Seekers & Professionals Database": {
-        "description": "Talent pool of 12M+ active job seekers, resumes, and candidate contacts matching high-demand industries like Tech, Finance, Engineering, and Healthcare.",
+        "description": "Talent pool of 12M+ active job seekers, resumes, and candidate contacts matching high-demand industries like Tech, Finance, Engineering, and Healthcare. Includes verified emails and social coordinates.",
         "usecase": "To source talent directly, save on recruiting costs, and build a pipeline for staffing agency clients.",
         "pain_points": ["Extremely high LinkedIn Recruiter license costs", "Slow candidate sourcing", "Unresponsive candidates on public boards"]
     },
     "Local Healthcare & Medical Clinics Directory": {
-        "description": "Directory of 650,000+ dentists, chiropractors, physical therapists, general practice clinics, and healthcare offices in the US and Canada.",
+        "description": "Directory of 650,000+ dentists, chiropractors, physical therapists, general practice clinics, and healthcare offices in the US and Canada. Includes verified emails.",
         "usecase": "To pitch medical supply vendors, specialized clinic software, billing systems, or local search marketing services.",
-        "pain_points": ["Healthcare gatekeepers", "Finding verified direct office lines", "Difficulty navigating clinic structures"]
+        "pain_points": ["Healthcare gatekeepers", "Finding verified contact channels", "Difficulty navigating clinic structures"]
     },
     "Custom B2B List Enrichment Service": {
-        "description": "Go4Database's custom crawling and data appending service that updates name, direct dials, email addresses, and socials for any list of accounts or outdated contacts.",
+        "description": "Go4Database's custom crawling and data appending service that updates name, business email addresses, and socials for any list of accounts or outdated contacts.",
         "usecase": "To clean and reactivate cold databases, reduce CRM bounce rates, and enrich missing lead details.",
         "pain_points": ["High bounce rates in email campaigns", "Outdated records in CRM", "Missing direct contact channels"]
     }
@@ -46,6 +46,7 @@ OFFERS = {
 def analyze_and_draft_fallback(lead: Dict[str, Any]) -> Tuple[Dict[str, Any], Dict[str, Any], int]:
     """
     Fallback rule-based lead analyzer and email compiler in case Gemini API key is missing or invalid.
+    Uses the 5 approved strategies, enforces the < 60 words rule, avoids phone references, and cites 2-3% bounce rate.
     """
     industry = lead.get("industry", "").lower()
     title = lead.get("title", "").lower()
@@ -53,36 +54,39 @@ def analyze_and_draft_fallback(lead: Dict[str, Any]) -> Tuple[Dict[str, Any], Di
     name_parts = (lead.get("name") or "there").split()
     first_name = name_parts[0] if name_parts else "there"
     notes = lead.get("notes", "").lower()
+    icp_tags = lead.get("icp_tags", "").lower()
 
-    # Rule matching
-    if any(x in industry or x in notes for x in ["saas", "software", "tech", "it", "developer"]):
+    # Rule matching to select strategy
+    if any(x in industry or x in notes or x in icp_tags for x in ["saas", "software", "tech", "it", "developer"]):
         matched_offer = "B2B Tech Buyers Contact List"
         icp_fit = "B2B Software & IT Services Provider"
         branch = "Sales & Tech Partnerships"
-    elif any(x in industry or x in notes for x in ["real estate", "realtor", "property", "mortgage", "housing"]):
+        strategy = "competitor_comparison"
+    elif any(x in industry or x in notes or x in icp_tags for x in ["real estate", "realtor", "property", "mortgage", "housing"]):
         matched_offer = "US Real Estate Agent & Broker Database"
         icp_fit = "Real Estate Services & Broker Marketing"
         branch = "Marketing & Partnerships"
-    elif any(x in industry or x in notes for x in ["retail", "ecommerce", "brand", "shop", "apparel", "store"]):
+        strategy = "case_study"
+    elif any(x in industry or x in notes or x in icp_tags for x in ["retail", "ecommerce", "brand", "shop", "apparel", "store"]):
         matched_offer = "Retail & E-commerce CXOs Directory"
         icp_fit = "Direct-to-Consumer (D2C) & Retail"
         branch = "Growth & Marketing"
-    elif any(x in industry or x in notes for x in ["startup", "founder", "funded", "venture"]):
-        matched_offer = "VC-backed Startups & Founders List"
-        icp_fit = "High-Growth Startup Ecosystem"
+        strategy = "case_study"
+    elif any(x in notes or x in icp_tags for x in ["hiring", "hired", "expansion", "expand", "new sector", "launch"]):
+        matched_offer = "Custom B2B List Enrichment Service"
+        icp_fit = "Expanding Enterprise Outreach"
         branch = "Founders Office / Business Development"
-    elif any(x in industry or x in notes for x in ["recruit", "hr", "staffing", "talent", "headhunter"]):
-        matched_offer = "Active Job Seekers & Professionals Database"
-        icp_fit = "Talent Acquisition & Staffing Agency"
-        branch = "Recruiting / HR Ops"
-    elif any(x in industry or x in notes for x in ["health", "medical", "clinic", "dentist", "doctor", "hospital"]):
-        matched_offer = "Local Healthcare & Medical Clinics Directory"
-        icp_fit = "Healthcare Providers & Medical Clinics"
-        branch = "Practice Operations"
+        strategy = "trigger_event"
+    elif any(x in industry or x in notes or x in icp_tags for x in ["startup", "founder", "funded", "venture"]):
+        matched_offer = "VC-backed Startups & Founders List"
+        icp_fit = "High-Growth Startup"
+        branch = "Founder's Office"
+        strategy = "personalized_research"
     else:
         matched_offer = "Custom B2B List Enrichment Service"
         icp_fit = "B2B Professional Services & Consulting"
         branch = "Outbound Sales Development"
+        strategy = "problem_solution"
 
     offer_info = OFFERS[matched_offer]
     pain_point = offer_info["pain_points"][0]
@@ -90,8 +94,6 @@ def analyze_and_draft_fallback(lead: Dict[str, Any]) -> Tuple[Dict[str, Any], Di
 
     # Calculate dynamic mock score (0-100)
     score = 50
-    
-    # Title Relevance
     if any(x in title for x in ["ceo", "founder", "president", "chief"]):
         score += 25
     elif any(x in title for x in ["vp", "vice president", "director", "head"]):
@@ -101,7 +103,6 @@ def analyze_and_draft_fallback(lead: Dict[str, Any]) -> Tuple[Dict[str, Any], Di
     else:
         score += 5
         
-    # Company Size Relevance
     comp_size_str = lead.get("company_size", "").strip()
     try:
         size_digits = re.findall(r'\d+', comp_size_str)
@@ -118,7 +119,6 @@ def analyze_and_draft_fallback(lead: Dict[str, Any]) -> Tuple[Dict[str, Any], Di
             else:
                 score += 10
         else:
-            # Fallback range matching
             if any(x in comp_size_str for x in ["1-10", "1-5", "6-10"]):
                 score += 5
             elif "11-50" in comp_size_str:
@@ -132,27 +132,21 @@ def analyze_and_draft_fallback(lead: Dict[str, Any]) -> Tuple[Dict[str, Any], Di
     except Exception:
         score += 5
 
-    # Industry Relevance
     if matched_offer != "Custom B2B List Enrichment Service":
         score += 10
     else:
         score += 5
 
-    # Location Relevance
     location = lead.get("location", "").lower()
     if any(x in location for x in ["united states", "us", "uk", "canada", "london", "york", "california", "texas"]):
         score += 5
     else:
         score += 2
 
-    # Deterministic variation (0-9) to make scores unique and realistic per lead
     email = lead.get("email", "")
     variation = sum(ord(c) for c in email) % 10
     score += variation
-
-    # Cap score at 100
     score = min(score, 100)
-
 
     matched_segment = {
         "icp_fit": icp_fit,
@@ -162,64 +156,101 @@ def analyze_and_draft_fallback(lead: Dict[str, Any]) -> Tuple[Dict[str, Any], Di
         "data_usecase": usecase
     }
 
-    # Draft Initial Pitch
-    initial_subject = f"Growing outbound leads for {company}?"
-    initial_body = (
-        f"Hi {first_name},\n\n"
-        f"I was looking at {company} and noticed your focus on B2B client acquisition. "
-        f"Typically, companies like yours run into the bottleneck of {pain_point.lower()}.\n\n"
-        f"At Go4Database, we recently compiled our \"{matched_offer}\" which includes over "
-        f"350 million business contacts globally. For {company}, this could be used {usecase.lower()}.\n\n"
-        f"We've verified all emails and LinkedIn profiles to keep bounce rates under 5%.\n\n"
-        f"Would you be open to a quick look at a sample sheet of 20 leads matching your ICP next week?\n\n"
-        f"Best regards,\n"
-        f"[Sender Name]\n"
-        f"Go4Database Sales"
-    )
+    # Draft emails based on selected strategy
+    drafts = {}
+    
+    if strategy == "problem_solution":
+        drafts["initial_pitch"] = {
+            "subject": f"Fix bounce rates for {company}?",
+            "body": f"Hi {first_name},\n\nOutbound campaigns fail when contact data decays and emails bounce.\n\nAt go4database.com, we provide clean B2B email lists, keeping bounce rates under 2-3% to protect your sender score.\n\nWant to test a free sample of 15 contacts matching your ICP?\n\nBest,\n[Sender Name]"
+        }
+        drafts["follow_up_1"] = {
+            "subject": f"Re: Fix bounce rates for {company}?",
+            "body": f"Hi {first_name},\n\nChecking back on this. Would a custom sample list of 15 target emails help you test our 2-3% bounce rate guarantee?\n\nLet me know if you'd like to check them out.\n\nBest,\n[Sender Name]"
+        }
+        drafts["follow_up_2"] = {
+            "subject": f"Re: Fix bounce rates for {company}?",
+            "body": f"Hi {first_name},\n\nDid you have a chance to look at this? Deliverability is critical. I can pull a sample segment for {company} today.\n\nBest,\n[Sender Name]"
+        }
+        drafts["follow_up_3"] = {
+            "subject": f"Closing the loop / {company}",
+            "body": f"Hi {first_name},\n\nSince I haven't heard back, I'll assume email deliverability isn't a priority for {company} right now.\n\nFeel free to reach out down the road if that changes.\n\nBest,\n[Sender Name]"
+        }
 
-    # Draft Follow Up 1 (Nudge + value sample)
-    fu1_subject = f"Re: Sample leads for {company}?"
-    fu1_body = (
-        f"Hi {first_name},\n\n"
-        f"I know you are likely busy, so I put together a quick sample segment of 5 verified contacts "
-        f"directly matching your ideal buyer profile. Here is what they look like:\n\n"
-        f"1. Director of Growth, tech startup (verified business email + direct dial)\n"
-        f"2. VP of Marketing, retail brand (verified business email + LinkedIn URL)\n"
-        f"3. Head of Sales, mid-market IT services company\n\n"
-        f"We have thousands more contacts in this exact segment. "
-        f"If you'd like to get the full list to test with your outreach tool, let me know when is a good time to connect.\n\n"
-        f"Best,\n"
-        f"[Sender Name]"
-    )
+    elif strategy == "competitor_comparison":
+        drafts["initial_pitch"] = {
+            "subject": f"flexible email list options for {company}",
+            "body": f"Hi {first_name},\n\nMost B2B databases force you to buy expensive platform seats.\n\nAt go4database.com, we simply deliver verified, custom email lists matching your target criteria. You only pay for active contacts.\n\nCould I run a custom query for {company} this week?\n\nBest,\n[Sender Name]"
+        }
+        drafts["follow_up_1"] = {
+            "subject": f"Re: flexible email list options for {company}",
+            "body": f"Hi {first_name},\n\nChecking back. If you are currently locked into seat-based licenses with other databases, we can export target verified lists directly to save your budget.\n\nBest,\n[Sender Name]"
+        }
+        drafts["follow_up_2"] = {
+            "subject": f"Re: flexible email list options for {company}",
+            "body": f"Hi {first_name},\n\nJust checking in. If you have a target list of accounts you want to enrich, I can append active, verified emails today.\n\nBest,\n[Sender Name]"
+        }
+        drafts["follow_up_3"] = {
+            "subject": f"Closing the loop / {company}",
+            "body": f"Hi {first_name},\n\nClosing the loop on this. Let me know if you ever want to compare our flexible pricing against seat-based alternatives.\n\nBest,\n[Sender Name]"
+        }
 
-    # Draft Follow Up 2 (Nudge / Question)
-    fu2_subject = f"Quick question re: {company} outreach"
-    fu2_body = (
-        f"Hi {first_name},\n\n"
-        f"I wanted to follow up quickly to see if you had a chance to check the sample contacts I shared.\n\n"
-        f"At Go4Database, our goal is to help {company} connect with decision makers directly. Is this something you are actively looking to solve, or is your team fully focused on other growth channels right now?\n\n"
-        f"Best,\n"
-        f"[Sender Name]"
-    )
+    elif strategy == "trigger_event":
+        target_industry = lead.get("industry") or "target"
+        drafts["initial_pitch"] = {
+            "subject": f"Sourcing {target_industry} contacts for {company}",
+            "body": f"Hi {first_name},\n\nSaw {company} is expanding focus to target the {target_industry} sector.\n\nWe just refreshed our database and have verified emails of decision-makers in this space. Can I send you 15 sample leads to test?\n\nBest,\n[Sender Name]"
+        }
+        drafts["follow_up_1"] = {
+            "subject": f"Re: Sourcing {target_industry} contacts for {company}",
+            "body": f"Hi {first_name},\n\nFollowing up. Sourcing verified emails is the fastest way to seed this new market and build outbound pipeline.\n\nLet me know if you want the 15 samples.\n\nBest,\n[Sender Name]"
+        }
+        drafts["follow_up_2"] = {
+            "subject": f"Re: Sourcing {target_industry} contacts for {company}",
+            "body": f"Hi {first_name},\n\nDid you get a chance to check my note? I can customize the sample to match your exact size and location filters.\n\nBest,\n[Sender Name]"
+        }
+        drafts["follow_up_3"] = {
+            "subject": f"Closing the loop / {company}",
+            "body": f"Hi {first_name},\n\nSince you are likely busy with the vertical expansion, I'll close the loop here. Feel free to ping if you need verified emails down the road.\n\nBest,\n[Sender Name]"
+        }
 
-    # Draft Follow Up 3 (Soft break up / Closing loop)
-    fu3_subject = f"Closing the loop / {company}"
-    fu3_body = (
-        f"Hi {first_name},\n\n"
-        f"I haven't heard back, so I'll assume that growing your database of prospects isn't a priority for {company} right now.\n\n"
-        f"If things change, or if you'd like to browse our list directory at Go4Database down the road, "
-        f"feel free to reach out anytime.\n\n"
-        f"Otherwise, this is the last email you'll receive from me.\n\n"
-        f"Thanks,\n"
-        f"[Sender Name]"
-    )
+    elif strategy == "case_study":
+        drafts["initial_pitch"] = {
+            "subject": f"Outbound results for {company}",
+            "body": f"Hi {first_name},\n\nWe helped a similar {icp_fit} scale outbound bookings by 3x and keep bounce rates under 2.5% using our verified tech buyer emails.\n\nWe have a matching segment of verified decision-makers for {company}.\n\nCan I send you the brief case study and a small sample list?\n\nBest,\n[Sender Name]"
+        }
+        drafts["follow_up_1"] = {
+            "subject": f"Re: Outbound results for {company}",
+            "body": f"Hi {first_name},\n\nFollowing up. I'd love to share the exact outbound list strategy they used to achieve these results. Would you like a quick look?\n\nBest,\n[Sender Name]"
+        }
+        drafts["follow_up_2"] = {
+            "subject": f"Re: Outbound results for {company}",
+            "body": f"Hi {first_name},\n\nJust checking in. I can also include a sample of 15 contacts matching your target profile to check details.\n\nBest,\n[Sender Name]"
+        }
+        drafts["follow_up_3"] = {
+            "subject": f"Closing the loop / {company}",
+            "body": f"Hi {first_name},\n\nAssuming outbound efficiency isn't a priority for {company} right now. I'll close the loop here. Thanks!\n\nBest,\n[Sender Name]"
+        }
 
-    drafts = {
-        "initial_pitch": {"subject": initial_subject, "body": initial_body},
-        "follow_up_1": {"subject": fu1_subject, "body": fu1_body},
-        "follow_up_2": {"subject": fu2_subject, "body": fu2_body},
-        "follow_up_3": {"subject": fu3_subject, "body": fu3_body}
-    }
+    else:  # personalized_research
+        lead_count = "1,450" if score > 75 else "320"
+        title_tag = lead.get("title") or "decision-maker"
+        drafts["initial_pitch"] = {
+            "subject": f"{title_tag} lists for {company}",
+            "body": f"Hi {first_name},\n\nI ran a quick query in our database for {company}'s target buyers.\n\nWe have {lead_count} verified contacts (business emails and LinkedIn profiles) matching your exact ICP. Would you like a free sample of 10 leads to check their accuracy?\n\nBest,\n[Sender Name]"
+        }
+        drafts["follow_up_1"] = {
+            "subject": f"Re: {title_tag} lists for {company}",
+            "body": f"Hi {first_name},\n\nFollowing up on this count. I can export the verified emails for these {lead_count} decision-makers directly. Let me know if you'd like a sample first.\n\nBest,\n[Sender Name]"
+        }
+        drafts["follow_up_2"] = {
+            "subject": f"Re: {title_tag} lists for {company}",
+            "body": f"Hi {first_name},\n\nDid you see the custom count I pulled? Would love to share a small batch to prove our database freshness.\n\nBest,\n[Sender Name]"
+        }
+        drafts["follow_up_3"] = {
+            "subject": f"Closing the loop / {company}",
+            "body": f"Hi {first_name},\n\nClosing the loop on this custom count. If you ever need fresh target emails for {company}, we are here.\n\nBest,\n[Sender Name]"
+        }
 
     return matched_segment, drafts, score
 
@@ -239,10 +270,19 @@ def analyze_and_draft(lead: Dict[str, Any], api_key: str = "") -> Tuple[Dict[str
         offers_str = json.dumps(OFFERS, indent=2)
 
         prompt = f"""
-You are an expert AI sales outreach agent working for "Go4Database". 
-Go4Database is a B2B lead generation database provider with 350M+ records globally.
+You are an expert AI sales outreach agent working for "Go4Database" (go4database.com). 
+Go4Database is a B2B lead generation database provider with 350M+ records globally, offering business emails and LinkedIn profiles.
 
-Your task is to analyze the prospect's profile and match them to the single best Go4Database database list, enrichment, or use case. Then, generate a personalized, high-converting 4-step email sequence.
+Your task is to:
+1. Define a highly specific ICP (Ideal Customer Profile) fit for this prospect's company.
+2. Select the single best Go4Database offer/list that helps them.
+3. Select ONE of the 5 approved strategies below to guide the entire outreach sequence:
+   - "problem_solution": Focuses on fixing email bounce rates (MUST cite a "2-3% bounce rate guarantee" with Go4Database).
+   - "personalized_research": Custom lead count segment matching their ICP, or a mock segment of 3 sample leads (names/titles/emails placeholders) pasted directly in the body.
+   - "trigger_event": Connects to a vertical expansion, launch, or hiring signal in a new sector.
+   - "competitor_comparison": Highlights Go4Database's flexible pay-per-lead email list export against expensive seat-based platform limits like ZoomInfo/Apollo/Lusha.
+   - "case_study": Cites metric-driven success from a similar company (e.g. scaling bookings by 3x, or cutting research time by 80%).
+4. Generate a highly personalized 4-step email sequence matching that single chosen strategy.
 
 Prospect Profile:
 - Name: {lead.get('name')}
@@ -258,27 +298,30 @@ Available Go4Database Offers:
 {offers_str}
 
 ========================
-EMAIL PERSONALIZATION RULES
+EMAIL PERSONALIZATION & STRATEGY RULES:
 ========================
-- The emails must be highly personalized and specific to the prospect's company. Avoid generic templates, standard hooks, or repetitive pitches across different leads.
-- Weave in the company's industry, size, title, and lead notes to formulate a unique angle for how Go4Database's list helps them solve their specific department challenges.
-- End the initial pitch with a clear Call to Action (like offering a 20-lead sample list).
+- NO PHONE NUMBERS: Go4Database does NOT provide phone numbers or direct dials. Do not mention direct dials, phone numbers, or phone calls in any subject or body.
+- SEQUENCE STRATEGY CONSISTENCY: The initial pitch and all follow-ups (Follow-up 1, Follow-up 2, Follow-up 3) MUST use the exact same strategy selected.
+- SHORT & CRISP: The initial pitch MUST be extremely short, conversational, and under 60 words.
+- Follow-ups must also be very short, direct, and conversational (under 60 words), sent on Day 3, Day 5, and Day 7 respectively.
+- Use natural contractions ("we've", "it's", "you'll", "don't"). Avoid robotic corporate greetings.
 
 Please generate the following in a JSON structure:
 1. "matched_segment":
-   - "icp_fit": Short description of the prospect's business model/ICP
-   - "branch_target": The specific department at the prospect's company that would benefit most (e.g. Outbound Sales, Marketing, Recruiting, Founder's Office)
-   - "pain_point": A major lead generation, sales, or recruitment pain point they likely experience
-   - "go4db_offer": The name of the EXACT matching Go4Database list/service from the list above.
-   - "data_usecase": A highly specific use case explaining how the prospect can use the Go4Database list to grow their own revenue.
-2. "score": An outreach fit score between 0 and 100 based on company size, title, and relevance of the offer.
+   - "icp_fit": Highly personalized, specific description of the prospect's business model/ICP.
+   - "branch_target": Specific department (e.g. Sales Partnerships, Growth Marketing, Founder's Office).
+   - "pain_point": A major lead generation, data decay, or sales pipeline challenge they experience.
+   - "go4db_offer": Name of the EXACT matching Go4Database list/service from the list above.
+   - "data_usecase": A highly specific use case explaining how the prospect can use the Go4Database list to grow their revenue.
+2. "score": Outreach fit score (0 to 100) based on title, size, and relevance.
 3. "email_drafts":
-   - "initial_pitch": Subject and Body. This should be short (under 150 words), direct, personalized, professional, and end with a clear Call to Action. Place [Sender Name] as a placeholder for the sender.
-   - "follow_up_1": Subject and Body. A gentle nudge sent 2 days after the initial pitch (on Day 3).
-   - "follow_up_2": Subject and Body. A short check-in question sent 2 days after follow_up_1 (on Day 5).
-   - "follow_up_3": Subject and Body. A final soft close breakup email sent 2 days after follow_up_2 (on Day 7) to close the loop politely.
+   - "initial_pitch": Subject and Body (under 60 words, matches chosen strategy, no phone references, ends with soft CTA).
+   - "follow_up_1": Subject and Body (nudge sent 2 days after, on Day 3).
+   - "follow_up_2": Subject and Body (check-in sent 2 days after follow_up_1, on Day 5).
+   - "follow_up_3": Subject and Body (final close breakup sent 2 days after follow_up_2, on Day 7).
 
-Your response must be ONLY valid JSON, with no other text, markdown blocks or preambles.
+Use [Sender Name] as a placeholder for the sender in the drafts.
+Your response must be ONLY valid JSON, with no other text, markdown blocks, preambles, or postscripts.
 JSON Structure:
 {{
   "matched_segment": {{

@@ -10,6 +10,7 @@ import smtplib
 import uuid
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email.mime.image import MIMEImage
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, BackgroundTasks, Depends, Header
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
@@ -75,11 +76,37 @@ def send_email_via_smtp(settings: dict, to_email: str, subject: str, body: str) 
         return False # Fallback to mock
 
     try:
-        msg = MIMEMultipart()
+        # Create message container - related is required for inline images
+        msg = MIMEMultipart('related')
         msg['From'] = f"{settings.get('sender_name')} <{settings.get('sender_email') or settings.get('smtp_user')}>"
         msg['To'] = to_email
         msg['Subject'] = subject
-        msg.attach(MIMEText(body, 'plain'))
+
+        # Create the HTML version of the body
+        html_body = body.replace("\n", "<br>")
+        # Append the inline image tag
+        html_content = f"""
+        <html>
+          <body style="font-family: Arial, sans-serif; font-size: 14px; color: #333333; line-height: 1.5;">
+            <div>{html_body}</div>
+            <br>
+            <img src="cid:logo_img" alt="Go4Database Logo" style="height: 35px; display: block; margin-top: 15px;">
+          </body>
+        </html>
+        """
+        
+        # Attach HTML content
+        msg.attach(MIMEText(html_content, 'html'))
+
+        # Locate and attach the inline logo image
+        logo_path = os.path.join(os.path.dirname(__file__), "..", "static", "logo.png")
+        if os.path.exists(logo_path):
+            with open(logo_path, 'rb') as f:
+                img_data = f.read()
+            img = MIMEImage(img_data)
+            img.add_header('Content-ID', '<logo_img>')
+            img.add_header('Content-Disposition', 'inline', filename='logo.png')
+            msg.attach(img)
 
         server = smtplib.SMTP(settings.get("smtp_server", "smtp.gmail.com"), settings.get("smtp_port", 587))
         server.starttls()
